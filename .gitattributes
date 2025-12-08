@@ -1,0 +1,16 @@
+# 告诉 Git 将所有文本文件的行尾符统一为 LF
+* text=auto eol=lf
+
+# 明确设置 .NET 和 Blazor 文件为文本文件
+*.cs text
+*.razor text
+*.razor.css text
+*.cshtml text
+*.json text
+*.sln text
+
+# 排除二进制文件（如图片或数据库文件），不对它们进行任何转换
+*.dll binary
+*.exe binary
+*.png binary
+*.jpg binary
