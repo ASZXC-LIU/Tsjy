@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tsjy.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Tsjy.Core.Entities.Region">
+            <summary>
+            行政区划表
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.SpecialSchool">
+            <summary>
+            特殊教育学校
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.InclusiveSchool">
+            <summary>
+            融合教育学校
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.EducationBureau">
+            <summary>
+            教育局
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.ScoringModel">
+            <summary>
+            评分模板主表
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.ScoringModelItem">
+            <summary>
+            评分模板明细表 (存具体选项)
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.SpeEvalNode">
+            <summary>
+            评价体系指标节点
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.IncEvalNode">
+            <summary>
+            评价体系指标节点
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.EduEvalNode">
+            <summary>
+            评价体系指标节点
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.AssignmentEvidence">
+            <summary>
+            指标佐证材料 (学校填写的)
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.AiPreEvaluation">
+            <summary>
+            AI 预评价分析
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.ReviewAllocation">
+            <summary>
+            专家评审任务分配
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.ExpertReview">
+            <summary>
+            专家评分结果
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.InspectionTeam">
+            <summary>
+            视导小组
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.InspectionTeamMember">
+            <summary>
+            小组成员
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.InspectionSchedule">
+            <summary>
+            视导行程安排
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.InspectionLog">
+            <summary>
+            视导员现场取证记录
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.SysRole">
+            <summary>
+            角色表
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.SysUser">
+            <summary>
+            用户表
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.SysUsers">
+            <summary>
+            用户表
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.DistributionBatch">
+            <summary>
+            任务分发批次
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.BatchTarget">
+            <summary>
+            批次涉及的评价对象名单
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Entities.Assignment">
+            <summary>
+            具体的学校评价任务单
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Enums.UserRole">
+            <summary>
+            用户角色
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Enums.OrgType">
+            <summary>
+            机构类型
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Enums.RegionLevel">
+            <summary>
+            行政级别
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Enums.EvalNodeType">
+            <summary>
+            评价体系节点类型
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Enums.AssignmentStatus">
+            <summary>
+            给评价单位的任务/作业状态流程
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Enums.AuditStatus">
+            <summary>
+            单个指标审核状态
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Enums.InspectionScheduleStatus">
+            <summary>
+            巡视任务状态
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Enums.ReviewStatus">
+            <summary>
+            评审专家评审状态
+            </summary>
+        </member>
+        <member name="T:Tsjy.Core.Enums.PublicStatus">
+            <summary>
+            评审专家评审状态
+            </summary>
+        </member>
+    </members>
+</doc>

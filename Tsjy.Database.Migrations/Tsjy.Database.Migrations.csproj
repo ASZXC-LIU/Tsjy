@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="BootstrapBlazor.DriverJs" Version="9.0.5" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<ProjectReference Include="..\Tsjy.EntityFramework.Core\Tsjy.EntityFramework.Core.csproj" />
+	</ItemGroup>
+
+</Project>

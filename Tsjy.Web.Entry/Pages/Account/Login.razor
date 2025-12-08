@@ -1,0 +1,41 @@
+﻿@page "/Login"
+@attribute [AllowAnonymous]
+
+@layout LoginLayout
+@namespace FurionBlazorServerEFAuth202502.Web.Entry.Pages
+@using Tsjy.Core.Enums
+
+<div class="wrap">
+    <div class="container">
+        <form method="post" class="form-signin">
+            <h2 class="form-signin-heading">特殊教育评价系统</h2>
+            <div class="login-wrap">
+                <BootstrapInputGroup>
+                    <BootstrapInputGroupIcon Icon="fa fa-fw fa-user" />
+                    <BootstrapInput TValue="string" name="UserName" maxlength="16" IsAutoFocus="true" PlaceHolder="用户名" @bind-Value="loginInput.UserName" />
+                </BootstrapInputGroup>
+                <BootstrapInputGroup class="mt-3">
+                    <BootstrapInputGroupIcon Icon="fa fa-fw fa-lock" />
+                    <BootstrapPassword name="password" PlaceHolder="密码" @bind-Value="loginInput.Password"/>
+                </BootstrapInputGroup>
+                <BootstrapInputGroup class="mt-3">
+                    <BootstrapInputGroupIcon Icon="fa-solid fa-home" />
+
+                    <Select TValue="UserRole?"
+                            @bind-Value="loginInput.Role"
+                            Items="UserRoles"
+                            PlaceHolder="请选择登录角色"
+                            ShowLabel="false" />
+                </BootstrapInputGroup>
+                <div class="d-flex justify-content-between mt-3">
+                </div>
+                <Button class="btn-login mt-3" ButtonType="ButtonType.Button" Size="Size.Large" IsBlock="true" Color="Color.None" OnClick="DoLogin" Text="登 录">
+                </Button>
+                <div class="d-flex justify-content-between mt-3">
+                    <LinkButton Text="申请账号" OnClick="OnRegister" />
+                    <LinkButton Text="忘记密码" OnClick="OnForgotPassword" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

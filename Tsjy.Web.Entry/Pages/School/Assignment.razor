@@ -1,0 +1,117 @@
+﻿@* @page "/School/Assignment/{AssignmentId:long}"
+@using Tsjy.Application.Evaluation.Dtos
+@using Tsjy.Application.Evaluation.IService
+@using Tsjy.Core.Enums
+@attribute [AllowAnonymous]
+<div class="row">
+    <div class="col-3">
+        <div class="list-group">
+            @if (Dto?.Nodes != null)
+            {
+                @foreach (var node in Dto.Nodes.Where(n => n.Type == "criterion")) // 只显示最底层指标
+                {
+                    <a href="#" class="list-group-item list-group-item-action @(SelectedNode?.Id == node.Id ? "active" : "")"
+                       @onclick="() => SelectNode(node)">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">@node.Code @node.Name</h6>
+                            @if (node.AuditStatus == AuditStatus.Rejected)
+                            {
+                                <span class="badge bg-danger">!</span>
+                            }
+                            else if (node.EvidenceId > 0)
+                            {
+                                <span class="badge bg-success">√</span>
+                            }
+                        </div>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="col-9">
+        @if (SelectedNode != null)
+        {
+            <Card>
+                <HeaderTemplate>
+                    任务：@Dto.TaskName / @SelectedNode.Code @SelectedNode.Name
+                    @if (SelectedNode.AuditStatus == AuditStatus.Rejected)
+                    {
+                        <span class="badge bg-danger ms-2">被驳回</span>
+                    }
+                </HeaderTemplate>
+                <BodyTemplate>
+                    <div class="alert alert-info">
+                        <strong>省评估参考点：</strong> @SelectedNode.PayloadObj?.ReferencePoints <br />
+                        <strong>具体评估要点：</strong>
+                        <pre>@SelectedNode.PayloadObj?.AssessmentPoints</pre>
+                    </div>
+
+                    @if (SelectedNode.AuditStatus == AuditStatus.Rejected)
+                    {
+                        <Alert Color="Color.Danger">
+                            <i class="fa fa-times-circle"></i> <strong>专家整改意见：</strong> @SelectedNode.RejectReason
+                        </Alert>
+                    }
+
+                    <div class="mt-3">
+                        <h5>重新提交佐证材料</h5>
+                        <InputUpload TValue="string" ShowDeleteButton="true"
+                                     OnChange="@OnUploadFile"
+                                     BrowserButtonText="点击或拖拽文件至此" />
+
+                        <ul class="list-group mt-2">
+                            @foreach (var file in SelectedNode.FileUrls)
+                            {
+                                <li class="list-group-item"><i class="fa fa-file-pdf"></i> @file</li>
+                            }
+                        </ul>
+
+                        <Textarea @bind-Value="@SelectedNode.MyContent" Rows="4" PlaceHolder="请简要描述落实情况..." class="mt-3" />
+
+                        <div class="mt-3">
+                            <Button Color="Color.Primary" OnClick="@SaveEvidence" Text="保存本项佐证" Icon="fa fa-save" />
+                        </div>
+                    </div>
+                </BodyTemplate>
+            </Card>
+        }
+        else
+        {
+            <Empty Text="请选择左侧指标进行填报" />
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public long AssignmentId { get; set; }
+    [Inject] IEvaluationService EvalService { get; set; }
+    [Inject] MessageService MessageService { get; set; }
+
+    private SchoolAssignmentDto Dto { get; set; }
+    private EvalNodeFillDto SelectedNode { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Dto = await EvalService.GetAssignmentDetailAsync(AssignmentId);
+    }
+
+    private void SelectNode(EvalNodeFillDto node)
+    {
+        SelectedNode = node;
+    }
+
+    private async Task OnUploadFile(UploadFile file)
+    {
+        // 这里对接你的文件上传接口 /api/file/upload
+        // 模拟上传成功
+        if (SelectedNode.FileUrls == null) SelectedNode.FileUrls = new List<string>();
+        SelectedNode.FileUrls.Add(file.FileName);
+    }
+
+    private async Task SaveEvidence()
+    {
+        await EvalService.SubmitEvidenceAsync(AssignmentId, SelectedNode.Id, SelectedNode.MyContent, SelectedNode.FileUrls);
+        await MessageService.Show(new MessageOption { Content = "保存成功", Color = Color.Success });
+    }
+} *@

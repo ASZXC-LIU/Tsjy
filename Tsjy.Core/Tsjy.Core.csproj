@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<NoWarn>1701;1702;1591</NoWarn>
+		<DocumentationFile>Tsjy.Core.xml</DocumentationFile>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<None Remove="Tsjy.Core.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BootstrapBlazor.DriverJs" Version="9.0.5" />
+		<PackageReference Include="Furion" Version="4.9.7.126" />
+		<PackageReference Include="Furion.Extras.Authentication.JwtBearer" Version="4.9.7.126" />
+		<PackageReference Include="Furion.Extras.ObjectMapper.Mapster" Version="4.9.7.126" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tsjy.Application</name>
+    </assembly>
+    <members>
+        <member name="T:Tsjy.Application.System.Dtos.CreateNodeDto">
+            <summary>
+            新建评价指标节点 DTO
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.CreateNodeDto.Category">
+            <summary>
+            目标体系类型：special_school, inclusive_school, education_bureau
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.CreateNodeDto.Name">
+            <summary>
+            指标内容
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.CreateNodeDto.MaxScore">
+            <summary>
+            该指标满分
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.CreateNodeDto.ScoringModelId">
+            <summary>
+            评分模板ID，关联 scoring_models 表
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.EditNodeDto">
+            <summary>
+            新建评价指标节点 DTO
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.EditNodeDto.Category">
+            <summary>
+            目标体系类型：special_school, inclusive_school, education_bureau
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.EditNodeDto.Name">
+            <summary>
+            指标内容
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.EditNodeDto.MaxScore">
+            <summary>
+            该指标满分
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.EditNodeDto.ScoringModelId">
+            <summary>
+            评分模板ID，关联 scoring_models 表
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.ScoringModelDto">
+            <summary>
+            评分模板表单 DTO (用于新增和编辑)
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.ScoringModelDto.Items">
+            <summary>
+            评分项列表 (前端表格数据)
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.ScoringModelItemDto">
+            <summary>
+            评分项明细 DTO
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.UpdateNodeDto">
+            <summary>
+            更新节点信息 DTO
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.Id">
+            <summary>
+            节点主键 ID
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.Category">
+            <summary>
+            体系类型 (用于确定操作哪张表)
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.Code">
+            <summary>
+            序号 (如 1.1)
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.Name">
+            <summary>
+            指标名称
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.MaxScore">
+            <summary>
+            标准分
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.ScoringModelId">
+            <summary>
+            评分模板ID
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.OrderIndex">
+            <summary>
+            排序
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.IService.IScoringModelService">
+            <summary>
+            评分模板服务接口
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.IService.IScoringModelService.GetList">
+            <summary>
+            获取所有模板列表
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.IService.IScoringModelService.GetOptions">
+            <summary>
+            获取下拉框选项
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.IService.IScoringModelService.GetDetail(System.Int64)">
+            <summary>
+            获取单个模板详情
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.IService.IScoringModelService.Save(Tsjy.Application.System.Dtos.ScoringModelDto)">
+            <summary>
+            保存模板
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.IService.IScoringModelService.Delete(System.Int64)">
+            <summary>
+            删除模板
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.GetNodesAsync(System.String,System.Int64)">
+            <summary>
+            获取指定体系下的所有节点（扁平列表，前端转树）
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.CreateTree(System.String,System.String)">
+            <summary>
+            1. 新建评价体系（建立树根）
+            </summary>
+            <param name="category">类型：special_school / inclusive_school / education_bureau</param>
+            <param name="name">体系名称（如：2025河北特教考评）</param>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.CreateChildNode(Tsjy.Application.System.Dtos.CreateNodeDto)">
+            <summary>
+            2. 新建子节点（建立枝叶）
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.UpdateNode(Tsjy.Application.System.Dtos.UpdateNodeDto)">
+            <summary>
+            3. 更新节点基本信息
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.CreateTreeInternal``1(Furion.DatabaseAccessor.IRepository{``0},System.String)">
+            <summary>
+            通用的创建树根逻辑
+            </summary>
+            <typeparam name="T">实体类型，必须同时实现 IEntity 和 IEvalNode</typeparam>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.CreateChildNodeInternal``1(Furion.DatabaseAccessor.IRepository{``0},Tsjy.Application.System.Dtos.CreateNodeDto)">
+            <summary>
+            通用的创建子节点逻辑
+            </summary>
+            <typeparam name="T">实体类型，必须同时实现 IEntity 和 IEvalNode</typeparam>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.GetNodeDetailInternal``1(Furion.DatabaseAccessor.IRepository{``0},System.Int64)">
+            <summary>
+            通用的获取节点详情逻辑
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.UpdateNodeInternal``1(Furion.DatabaseAccessor.IRepository{``0},Tsjy.Application.System.Dtos.UpdateNodeDto)">
+            <summary>
+            通用的更新节点逻辑
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Service.ScoringModelService">
+            <summary>
+            评分模板管理服务
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.ScoringModelService.Save(Tsjy.Application.System.Dtos.ScoringModelDto)">
+            <summary>
+            保存模板 (新增或修改)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.ScoringModelService.Delete(System.Int64)">
+            <summary>
+            删除模板（软删除）
+            </summary>
+        </member>
+    </members>
+</doc>

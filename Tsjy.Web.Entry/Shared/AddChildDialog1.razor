@@ -1,0 +1,55 @@
+﻿@* @using Tsjy.Application.System.Dtos
+@inherits BootstrapBlazor.Components.DialogBase<AddChildDialog>
+<EditForm Model="Model" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="p-3">
+        <div class="mb-3">
+            <label>内容：</label>
+            <InputText @bind-Value="Model.Content" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>标准分值：</label>
+            <InputNumber @bind-Value="Model.StandardScore" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>排序：</label>
+            <InputNumber @bind-Value="Model.Sort" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>父指标 ID：</label>
+            <InputNumber @bind-Value="Model.ParentId" class="form-control" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label>体系编码：</label>
+            <InputText @bind-Value="Model.Code" class="form-control" disabled />
+        </div>
+
+        <div class="text-end mt-3">
+            <Button Color="Color.Primary" ButtonType="ButtonType.Submit">确定</Button>
+            <Button Color="Color.Secondary" OnClick="CloseDialog">取消</Button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public AddChildDialog Model { get; set; } = new();
+
+    // 点击提交按钮时触发
+    private void HandleValidSubmit()
+    {
+        // 关闭弹窗并把 Model 返回给父组件
+        // Close(Model);
+    }
+
+    private void CloseDialog()
+    {
+        // Close();
+    }
+} *@

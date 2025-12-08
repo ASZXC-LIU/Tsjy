@@ -1,0 +1,31 @@
+﻿@page "/redirecttologin"
+@using System.Diagnostics.CodeAnalysis
+@using System.Security.Claims
+@attribute [AllowAnonymous]
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    [Inject]
+    private AjaxService ajaxService { get; set; }
+
+    [CascadingParameter]
+    [NotNull]
+    public Task<AuthenticationState> authStateTask { get; set; }
+    private AuthenticationState authState { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        authState = await authStateTask;
+        var user = authState.User;
+        if (user.Identity == null || !user.Identity.IsAuthenticated)
+        {
+                    NavigationManager.NavigateTo("/Login", true);
+        }
+
+
+    }
+}

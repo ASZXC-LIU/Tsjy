@@ -1,0 +1,32 @@
+﻿@page "/Register"
+@attribute [AllowAnonymous]
+
+@layout LoginLayout
+@namespace FurionBlazorServerEFAuth202502.Web.Entry.Pages
+
+<div class="wrap">
+    <div class="container">
+        <form method="post" class="form-signin">
+            <h2 class="form-signin-heading">特殊教育评价系统</h2>
+            <div class="login-wrap">
+                <BootstrapInputGroup>
+                    <BootstrapInputGroupIcon Icon="fa fa-fw fa-user" />
+                    <BootstrapInput TValue="string" name="Account" maxlength="16" IsAutoFocus="true" PlaceHolder="用户名" @bind-Value="registerInput.UserName" />
+                </BootstrapInputGroup>
+                <BootstrapInputGroup class="mt-3">
+                    <BootstrapInputGroupIcon Icon="fa fa-fw fa-lock" />
+                    <BootstrapPassword name="password" PlaceHolder="密码" @bind-Value="registerInput.Password" />
+                </BootstrapInputGroup>
+                <BootstrapInputGroup class="mt-3">
+                    <BootstrapInputGroupIcon Icon="fa-solid fa-home" />
+                    <Select Items="@RoleSelectValues" @bind-Value="registerInput.Role"></Select>
+                </BootstrapInputGroup>
+                <div class="d-flex justify-content-between mt-3">
+                </div>
+                <Button class="btn-login mt-3" ButtonType="ButtonType.Button" Size="Size.Large" IsBlock="true" Color="Color.None" OnClick="DoRegister" Text="登 录">
+                </Button>
+               
+            </div>
+        </form>
+    </div>
+</div>

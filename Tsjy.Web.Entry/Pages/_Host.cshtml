@@ -1,0 +1,43 @@
+﻿@page "/"
+@namespace Tsjy.Web.Entry.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Authorization
+@attribute [AllowAnonymous]
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tsjy.Web.Entry</title>
+    <base href="~/" />
+    <!-- 需引用 BootstrapBlazor.FontAwesome 包 !-->
+    <link href="_content/BootstrapBlazor.FontAwesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="_content/BootstrapBlazor/css/bootstrap.blazor.bundle.min.css" rel="stylesheet">
+
+  @*   <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" /> *@
+    <link href="css/site.css" rel="stylesheet" />
+    <link href="Tsjy.Web.Entry.styles.css" rel="stylesheet" />
+</head>
+<body>
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
+
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            部署环境出现BlazorError，请检查代码
+        </environment>
+        <environment include="Development">
+            开发环境出现BlazorError
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <!-- 增加代码 !-->
+    <script src="_content/BootstrapBlazor/js/bootstrap.blazor.bundle.min.js"></script>
+
+    <script src="_framework/blazor.server.js"></script>
+</body>
+</html>

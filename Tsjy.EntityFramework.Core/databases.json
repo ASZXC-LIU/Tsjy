@@ -1,0 +1,6 @@
+{
+    "ConnectionStrings": {
+        "MySqlConnectionString": "Data Source=38.55.99.214;Database=Tsjy;User ID=Tsjy;Password=Tsjy;pooling=true;port=3306;sslmode=none;CharSet=utf8mb4;"
+       
+    }
+}

@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<NoWarn>1701;1702;1591</NoWarn>
+		<DocumentationFile>Tsjy.Web.Core.xml</DocumentationFile>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<None Remove="Tsjy.Web.Core.xml" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <PackageReference Include="BootstrapBlazor" Version="9.10.0" />
+	  <PackageReference Include="BootstrapBlazor.DataAccess.EntityFrameworkCore" Version="9.0.1" />
+	  <PackageReference Include="BootstrapBlazor.DriverJs" Version="9.0.5" />
+	  <PackageReference Include="BootstrapBlazor.FontAwesome" Version="9.1.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Tsjy.Application\Tsjy.Application.csproj" />
+		<ProjectReference Include="..\Tsjy.EntityFramework.Core\Tsjy.EntityFramework.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="jwtconfig.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+</Project>

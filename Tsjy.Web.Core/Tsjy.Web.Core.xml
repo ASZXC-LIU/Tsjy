@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tsjy.Web.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Tsjy.Web.Core.DataService.DataAccessServicesExtensions">
+            <summary>
+            EFCore ORM 注入服务扩展类
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,253 @@
+
+@page "/Admin/EvalBuilder"
+@using Tsjy.Application.System.Dtos
+@using Tsjy.Core.Entities
+@using Tsjy.Core.Enums
+@inherits BootstrapComponentBase
+
+<PageTitle>评价体系构建器</PageTitle>
+
+@* 添加自定义样式优化滚动条和卡片高度 *@
+<style>
+    .custom-scroll {
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #dee2e6 #fff;
+    }
+    .custom-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+        background: #f8f9fa;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #dee2e6;
+        border-radius: 4px;
+    }
+    .full-content-height {
+        height: calc(100vh - 120px);
+    }
+</style>
+
+<div class="container-fluid p-3 full-content-height">
+    <div class="row g-3 h-100">
+
+        @* --- 左侧：树形结构区 --- *@
+        <div class="col-12 col-md-3 h-100">
+            <Card IsShadow="true" class="h-100 border-0 shadow-sm rounded-3 d-flex flex-column">
+                <HeaderTemplate>
+                    <div class="d-flex justify-content-between align-items-center w-100 py-1">
+                        <div class="d-flex align-items-center text-primary">
+                            <i class="fa-solid fa-folder-tree me-2"></i>
+                            <span class="fw-bold fs-6">指标体系树</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            @if (!TreeItems.Any())
+                            {
+                                <Button Icon="fa-solid fa-plus" Size="Size.ExtraSmall" Color="Color.Success" IsOutline="true"
+                                        OnClick="OnCreateRoot" TooltipText="新建评价体系" />
+                            }
+                            else
+                            {
+                                <Button Icon="fa-solid fa-plus" Size="Size.ExtraSmall" Color="Color.Primary" IsOutline="true"
+                                        Text="添加子级" OnClick="OnBeginCreateChild" TooltipText="在当前节点下添加" />
+                                
+                                <PopConfirmButton Placement="Placement.Bottom" Color="Color.Danger" IsOutline="true"
+                                                  ConfirmButtonColor="Color.Danger"
+                                                  Icon="fa-solid fa-trash-can"
+                                                  Size="Size.ExtraSmall"
+                                                  Content="确定要删除该节点及其所有子节点吗？此操作不可恢复。"
+                                                  IsDisabled="@(SelectedNode == null)"
+                                                  OnConfirm="OnDeleteNode" />
+                            }
+                        </div>
+                    </div>
+                </HeaderTemplate>
+
+                <BodyTemplate>
+                    <div class="custom-scroll h-100 pe-2">
+                        @if (TreeItems.Any())
+                        {
+                            <TreeView TItem="EvalNodeTreeDto" Items="@TreeItems"
+                                      OnTreeItemClick="@OnTreeItemClick"
+                                      ShowIcon="true" IsAccordion="true" 
+                                      ClickToggleNode="true" />
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column align-items-center justify-content-center h-75 text-muted">
+                                <i class="fa-regular fa-folder-open fa-3x mb-3 opacity-50"></i>
+                                <span>暂无体系数据</span>
+                                <small>点击右上角新建按钮开始</small>
+                            </div>
+                        }
+                    </div>
+                </BodyTemplate>
+            </Card>
+        </div>
+
+        @* --- 右侧：表单编辑区 --- *@
+        <div class="col-12 col-md-9 h-100">
+            <Card IsShadow="true" class="h-100 border-0 shadow-sm rounded-3 d-flex flex-column">
+                <HeaderTemplate>
+                    <div class="py-1">
+                        @if (SelectedNode != null)
+                        {
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fa-solid fa-pen-to-square fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold fs-6">编辑指标信息</div>
+                                        <div class="text-muted small">
+                                            正在编辑：<span class="text-dark fw-medium">@SelectedNode.Text</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted small me-2">当前层级编码：</span>
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill font-monospace">
+                                        @SelectedNode.Value.Code
+                                    </span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-muted d-flex align-items-center">
+                                <i class="fa-solid fa-circle-info me-2 text-info"></i>
+                                <span>请在左侧选择一个节点进行操作</span>
+                            </div>
+                        }
+                    </div>
+                </HeaderTemplate>
+
+                <BodyTemplate>
+                    <div class="custom-scroll h-100 pe-3 ps-1">
+                        @if (SelectedNode != null)
+                        {
+                            <ValidateForm Model="@CurrentEditModel" OnValidSubmit="OnSaveNode">
+                                
+                                @* 板块一：基础信息 *@
+                                <div class="card border-0 bg-light bg-opacity-50 rounded-3 mb-4">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-secondary mb-3 d-flex align-items-center">
+                                            <i class="fa-solid fa-list-check me-2"></i>基础属性
+                                        </h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-3">
+                                                <BootstrapInput @bind-Value="CurrentEditModel.Code" ShowLabel="true" DisplayText="指标序号" Placeholder="例如: 1.1" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <BootstrapInputNumber @bind-Value="CurrentEditModel.MaxScore" ShowLabel="true" DisplayText="标准分值" Min="0" Step="0.5" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <BootstrapInputNumber @bind-Value="CurrentEditModel.OrderIndex" ShowLabel="true" DisplayText="显示排序" />
+                                            </div>
+                                            <div class="col-12">
+                                                <Textarea @bind-Value="CurrentEditModel.Name" ShowLabel="true" DisplayText="指标内容" Rows="3" 
+                                                          Placeholder="请输入指标的具体描述内容..." class="shadow-sm" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @* 板块二：评分规则 *@
+                                <div class="card border-0 bg-light bg-opacity-50 rounded-3 mb-4">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-secondary mb-3 d-flex align-items-center">
+                                            <i class="fa-solid fa-scale-balanced me-2"></i>评分规则
+                                        </h6>
+                                        
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-7">
+                                                <div class="d-flex align-items-end gap-2">
+                                                    <div class="flex-grow-1">
+                                                        <Select @bind-Value="CurrentEditModel.ScoringModelId"
+                                                                Items="ScoringModelOptions"
+                                                                ShowLabel="true"
+                                                                DisplayText="选择评分模板"
+                                                                OnSelectedItemChanged="OnScoringModelChanged"
+                                                                PlaceHolder="请选择一个适用的评分标准模板" />
+                                                    </div>
+                                                    <Button Icon="fa-solid fa-plus" Color="Color.Success" IsOutline="true" 
+                                                            OnClick="OnCreateScoringModel" TooltipText="新建评分模板" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @* 模板预览区域 *@
+                                        @if (PreviewScoringItems != null && PreviewScoringItems.Any())
+                                        {
+                                            <div class="rounded-3 border overflow-hidden">
+                                                <div class="bg-white px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
+                                                    <span class="small text-secondary fw-bold">
+                                                        <i class="fa-solid fa-eye me-1"></i> 模板预览：@CurrentScoringModelName
+                                                    </span>
+                                                </div>
+                                                <table class="table table-sm table-hover table-striped mb-0 small bg-white">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th width="80" class="text-center border-0">等级</th>
+                                                            <th width="100" class="text-center border-0">系数</th>
+                                                            <th class="border-0">评分原则/描述</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var item in PreviewScoringItems)
+                                                        {
+                                                            <tr>
+                                                                <td class="text-center align-middle">
+                                                                    <span class="badge bg-secondary bg-opacity-25 text-dark border">@item.LevelCode</span>
+                                                                </td>
+                                                                <td class="text-center align-middle font-monospace text-primary">@item.Ratio</td>
+                                                                <td class="align-middle text-muted">@item.Description</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        }
+                                        else if (CurrentEditModel.ScoringModelId > 0)
+                                        {
+                                             <div class="text-center py-4 text-muted border rounded-3 border-dashed bg-white">
+                                                <Spinner Color="Color.Primary" Size="Size.Small" class="me-2"/> 正在加载模板详情...
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                @* 底部按钮区 *@
+                                <div class="d-flex justify-content-end pt-2">
+                                    <Button ButtonType="ButtonType.Submit" Icon="fa-solid fa-floppy-disk" 
+                                            Color="Color.Primary" Text="保存所有更改" IsAsync="true" 
+                                            class="px-4 shadow-sm" />
+                                </div>
+                            </ValidateForm>
+                        }
+                        else
+                        {
+                            @* 空状态 *@
+                            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted pb-5">
+                                <div class="bg-light rounded-circle p-4 mb-3 shadow-sm">
+                                    <i class="fa-solid fa-sitemap fa-3x text-secondary opacity-50"></i>
+                                </div>
+                                <h5 class="fw-normal mb-2">未选择指标节点</h5>
+                                <p class="small opacity-75 mb-4">请在左侧树状菜单中点击任意节点以查看详情或添加子指标。</p>
+                                @if (!TreeItems.Any())
+                                {
+                                    <Button Color="Color.Primary" Icon="fa-solid fa-wand-magic-sparkles" 
+                                            OnClick="OnCreateRoot" class="px-4 shadow-sm">
+                                        立即初始化评价体系
+                                    </Button>
+                                }
+                            </div>
+                        }
+                    </div>
+                </BodyTemplate>
+            </Card>
+        </div>
+    </div>
+</div>
+```
