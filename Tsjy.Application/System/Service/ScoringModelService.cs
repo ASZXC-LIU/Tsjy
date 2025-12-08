@@ -133,7 +133,7 @@ namespace Tsjy.Application.System.Service
                 // 将新生成的列表加入
                 entity.Items.AddRange(newEntityItems);
 
-                await _modelRepo.UpdateAsync(entity);
+                await _modelRepo.UpdateNowAsync(entity);
                 return entity.Id;
             }
             else
@@ -148,7 +148,7 @@ namespace Tsjy.Application.System.Service
                     Items = newEntityItems // 直接赋值，EF Core 会级联插入
                 };
 
-                await _modelRepo.InsertAsync(entity);
+                await _modelRepo.InsertNowAsync(entity);
                 return entity.Id;
             }
         }
@@ -164,7 +164,7 @@ namespace Tsjy.Application.System.Service
             {
                 entity.IsDeleted = true;
                 entity.UpdatedAt = DateTime.Now;
-                await _modelRepo.UpdateAsync(entity);
+                await _modelRepo.UpdateNowAsync(entity);
             }
         }
 
