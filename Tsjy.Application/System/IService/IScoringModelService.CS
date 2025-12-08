@@ -28,7 +28,7 @@ namespace Tsjy.Application.System.IService
         /// <summary>
         /// 保存模板
         /// </summary>
-        Task Save(ScoringModelDto input);
+        Task<long> Save(ScoringModelDto input);
 
         /// <summary>
         /// 删除模板

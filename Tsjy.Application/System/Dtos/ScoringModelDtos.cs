@@ -28,7 +28,7 @@ namespace Tsjy.Application.System.Dtos
         public long Id { get; set; }
 
         // 前端不需要传 LevelCode (A/B/C)，后端会自动生成
-        public string LevelCode { get; set; } 
+        public string LevelCode { get; set; }
 
         [Required(ErrorMessage = "系数不能为空")]
         [Range(0, 1.0, ErrorMessage = "系数必须在 0 到 1 之间")]

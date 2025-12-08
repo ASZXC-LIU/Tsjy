@@ -188,6 +188,21 @@
             评分模板管理服务
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.ScoringModelService.GetList">
+            <summary>
+            获取所有模板列表 (用于管理页面表格)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.ScoringModelService.GetOptions">
+            <summary>
+            获取下拉框选项 (用于新建评价指标时的下拉选择)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.ScoringModelService.GetDetail(System.Int64)">
+            <summary>
+            获取单个模板详情 (用于编辑时的回显)
+            </summary>
+        </member>
         <member name="M:Tsjy.Application.System.Service.ScoringModelService.Save(Tsjy.Application.System.Dtos.ScoringModelDto)">
             <summary>
             保存模板 (新增或修改)
@@ -195,7 +210,7 @@
         </member>
         <member name="M:Tsjy.Application.System.Service.ScoringModelService.Delete(System.Int64)">
             <summary>
-            删除模板（软删除）
+            删除模板 (软删除)
             </summary>
         </member>
     </members>

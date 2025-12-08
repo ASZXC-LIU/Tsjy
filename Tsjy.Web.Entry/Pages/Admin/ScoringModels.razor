@@ -3,153 +3,87 @@
 @using Tsjy.Core.Entities
 @attribute [Authorize(Roles = "ADMIN")]
 @inherits BootstrapComponentBase
-@layout MainLayout
-
 @namespace Tsjy.Web.Entry.Pages.Admin
-
 <PageTitle>评分模板管理</PageTitle>
-
 <div class="wrap">
     <div class="container-fluid">
-
-        @* 1. 表格只负责展示 *@
-        <Table TItem="ScoringModel"
-               @ref="ScoringTable"
-               IsPagination="true"
-               IsStriped="true"
-               IsBordered="true"
-               ShowToolbar="true"
-               ShowDefaultButtons="false"
-               ShowExtendButtons="true"
-               OnQueryAsync="OnQueryAsync"
-               OnDeleteAsync="OnDeleteAsync">
-
-            <TableToolbarTemplate>
-                <TableToolbarButton TItem="ScoringModel"
-                                    Color="Color.Success"
-                                    Icon="fa fa-plus"
-                                    Text="新建模板"
-                                    OnClick="@OnCreateClick" />
-            </TableToolbarTemplate>
+        <Table TItem="ScoringModel" IsPagination="true" IsStriped="true" IsBordered="true" ShowToolbar="true"
+               ShowExtendButtons="true" ShowDefaultButtons="true" OnQueryAsync="OnQueryAsync" OnSaveAsync="OnSaveAsync"
+               OnDeleteAsync="OnDeleteAsync" OnEditAsync="OnEditAsync">
 
             <TableColumns>
                 <TableColumn @bind-Field="@context.Id" Width="80" IsVisible="false" />
                 <TableColumn @bind-Field="@context.Name" Text="模板名称" />
-                <TableColumn @bind-Field="@context.UpdatedAt"
-                             Text="更新时间"
-                             FormatString="yyyy-MM-dd HH:mm"
-                             Width="180" />
+                <TableColumn @bind-Field="@context.UpdatedAt" Text="更新时间" FormatString="yyyy-MM-dd HH:mm" Width="180" />
             </TableColumns>
 
-            <RowButtonTemplate>
-                <TableCellButton Size="Size.ExtraSmall"
-                                 Color="Color.Primary"
-                                 Icon="fa fa-edit"
-                                 Text="编辑"
-                                 OnClick="() => OnEditClick(context)" />
-            </RowButtonTemplate>
-        </Table>
+            <EditTemplate>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <BootstrapInput @bind-Value="@EditModel.Name" ShowLabel="true" Label="模板名称"
+                                        Placeholder="请输入模板名称（如：标准四级制）" />
+                    </div>
 
-        @* 2. 自定义编辑弹窗 *@
-        <Modal @ref="EditModal">
-            <ModalDialog ShowCloseButton="true"
-                         IsCentered="true"
-                         Size="Size.Large"
-                         Title="@ModalTitle">
-                <BodyTemplate>
-                    <ValidateForm Model="@EditModel">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <BootstrapInput @bind-Value="@EditModel.Name"
-                                                ShowLabel="true"
-                                                Label="模板名称"
-                                                Placeholder="请输入模板名称（如：标准四级制）" />
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>评分等级配置</span>
+                                <Button Color="Color.Success" Icon="fa fa-plus" Text="添加等级" OnClick="@OnAddItem"
+                                        Size="Size.ExtraSmall" />
                             </div>
-
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold">评分等级配置</span>
-                                        <Button Color="Color.Success"
-                                                Icon="fa fa-plus"
-                                                Text="添加等级"
-                                                Size="Size.ExtraSmall"
-                                                OnClick="@OnAddItem" />
+                            <div class="card-body p-0">
+                                @if (EditModel.Items != null && EditModel.Items.Any())
+                                {
+                                    <table class="table table-sm table-striped mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 60px;">预演</th>
+                                                <th style="width: 120px;">系数 (0-1)</th>
+                                                <th>评价标准/描述</th>
+                                                <th style="width: 60px;">操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (var i = 0; i < EditModel.Items.Count; i++)
+                                            {
+                                                // 本地变量捕获，防止闭包问题
+                                                var item = EditModel.Items[i];
+                                                var index = i;
+                                                <tr>
+                                                    <td class="align-middle text-center">
+                                                        <span class="badge bg-secondary">@((char)('A' + index))</span>
+                                                    </td>
+                                                    <td>
+                                                        <BootstrapInputNumber @bind-Value="@item.Ratio" Min="0" Max="1"
+                                                                              Step="0.1" ShowLabel="false" />
+                                                    </td>
+                                                    <td>
+                                                        <BootstrapInput @bind-Value="@item.Description" ShowLabel="false"
+                                                                        Placeholder="如：落实到位 / 优秀" />
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        <Button Icon="fa fa-trash" Color="Color.Danger" Size="Size.ExtraSmall"
+                                                                OnClick="@(() => OnRemoveItem(item))" />
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                    <div class="p-2 text-muted small">
+                                        <i class="fa fa-info-circle"></i> 提示：无需手动排序，保存时系统将自动根据<b>系数从大到小</b>分配 A、B、C...
                                     </div>
-                                    <div class="card-body p-0">
-                                        @if (EditModel.Items != null && EditModel.Items.Any())
-                                        {
-                                            <table class="table table-sm table-striped mb-0 text-center">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th style="width: 60px;">等级</th>
-                                                        <th style="width: 120px;">系数 (0-1)</th>
-                                                        <th>评价标准 / 描述</th>
-                                                        <th style="width: 60px;">操作</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (var i = 0; i < EditModel.Items.Count; i++)
-                                                    {
-                                                        var item = EditModel.Items[i];
-                                                        var index = i;
-                                                        <tr>
-                                                            <td class="align-middle">
-                                                                <span class="badge bg-primary">
-                                                                    @((char)('A' + index))
-                                                                </span>
-                                                            </td>
-                                                            <td>
-                                                                <BootstrapInputNumber @bind-Value="@item.Ratio"
-                                                                                      Min="0"
-                                                                                      Max="1"
-                                                                                      Step="0.1"
-                                                                                      ShowLabel="false" />
-                                                            </td>
-                                                            <td>
-                                                                <BootstrapInput @bind-Value="@item.Description"
-                                                                                ShowLabel="false"
-                                                                                Placeholder="如：落实到位 / 优秀" />
-                                                            </td>
-                                                            <td class="align-middle">
-                                                                <Button Icon="fa fa-trash"
-                                                                        Color="Color.Danger"
-                                                                        Size="Size.ExtraSmall"
-                                                                        OnClick="@(() => OnRemoveItem(item))" />
-                                                            </td>
-                                                        </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                            <div class="p-2 text-muted small text-start">
-                                                <i class="fa fa-info-circle"></i>
-                                                提示：无需手动排序，保存时系统将自动根据
-                                                <b>系数从大到小</b> 分配 A、B、C...
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="text-center p-3 text-muted">
-                                                点击右上角“添加等级”按钮开始配置
-                                            </div>
-                                        }
+                                }
+                                else
+                                {
+                                    <div class="text-center p-3 text-muted">
+                                        点击右上角“添加等级”按钮开始配置
                                     </div>
-                                </div>
+                                }
                             </div>
                         </div>
-                    </ValidateForm>
-                </BodyTemplate>
-                <FooterTemplate>
-                    <Button Text="关闭"
-                            Icon="fa fa-times"
-                            OnClick="@(() => EditModal.Close())" />
-                    <Button Text="保存"
-                            Icon="fa fa-save"
-                            Color="Color.Primary"
-                            IsAsync="true"
-                            OnClick="OnConfirmSave" />
-                </FooterTemplate>
-            </ModalDialog>
-        </Modal>
+                    </div>
+                </div>
+            </EditTemplate>
+        </Table>
     </div>
 </div>
