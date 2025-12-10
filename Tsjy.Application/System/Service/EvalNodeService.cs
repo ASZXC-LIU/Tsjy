@@ -61,7 +61,20 @@ namespace Tsjy.Application.System.Service
                 _ => throw new ArgumentException($"无效的评价体系类型: {category}")
             };
         }
-
+        /// <summary>
+        /// 获取指定类型的评价体系列表（查找所有的根节点）
+        /// </summary>
+        [HttpGet("api/eval/systems")]
+        public async Task<List<EvalSystemListDto>> GetSystemListAsync([Required] string category)
+        {
+            return category?.ToLower() switch
+            {
+                "special_school" => await GetSystemListInternal(_speRepo, category),
+                "inclusive_school" => await GetSystemListInternal(_incRepo, category),
+                "education_bureau" => await GetSystemListInternal(_eduRepo, category),
+                _ => throw new ArgumentException($"无效的评价体系类型: {category}")
+            };
+        }
         #endregion
         #region 核心业务接口
 
@@ -121,7 +134,24 @@ namespace Tsjy.Application.System.Service
         }
 
 
+        private async Task<List<EvalSystemListDto>> GetSystemListInternal<T>(IRepository<T> repo, string category)
+    where T : class, IEntity, IEvalNode, new()
+        {
+            // 查找根节点 (ParentId 为空 或者 Type 为 System)
+           // 根据你的CreateTree逻辑，根节点ParentId为null [cite: 5]
+            var roots = await repo.Where(x => x.ParentId == null && !x.IsDeleted)
+                                  .OrderByDescending(x => x.CreatedAt)
+                                  .ToListAsync();
 
+            return roots.Select(x => new EvalSystemListDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Category = category,
+                CreatedAt = x.CreatedAt,
+                // 如果需要统计节点数，可能需要额外的查询，这里暂时略过
+            }).ToList();
+        }
 
         #endregion
 
@@ -165,7 +195,7 @@ namespace Tsjy.Application.System.Service
                 Type = EvalNodeType.System,
                 Name = name,
                 Code = "0",
-                ScoringModelId = 1, // 默认模型ID
+                ScoringTemplateId = 1, // 默认模型ID
                 CreatedAt = DateTime.Now
             };
 
@@ -228,7 +258,7 @@ namespace Tsjy.Application.System.Service
                 Code = input.Code,
                 Name = input.Name,
                 MaxScore = input.MaxScore,
-                ScoringModelId = input.ScoringModelId,
+                ScoringTemplateId = input.ScoringTemplateId,
                 OrderIndex = input.OrderIndex,
                 CreatedAt = DateTime.Now
             };
@@ -264,7 +294,7 @@ namespace Tsjy.Application.System.Service
                 Name = node.Name,
                 Code = node.Code,
                 MaxScore = node.MaxScore,
-                ScoringModelId = node.ScoringModelId,
+                ScoringTemplateId = node.ScoringTemplateId,
                 OrderIndex = node.OrderIndex
             };
         }
@@ -289,7 +319,7 @@ namespace Tsjy.Application.System.Service
             entity.Code = input.Code;
             entity.Name = input.Name;
             entity.MaxScore = input.MaxScore;
-            entity.ScoringModelId = input.ScoringModelId;
+            entity.ScoringTemplateId = input.ScoringTemplateId;
             entity.OrderIndex = input.OrderIndex;
 
             // 记录更新时间（如果实体有 UpdatedAt 字段的话，IEvalNode 接口里可能没有，视情况而定）

@@ -38,27 +38,27 @@ namespace Tsjy.Core.Seed
         {
             return new List<BatchTarget>
             {
-                new BatchTarget { Id = 1, BatchId = 1, OrgType = OrgType.SpecialSchool, OrgId = 1, CreatedAt = DateTime.UtcNow }
+                new BatchTarget { Id = 1, BatchId = 1, OrgId = 1, CreatedAt = DateTime.UtcNow }
             };
         }
     }
 
     // 任务单种子
-    public class AssignmentSeed : IEntityTypeBuilder<Assignment>, IEntitySeedData<Assignment>
+    public class TaskSeed : IEntityTypeBuilder<Tasks>, IEntitySeedData<Tasks>
     {
-        public void Configure(EntityTypeBuilder<Assignment> entityBuilder, DbContext dbContext, Type dbContextLocator)
+        public void Configure(EntityTypeBuilder<Tasks> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
             entityBuilder.HasKey(u => u.Id);
         }
 
-        public IEnumerable<Assignment> HasData(DbContext dbContext, Type dbContextLocator)
+        public IEnumerable<Tasks> HasData(DbContext dbContext, Type dbContextLocator)
         {
-            return new List<Assignment>
+            return new List<Tasks>
             {
-                new Assignment
+                new Tasks
                 {
                     Id = 1, BatchId = 1, TreeId = 202501, TargetType = OrgType.SpecialSchool, TargetId = 1,
-                    Status = AssignmentStatus.Submitting, StartAt = DateTime.UtcNow, DueAt = DateTime.UtcNow.AddDays(7),
+                    Status = TaskStatus.Submitting, StartAt = DateTime.UtcNow, DueAt = DateTime.UtcNow.AddDays(7),
                     CreatedAt = DateTime.UtcNow
                 }
             };

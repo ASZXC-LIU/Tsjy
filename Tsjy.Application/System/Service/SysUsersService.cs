@@ -93,7 +93,7 @@ namespace Tsjy.Application.System.Service
                 new List<Claim>()
                 {
                 new Claim(ClaimTypes.Name, user.RealName, ClaimValueTypes.String),
-                new Claim(ClaimTypes.Sid, user.Id.ToString(), ClaimValueTypes.String),
+                new Claim(ClaimTypes.Sid, user.IDNumber, ClaimValueTypes.String),
                 new Claim(ClaimTypes.GivenName, user.UserName, ClaimValueTypes.String),
                 new Claim(ClaimTypes.Role, user.Role.ToString(), ClaimValueTypes.String) }, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -103,7 +103,7 @@ namespace Tsjy.Application.System.Service
                 var tokenDict = new Dictionary<string, object>
                 {
                     { ClaimTypes.Name, user.RealName },
-                    { ClaimTypes.Sid, user.Id.ToString() },
+                    { ClaimTypes.Sid, user.IDNumber },
                     { ClaimTypes.GivenName, user.UserName },
                     { ClaimTypes.Role, user.Role.ToString() }
                 };
@@ -112,7 +112,7 @@ namespace Tsjy.Application.System.Service
 
                 var result = new AuthResult().Success();
                 result.Token = token;
-                result.userId = user.Id.ToString();
+                result.userId = user.IDNumber;
                 result.Role = user.Role.ToString();
                 result.UserName = user.UserName;
                 return result;
@@ -133,7 +133,7 @@ namespace Tsjy.Application.System.Service
                 var identity = new ClaimsIdentity(
                 new List<Claim>()
                 {
-                new Claim(ClaimTypes.Sid, user.Id.ToString(), ClaimValueTypes.String),
+                new Claim(ClaimTypes.Sid, user.IDNumber, ClaimValueTypes.String),
                 new Claim(ClaimTypes.GivenName, user.UserName, ClaimValueTypes.String),
                 new Claim(ClaimTypes.Role, user.Role.ToString(), ClaimValueTypes.String) }, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -154,7 +154,7 @@ namespace Tsjy.Application.System.Service
 
                 var tokenDict = new Dictionary<string, object>
                 {
-                    { ClaimTypes.Sid, user.Id.ToString() },
+                    { ClaimTypes.Sid, user.IDNumber },
                     { ClaimTypes.GivenName, user.UserName },
                     { ClaimTypes.Role, user.Role.ToString() }
                 };
@@ -166,7 +166,7 @@ namespace Tsjy.Application.System.Service
 
                 var result = new AuthResult().Success();
                 result.Token = token;
-                result.userId = user.Id.ToString();
+                result.userId = user.IDNumber;
                 result.Role = user.Role.ToString();
                 result.UserName = user.UserName;
                 return result;

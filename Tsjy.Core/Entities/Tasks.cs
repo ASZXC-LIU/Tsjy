@@ -46,8 +46,7 @@ public class BatchTarget : IEntity
 
     public long BatchId { get; set; }
 
-    [DisplayName("机构类型")]
-    public OrgType OrgType { get; set; }
+ 
 
     public long OrgId { get; set; }
 
@@ -64,8 +63,8 @@ public class BatchTarget : IEntity
 /// <summary>
 /// 具体的学校评价任务单
 /// </summary>
-[Table("assignments")]
-public class Assignment : IEntity
+[Table("tasks")]
+public class Tasks : IEntity
 {
     [Key]
     public long Id { get; set; }
@@ -81,7 +80,7 @@ public class Assignment : IEntity
     public long TargetId { get; set; }
 
     [DisplayName("当前状态")]
-    public AssignmentStatus Status { get; set; } = AssignmentStatus.Pending;
+    public TaskStatus Status { get; set; } = TaskStatus.Pending;
 
     public DateTime StartAt { get; set; } = DateTime.UtcNow;
 

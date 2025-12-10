@@ -16,7 +16,7 @@ public class ReviewAllocation : IEntity
     [Key]
     public long Id { get; set; }
 
-    public long AssignmentId { get; set; }
+    public long TaskId { get; set; }
     [DisplayName("指标ID")]
     public long NodeId { get; set; }//指标ID。这个指标及所有子指标都给这名评审专家
     public long ExpertId { get; set; }
@@ -43,7 +43,7 @@ public class ExpertReview : IEntity
     [Key]
     public long Id { get; set; }
 
-    public long AssignmentId { get; set; }
+    public long TaskId { get; set; }
     public long NodeId { get; set; }
     public long ReviewerId { get; set; }
 

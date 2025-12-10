@@ -10,14 +10,14 @@ namespace Tsjy.Core.Entities;
 /// <summary>
 /// 指标佐证材料 (学校填写的)
 /// </summary>
-[Table("assignment_evidences")]
+[Table("task_evidences")]
 public class AssignmentEvidence : IEntity
 {
     [Key]
     public long Id { get; set; }
 
     [DisplayName("任务ID")]
-    public long AssignmentId { get; set; }
+    public long TaskId { get; set; }
 
     [DisplayName("指标ID")]
     public long NodeId { get; set; }
@@ -54,7 +54,7 @@ public class AiPreEvaluation : IEntity
     [Key]
     public long Id { get; set; }
     public long UserId { get; set; }
-    public long AssignmentId { get; set; }
+    public long TaskId { get; set; }
     public long NodeId { get; set; }
     public long EvidenceId { get; set; }
 

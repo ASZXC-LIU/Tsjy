@@ -24,7 +24,7 @@ namespace Tsjy.Core.Seed
             {
                 new AssignmentEvidence
                 {
-                    Id = 1, AssignmentId = 1, NodeId = 3, Content = "自评报告内容...",
+                    Id = 1, TaskId = 1, NodeId = 3, Content = "自评报告内容...",
                     FileUrls = "[\"http://file/a.pdf\"]", Status = AuditStatus.Pending, CreatedAt = DateTime.UtcNow
                 }
             };
@@ -40,7 +40,7 @@ namespace Tsjy.Core.Seed
         {
             return new List<AiPreEvaluation>
             {
-                new AiPreEvaluation { Id = 1, UserId = 1, AssignmentId = 1, NodeId = 3, EvidenceId = 1, SuggestedScore = 4.5m, RiskLevel = "low", AnalysisReport = "AI分析通过" }
+                new AiPreEvaluation { Id = 1, UserId = 1, TaskId = 1, NodeId = 3, EvidenceId = 1, SuggestedScore = 4.5m, RiskLevel = "low", AnalysisReport = "AI分析通过" }
             };
         }
     }
@@ -54,7 +54,7 @@ namespace Tsjy.Core.Seed
         {
             return new List<ReviewAllocation>
             {
-                new ReviewAllocation { Id = 1, AssignmentId = 1, NodeId = 3, ExpertId = 100, Status = ReviewStatus.Pending, AssignedAt = DateTime.UtcNow }
+                new ReviewAllocation { Id = 1, TaskId = 1, NodeId = 3, ExpertId = 100, Status = ReviewStatus.Pending, AssignedAt = DateTime.UtcNow }
             };
         }
     }
@@ -68,7 +68,7 @@ namespace Tsjy.Core.Seed
         {
             return new List<ExpertReview>
             {
-                new ExpertReview { Id = 1, AssignmentId = 1, NodeId = 3, ReviewerId = 100, ScoreRatio = 0.8m, StandardScore = 5, FinalScore = 4.0m, CreatedAt = DateTime.UtcNow }
+                new ExpertReview { Id = 1, TaskId = 1, NodeId = 3, ReviewerId = 100, ScoreRatio = 0.8m, StandardScore = 5, FinalScore = 4.0m, CreatedAt = DateTime.UtcNow }
             };
         }
     }

@@ -24,7 +24,7 @@
             该指标满分
             </summary>
         </member>
-        <member name="P:Tsjy.Application.System.Dtos.CreateNodeDto.ScoringModelId">
+        <member name="P:Tsjy.Application.System.Dtos.CreateNodeDto.ScoringTemplateId">
             <summary>
             评分模板ID，关联 scoring_models 表
             </summary>
@@ -99,7 +99,7 @@
             标准分
             </summary>
         </member>
-        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.ScoringModelId">
+        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.ScoringTemplateId">
             <summary>
             评分模板ID
             </summary>
@@ -142,6 +142,11 @@
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.GetNodesAsync(System.String,System.Int64)">
             <summary>
             获取指定体系下的所有节点（扁平列表，前端转树）
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.GetSystemListAsync(System.String)">
+            <summary>
+            获取指定类型的评价体系列表（查找所有的根节点）
             </summary>
         </member>
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.CreateTree(System.String,System.String)">

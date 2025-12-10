@@ -38,7 +38,7 @@ public class UpdateNodeDto
     /// <summary>
     /// 评分模板ID
     /// </summary>
-    public long? ScoringModelId { get; set; }
+    public long? ScoringTemplateId { get; set; }
 
     /// <summary>
     /// 排序

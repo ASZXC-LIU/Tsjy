@@ -28,9 +28,6 @@ namespace Tsjy.Database.Migrations.Migrations
                     b.Property<string>("AnalysisReport")
                         .HasColumnType("longtext");
 
-                    b.Property<long>("AssignmentId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -49,6 +46,9 @@ namespace Tsjy.Database.Migrations.Migrations
                     b.Property<decimal?>("SuggestedScore")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -64,78 +64,15 @@ namespace Tsjy.Database.Migrations.Migrations
                         {
                             Id = 1L,
                             AnalysisReport = "AI分析通过",
-                            AssignmentId = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 693, DateTimeKind.Utc).AddTicks(2574),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 492, DateTimeKind.Utc).AddTicks(5547),
                             EvidenceId = 1L,
                             IsDeleted = false,
                             NodeId = 3L,
                             RiskLevel = "low",
                             SuggestedScore = 4.5m,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 693, DateTimeKind.Utc).AddTicks(2575),
+                            TaskId = 1L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 492, DateTimeKind.Utc).AddTicks(5551),
                             UserId = 1L
-                        });
-                });
-
-            modelBuilder.Entity("Tsjy.Core.Entities.Assignment", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("BatchId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("DueAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<decimal?>("FinalScore")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime>("StartAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("SubmittedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<long>("TargetId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("TargetType")
-                        .HasColumnType("int");
-
-                    b.Property<long>("TreeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("assignments");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            BatchId = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 715, DateTimeKind.Utc).AddTicks(8193),
-                            DueAt = new DateTime(2025, 12, 15, 12, 50, 28, 715, DateTimeKind.Utc).AddTicks(8114),
-                            IsDeleted = false,
-                            StartAt = new DateTime(2025, 12, 8, 12, 50, 28, 715, DateTimeKind.Utc).AddTicks(7994),
-                            Status = 2,
-                            TargetId = 1L,
-                            TargetType = 0,
-                            TreeId = 202501L,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 715, DateTimeKind.Utc).AddTicks(7479)
                         });
                 });
 
@@ -143,9 +80,6 @@ namespace Tsjy.Database.Migrations.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("AssignmentId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Content")
@@ -170,25 +104,28 @@ namespace Tsjy.Database.Migrations.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("assignment_evidences");
+                    b.ToTable("task_evidences");
 
                     b.HasData(
                         new
                         {
                             Id = 1L,
-                            AssignmentId = 1L,
                             Content = "自评报告内容...",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 691, DateTimeKind.Utc).AddTicks(9458),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 491, DateTimeKind.Utc).AddTicks(4644),
                             FileUrls = "[\"http://file/a.pdf\"]",
                             IsDeleted = false,
                             NodeId = 3L,
                             Status = 0,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 691, DateTimeKind.Utc).AddTicks(8903)
+                            TaskId = 1L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 491, DateTimeKind.Utc).AddTicks(4077)
                         });
                 });
 
@@ -210,9 +147,6 @@ namespace Tsjy.Database.Migrations.Migrations
                     b.Property<long>("OrgId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("OrgType")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -225,11 +159,86 @@ namespace Tsjy.Database.Migrations.Migrations
                         {
                             Id = 1L,
                             BatchId = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 713, DateTimeKind.Utc).AddTicks(2276),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 514, DateTimeKind.Utc).AddTicks(6114),
                             IsDeleted = false,
                             OrgId = 1L,
-                            OrgType = 0,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 713, DateTimeKind.Utc).AddTicks(1911)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 514, DateTimeKind.Utc).AddTicks(5828)
+                        });
+                });
+
+            modelBuilder.Entity("Tsjy.Core.Entities.Departments", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("IncSchoolsNum")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("OrgType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Phone")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RegionCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("SpeSchoolsNum")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("departments");
+
+                    b.HasData(
+                        new
+                        {
+                            Code = "330100_EDU",
+                            Address = "杭州市某某路1号",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 441, DateTimeKind.Utc).AddTicks(715),
+                            IncSchoolsNum = 120L,
+                            IsDeleted = false,
+                            Level = 1,
+                            Name = "杭州市教育局",
+                            OrgType = 2,
+                            Phone = 88888888,
+                            RegionCode = "330100",
+                            SpeSchoolsNum = 8L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 440, DateTimeKind.Utc).AddTicks(8855)
+                        },
+                        new
+                        {
+                            Code = "330106_EDU",
+                            Address = "西湖区某某路2号",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 441, DateTimeKind.Utc).AddTicks(843),
+                            IncSchoolsNum = 45L,
+                            IsDeleted = false,
+                            Level = 2,
+                            Name = "西湖区教育局",
+                            OrgType = 2,
+                            Phone = 66666666,
+                            RegionCode = "330106",
+                            SpeSchoolsNum = 2L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 441, DateTimeKind.Utc).AddTicks(840)
                         });
                 });
 
@@ -266,12 +275,12 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 712, DateTimeKind.Utc).AddTicks(2422),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 513, DateTimeKind.Utc).AddTicks(6728),
                             IsDeleted = false,
                             Name = "2025年度第一次普查",
                             Status = 1,
                             TreeId = 202501L,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 712, DateTimeKind.Utc).AddTicks(1926)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 513, DateTimeKind.Utc).AddTicks(6315)
                         });
                 });
 
@@ -310,7 +319,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("varchar(512)");
 
-                    b.Property<long?>("ScoringModelId")
+                    b.Property<long?>("ScoringTemplateId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("TreeId")
@@ -330,7 +339,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 688, DateTimeKind.Utc).AddTicks(1492),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 487, DateTimeKind.Utc).AddTicks(5027),
                             Depth = 0,
                             IsDeleted = false,
                             MaxScore = 100m,
@@ -339,13 +348,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0",
                             TreeId = 202501L,
                             Type = 0,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 688, DateTimeKind.Utc).AddTicks(1494)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 487, DateTimeKind.Utc).AddTicks(5032)
                         },
                         new
                         {
                             Id = 2L,
                             Code = "1",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 688, DateTimeKind.Utc).AddTicks(2432),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 487, DateTimeKind.Utc).AddTicks(6054),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 20m,
@@ -355,13 +364,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,1",
                             TreeId = 202501L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 688, DateTimeKind.Utc).AddTicks(2432)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 487, DateTimeKind.Utc).AddTicks(6054)
                         },
                         new
                         {
                             Id = 3L,
                             Code = "1.1",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 688, DateTimeKind.Utc).AddTicks(2524),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 487, DateTimeKind.Utc).AddTicks(6140),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 5m,
@@ -369,71 +378,10 @@ namespace Tsjy.Database.Migrations.Migrations
                             OrderIndex = 0,
                             ParentId = 2L,
                             Path = "0,1,2",
-                            ScoringModelId = 1L,
+                            ScoringTemplateId = 1L,
                             TreeId = 202501L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 688, DateTimeKind.Utc).AddTicks(2525)
-                        });
-                });
-
-            modelBuilder.Entity("Tsjy.Core.Entities.EducationBureau", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<long>("IncSchoolsNum")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Level")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Phone")
-                        .HasColumnType("int");
-
-                    b.Property<long>("RegionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("SpeSchoolsNum")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("education_bureaus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Address = "市局地址",
-                            Code = "B130100",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 532, DateTimeKind.Utc).AddTicks(3587),
-                            IncSchoolsNum = 10L,
-                            IsDeleted = false,
-                            Level = "city",
-                            Name = "石家庄市教育局",
-                            Phone = 12345678,
-                            RegionId = 2L,
-                            SpeSchoolsNum = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 532, DateTimeKind.Utc).AddTicks(1954)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 487, DateTimeKind.Utc).AddTicks(6140)
                         });
                 });
 
@@ -441,9 +389,6 @@ namespace Tsjy.Database.Migrations.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("AssignmentId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreatedAt")
@@ -467,6 +412,9 @@ namespace Tsjy.Database.Migrations.Migrations
                     b.Property<decimal>("StandardScore")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -478,15 +426,15 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            AssignmentId = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 696, DateTimeKind.Utc).AddTicks(9042),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 496, DateTimeKind.Utc).AddTicks(5747),
                             FinalScore = 4.0m,
                             IsDeleted = false,
                             NodeId = 3L,
                             ReviewerId = 100L,
                             ScoreRatio = 0.8m,
                             StandardScore = 5m,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 696, DateTimeKind.Utc).AddTicks(8333)
+                            TaskId = 1L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 496, DateTimeKind.Utc).AddTicks(5085)
                         });
                 });
 
@@ -525,7 +473,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("varchar(512)");
 
-                    b.Property<long?>("ScoringModelId")
+                    b.Property<long?>("ScoringTemplateId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("TreeId")
@@ -545,7 +493,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 686, DateTimeKind.Utc).AddTicks(5528),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 485, DateTimeKind.Utc).AddTicks(7515),
                             Depth = 0,
                             IsDeleted = false,
                             MaxScore = 100m,
@@ -554,13 +502,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0",
                             TreeId = 202501L,
                             Type = 0,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 686, DateTimeKind.Utc).AddTicks(5531)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 485, DateTimeKind.Utc).AddTicks(7517)
                         },
                         new
                         {
                             Id = 2L,
                             Code = "1",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 686, DateTimeKind.Utc).AddTicks(6465),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 485, DateTimeKind.Utc).AddTicks(8373),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 20m,
@@ -570,13 +518,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,1",
                             TreeId = 202501L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 686, DateTimeKind.Utc).AddTicks(6465)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 485, DateTimeKind.Utc).AddTicks(8374)
                         },
                         new
                         {
                             Id = 3L,
                             Code = "1.1",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 686, DateTimeKind.Utc).AddTicks(6551),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 485, DateTimeKind.Utc).AddTicks(8455),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 5m,
@@ -584,59 +532,10 @@ namespace Tsjy.Database.Migrations.Migrations
                             OrderIndex = 0,
                             ParentId = 2L,
                             Path = "0,1,2",
-                            ScoringModelId = 1L,
+                            ScoringTemplateId = 1L,
                             TreeId = 202501L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 686, DateTimeKind.Utc).AddTicks(6552)
-                        });
-                });
-
-            modelBuilder.Entity("Tsjy.Core.Entities.InclusiveSchool", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Phone")
-                        .HasColumnType("int");
-
-                    b.Property<long>("RegionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("inclusive_schools");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Address = "长安区地址",
-                            Code = "I1301021",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 531, DateTimeKind.Utc).AddTicks(916),
-                            IsDeleted = false,
-                            Name = "石家庄市长安区第一小学(融合校)",
-                            Phone = 66666666,
-                            RegionId = 3L,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 531, DateTimeKind.Utc).AddTicks(329)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 485, DateTimeKind.Utc).AddTicks(8455)
                         });
                 });
 
@@ -678,14 +577,14 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 702, DateTimeKind.Utc).AddTicks(3205),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 502, DateTimeKind.Utc).AddTicks(726),
                             CreatedBy = 100L,
                             EvidenceFiles = "[\"photo1.jpg\"]",
                             Findings = "现场查看符合要求",
                             IsDeleted = false,
                             NodeId = 3L,
                             ScheduleId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 702, DateTimeKind.Utc).AddTicks(3206)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 502, DateTimeKind.Utc).AddTicks(727)
                         });
                 });
 
@@ -728,13 +627,13 @@ namespace Tsjy.Database.Migrations.Migrations
                         {
                             Id = 1L,
                             AssignmentId = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 701, DateTimeKind.Utc).AddTicks(122),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 500, DateTimeKind.Utc).AddTicks(7500),
                             IsDeleted = false,
                             Status = 0,
                             TeamId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 701, DateTimeKind.Utc).AddTicks(124),
-                            VisitEndAt = new DateTime(2025, 12, 10, 12, 50, 28, 701, DateTimeKind.Utc).AddTicks(627),
-                            VisitStartAt = new DateTime(2025, 12, 9, 12, 50, 28, 701, DateTimeKind.Utc).AddTicks(430)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 500, DateTimeKind.Utc).AddTicks(7502),
+                            VisitEndAt = new DateTime(2025, 12, 12, 7, 52, 15, 500, DateTimeKind.Utc).AddTicks(7972),
+                            VisitStartAt = new DateTime(2025, 12, 11, 7, 52, 15, 500, DateTimeKind.Utc).AddTicks(7809)
                         });
                 });
 
@@ -769,10 +668,10 @@ namespace Tsjy.Database.Migrations.Migrations
                         {
                             Id = 1L,
                             BatchId = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 697, DateTimeKind.Utc).AddTicks(8472),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 497, DateTimeKind.Utc).AddTicks(7358),
                             IsDeleted = false,
                             Name = "第一视导组",
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 697, DateTimeKind.Utc).AddTicks(8134)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 497, DateTimeKind.Utc).AddTicks(7029)
                         });
                 });
 
@@ -805,20 +704,16 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 698, DateTimeKind.Utc).AddTicks(9359),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 498, DateTimeKind.Utc).AddTicks(8335),
                             IsDeleted = false,
                             TeamId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 698, DateTimeKind.Utc).AddTicks(9027),
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 498, DateTimeKind.Utc).AddTicks(8019),
                             UserId = 100L
                         });
                 });
 
             modelBuilder.Entity("Tsjy.Core.Entities.Region", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Code")
                         .HasColumnType("varchar(255)");
 
@@ -832,49 +727,49 @@ namespace Tsjy.Database.Migrations.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<string>("ParentCode")
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
+                    b.HasKey("Code");
 
                     b.ToTable("regions");
 
                     b.HasData(
                         new
                         {
-                            Id = 1L,
-                            Code = "130000",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 527, DateTimeKind.Utc).AddTicks(4643),
+                            Code = "330000",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 437, DateTimeKind.Utc).AddTicks(1204),
                             IsDeleted = false,
                             Level = 0,
-                            Name = "河北省",
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 527, DateTimeKind.Utc).AddTicks(4211)
+                            Name = "浙江省",
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 437, DateTimeKind.Utc).AddTicks(764)
                         },
                         new
                         {
-                            Id = 2L,
-                            Code = "130100",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 527, DateTimeKind.Utc).AddTicks(4747),
+                            Code = "330100",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 437, DateTimeKind.Utc).AddTicks(1303),
                             IsDeleted = false,
                             Level = 1,
-                            Name = "石家庄市",
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 527, DateTimeKind.Utc).AddTicks(4746)
+                            Name = "杭州市",
+                            ParentCode = "330000",
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 437, DateTimeKind.Utc).AddTicks(1301)
                         },
                         new
                         {
-                            Id = 3L,
-                            Code = "130102",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 527, DateTimeKind.Utc).AddTicks(4749),
+                            Code = "330106",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 437, DateTimeKind.Utc).AddTicks(1305),
                             IsDeleted = false,
                             Level = 2,
-                            Name = "长安区",
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 527, DateTimeKind.Utc).AddTicks(4748)
+                            Name = "西湖区",
+                            ParentCode = "330100",
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 437, DateTimeKind.Utc).AddTicks(1304)
                         });
                 });
 
@@ -886,9 +781,6 @@ namespace Tsjy.Database.Migrations.Migrations
 
                     b.Property<DateTime>("AssignedAt")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<long>("AssignmentId")
-                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -905,6 +797,9 @@ namespace Tsjy.Database.Migrations.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -916,14 +811,14 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            AssignedAt = new DateTime(2025, 12, 8, 12, 50, 28, 695, DateTimeKind.Utc).AddTicks(6933),
-                            AssignmentId = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 695, DateTimeKind.Utc).AddTicks(6479),
+                            AssignedAt = new DateTime(2025, 12, 10, 7, 52, 15, 495, DateTimeKind.Utc).AddTicks(3324),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 495, DateTimeKind.Utc).AddTicks(2785),
                             ExpertId = 100L,
                             IsDeleted = false,
                             NodeId = 3L,
                             Status = 0,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 695, DateTimeKind.Utc).AddTicks(6479)
+                            TaskId = 1L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 495, DateTimeKind.Utc).AddTicks(2785)
                         });
                 });
 
@@ -949,24 +844,16 @@ namespace Tsjy.Database.Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("scoring_models");
+                    b.ToTable("scoring_templates");
 
                     b.HasData(
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 481, DateTimeKind.Utc).AddTicks(566),
                             IsDeleted = false,
-                            Name = "标准四级制 (A/B/C/D)",
-                            UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Name = "符合性判断 (是/否)",
-                            UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            Name = "通用四级评分标准(A/B/C/D)",
+                            UpdatedAt = new DateTime(2025, 12, 10, 15, 52, 15, 480, DateTimeKind.Local).AddTicks(9914)
                         });
                 });
 
@@ -987,99 +874,79 @@ namespace Tsjy.Database.Migrations.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("LevelCode")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
-
-                    b.Property<long>("ModelId")
-                        .HasColumnType("bigint");
 
                     b.Property<decimal>("Ratio")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<long?>("ScoringModelId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Sort")
                         .HasColumnType("int");
+
+                    b.Property<long>("TemplateId")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ModelId");
+                    b.HasIndex("ScoringModelId");
 
-                    b.ToTable("scoring_model_items");
+                    b.ToTable("scoring_template_items");
 
                     b.HasData(
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "优秀/落实到位",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 482, DateTimeKind.Utc).AddTicks(1011),
+                            Description = "完全符合指标要求，佐证材料详实",
                             IsDeleted = false,
                             LevelCode = "A",
-                            ModelId = 1L,
                             Ratio = 1.0m,
-                            Sort = 0,
-                            UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            Sort = 1,
+                            TemplateId = 1L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 15, 52, 15, 482, DateTimeKind.Local).AddTicks(309)
                         },
                         new
                         {
                             Id = 2L,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "良好/基本落实",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 482, DateTimeKind.Utc).AddTicks(1100),
+                            Description = "基本符合，存在少量非关键性缺失",
                             IsDeleted = false,
                             LevelCode = "B",
-                            ModelId = 1L,
                             Ratio = 0.8m,
-                            Sort = 1,
-                            UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            Sort = 2,
+                            TemplateId = 1L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 15, 52, 15, 482, DateTimeKind.Local).AddTicks(1097)
                         },
                         new
                         {
                             Id = 3L,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "合格/部分落实",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 482, DateTimeKind.Utc).AddTicks(1102),
+                            Description = "部分符合，存在明显问题或材料不足",
                             IsDeleted = false,
                             LevelCode = "C",
-                            ModelId = 1L,
                             Ratio = 0.6m,
-                            Sort = 2,
-                            UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            Sort = 3,
+                            TemplateId = 1L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 15, 52, 15, 482, DateTimeKind.Local).AddTicks(1101)
                         },
                         new
                         {
                             Id = 4L,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "不合格/未落实",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 482, DateTimeKind.Utc).AddTicks(1104),
+                            Description = "不符合要求或未开展此项工作",
                             IsDeleted = false,
                             LevelCode = "D",
-                            ModelId = 1L,
                             Ratio = 0.0m,
-                            Sort = 3,
-                            UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 5L,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "符合/是",
-                            IsDeleted = false,
-                            LevelCode = "A",
-                            ModelId = 2L,
-                            Ratio = 1.0m,
-                            Sort = 0,
-                            UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 6L,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "不符合/否",
-                            IsDeleted = false,
-                            LevelCode = "B",
-                            ModelId = 2L,
-                            Ratio = 0.0m,
-                            Sort = 1,
-                            UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            Sort = 4,
+                            TemplateId = 1L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 15, 52, 15, 482, DateTimeKind.Local).AddTicks(1103)
                         });
                 });
 
@@ -1118,7 +985,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("varchar(512)");
 
-                    b.Property<long?>("ScoringModelId")
+                    b.Property<long?>("ScoringTemplateId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("TreeId")
@@ -1138,7 +1005,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 684, DateTimeKind.Utc).AddTicks(9606),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 484, DateTimeKind.Utc).AddTicks(2818),
                             Depth = 0,
                             IsDeleted = false,
                             MaxScore = 100m,
@@ -1147,13 +1014,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0",
                             TreeId = 202501L,
                             Type = 0,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 684, DateTimeKind.Utc).AddTicks(9608)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 484, DateTimeKind.Utc).AddTicks(2820)
                         },
                         new
                         {
                             Id = 2L,
                             Code = "1",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 685, DateTimeKind.Utc).AddTicks(700),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 484, DateTimeKind.Utc).AddTicks(3835),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 20m,
@@ -1163,13 +1030,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,1",
                             TreeId = 202501L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 685, DateTimeKind.Utc).AddTicks(700)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 484, DateTimeKind.Utc).AddTicks(3835)
                         },
                         new
                         {
                             Id = 3L,
                             Code = "1.1",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 685, DateTimeKind.Utc).AddTicks(795),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 484, DateTimeKind.Utc).AddTicks(3924),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 5m,
@@ -1177,64 +1044,10 @@ namespace Tsjy.Database.Migrations.Migrations
                             OrderIndex = 0,
                             ParentId = 2L,
                             Path = "0,1,2",
-                            ScoringModelId = 1L,
+                            ScoringTemplateId = 1L,
                             TreeId = 202501L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 685, DateTimeKind.Utc).AddTicks(795)
-                        });
-                });
-
-            modelBuilder.Entity("Tsjy.Core.Entities.SpecialSchool", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Code")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("Phone")
-                        .HasColumnType("int");
-
-                    b.Property<long>("RegionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("special_schools");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Address = "学校地址",
-                            Code = "S1301001",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 529, DateTimeKind.Utc).AddTicks(9260),
-                            IsDeleted = false,
-                            Name = "石家庄市特殊教育学校",
-                            Phone = 87654321,
-                            RegionId = 2L,
-                            Status = 1,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 529, DateTimeKind.Utc).AddTicks(8614)
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 484, DateTimeKind.Utc).AddTicks(3925)
                         });
                 });
 
@@ -1277,11 +1090,11 @@ namespace Tsjy.Database.Migrations.Migrations
                         {
                             Id = 1,
                             Code = "ADMIN",
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 703, DateTimeKind.Utc).AddTicks(5962),
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 503, DateTimeKind.Utc).AddTicks(5666),
                             IsDeleted = false,
                             Name = "管理员",
                             Sort = 1,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 703, DateTimeKind.Utc).AddTicks(6049),
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 503, DateTimeKind.Utc).AddTicks(5762),
                             remark = "系统超级管理员"
                         });
                 });
@@ -1327,9 +1140,8 @@ namespace Tsjy.Database.Migrations.Migrations
 
             modelBuilder.Entity("Tsjy.Core.Entities.SysUsers", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("IDNumber")
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -1365,7 +1177,7 @@ namespace Tsjy.Database.Migrations.Migrations
                     b.Property<string>("UserName")
                         .HasColumnType("varchar(255)");
 
-                    b.HasKey("Id");
+                    b.HasKey("IDNumber");
 
                     b.HasIndex("UserName")
                         .IsUnique();
@@ -1375,8 +1187,8 @@ namespace Tsjy.Database.Migrations.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 710, DateTimeKind.Utc).AddTicks(4577),
+                            IDNumber = "123456789012345678",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 511, DateTimeKind.Utc).AddTicks(6530),
                             IsDeleted = false,
                             OrgId = 1,
                             OrgType = 2,
@@ -1384,13 +1196,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = "13800000000",
                             RealName = "超级管理员",
                             Role = 0,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 710, DateTimeKind.Utc).AddTicks(4697),
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 511, DateTimeKind.Utc).AddTicks(6639),
                             UserName = "admin"
                         },
                         new
                         {
-                            Id = 100,
-                            CreatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 710, DateTimeKind.Utc).AddTicks(4922),
+                            IDNumber = "123456789012345679",
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 511, DateTimeKind.Utc).AddTicks(6846),
                             IsDeleted = false,
                             OrgId = 1,
                             OrgType = 2,
@@ -1398,8 +1210,71 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = "13800000000",
                             RealName = "超级管理员",
                             Role = 0,
-                            UpdatedAt = new DateTime(2025, 12, 8, 12, 50, 28, 710, DateTimeKind.Utc).AddTicks(4923),
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 511, DateTimeKind.Utc).AddTicks(6847),
                             UserName = "100"
+                        });
+                });
+
+            modelBuilder.Entity("Tsjy.Core.Entities.Tasks", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BatchId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DueAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal?>("FinalScore")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("StartAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("TargetId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int");
+
+                    b.Property<long>("TreeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tasks");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            BatchId = 1L,
+                            CreatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 516, DateTimeKind.Utc).AddTicks(6172),
+                            DueAt = new DateTime(2025, 12, 17, 7, 52, 15, 516, DateTimeKind.Utc).AddTicks(6088),
+                            IsDeleted = false,
+                            StartAt = new DateTime(2025, 12, 10, 7, 52, 15, 516, DateTimeKind.Utc).AddTicks(5997),
+                            Status = 2,
+                            TargetId = 1L,
+                            TargetType = 0,
+                            TreeId = 202501L,
+                            UpdatedAt = new DateTime(2025, 12, 10, 7, 52, 15, 516, DateTimeKind.Utc).AddTicks(5448)
                         });
                 });
 
@@ -1407,9 +1282,7 @@ namespace Tsjy.Database.Migrations.Migrations
                 {
                     b.HasOne("Tsjy.Core.Entities.ScoringModel", null)
                         .WithMany("Items")
-                        .HasForeignKey("ModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ScoringModelId");
                 });
 
             modelBuilder.Entity("Tsjy.Core.Entities.ScoringModel", b =>

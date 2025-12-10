@@ -22,7 +22,8 @@ public enum OrgType
 {
     [Description("特殊教育学校")] SpecialSchool,
     [Description("融合教育学校")] InclusiveSchool,
-    [Description("教育局")] EducationBureau
+    [Description("教育局")] EducationBureau,
+    [Description("其他")] Other
 }
 
 /// <summary>
@@ -52,7 +53,7 @@ public enum EvalNodeType
 /// <summary>
 /// 给评价单位的任务/作业状态流程
 /// </summary>
-public enum AssignmentStatus
+public enum TaskStatus
 {
     [Description("待发")] Pending,
     [Description("已下发")] Sent,
