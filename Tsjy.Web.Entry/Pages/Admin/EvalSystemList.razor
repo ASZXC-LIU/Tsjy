@@ -5,56 +5,120 @@
 @inherits BootstrapComponentBase
 @namespace Tsjy.Web.Entry.Pages.Admin
 
-<PageTitle>评价体系列表</PageTitle>
+<PageTitle>评价体系管理</PageTitle>
 
-<div class="container-fluid pt-3">
-
-    @* --- 顶栏：类型选择 --- *@
-    <div class="d-flex align-items-center mb-3">
-        <span class="text-secondary me-3 fw-bold">选择体系类型:</span>
-        <Select @bind-Value="CurrentCategory" Items="CategoryOptions" OnSelectedItemChanged="OnCategoryChanged" class="w-auto" />
+<div class="container-fluid p-3">
+    @* 头部标题区 *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1 fw-bold text-dark">评价体系管理</h4>
+            <span class="text-muted small">管理所有特殊教育、融合教育及局端评价指标体系版本</span>
+        </div>
+        <div>
+            @* 可以在这里放全局操作，比如帮助文档 *@
+        </div>
     </div>
 
-    @* --- 表格展示区 --- *@
-    @* 绑定 ref 以便从 CS 文件中调用 QueryAsync *@
-    <Table TItem="EvalSystemListDto"
-           @ref="SystemTable" 
-           IsPagination="true" IsStriped="true" IsBordered="true"
-           ShowToolbar="true"
-           ShowExtendButtons="true"
-           ExtendButtonColumnWidth="200"
-           ShowDefaultButtons="false"
-           ShowAddButton="false"
-           ShowEditButton="false"
-           ShowDeleteButton="false"
-           OnQueryAsync="OnQueryAsync">
-
-        <TableToolbarTemplate>
-            <div class="d-flex justify-content-between align-items-center w-100">
-                <h5 class="m-0 fw-bold text-primary">@CategoryOptions.FirstOrDefault(x => x.Value == CurrentCategory)?.Text</h5>
-                <Button Color="Color.Success" Icon="fa-solid fa-sitemap" Text="新建评价体系" OnClick="OnCreateSystem" />
+    @* 核心内容区：卡片包裹 *@
+    <div class="card card-modern p-3">
+        <div class="card-body p-0">
+            @* 筛选与工具栏 *@
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold text-secondary"><i class="fa-solid fa-filter me-1"></i>体系类型:</span>
+                    <Select @bind-Value="CurrentCategory"
+                            Items="CategoryOptions"
+                            OnSelectedItemChanged="OnCategoryChanged"
+                            class="border-0 bg-light rounded-pill px-2"
+                            style="min-width: 220px;" />
+                </div>
+                <div>
+                    <Button Color="Color.Primary" Icon="fa-solid fa-plus" class="rounded-pill px-4 shadow-sm"
+                            Text="新建体系" OnClick="OnCreateSystem" />
+                </div>
             </div>
-        </TableToolbarTemplate>
 
-        <TableColumns>
-            <TableColumn @bind-Field="@context.Name" Text="体系名称" />
-            <TableColumn @bind-Field="@context.Category" Text="类型代号" Width="180" />
-            <TableColumn @bind-Field="@context.CreatedAt" Text="创建时间" FormatString="yyyy-MM-dd HH:mm" Width="180" />
-            
-            <TableColumn @bind-Field="@context.UpdatedAt" Text="更新时间" FormatString="yyyy-MM-dd HH:mm" Width="180" />
-            
-            <TableColumn @bind-Field="@context.IsDeleted" Text="是否启用" Width="180" />
-        </TableColumns>
+            @* 表格区 *@
+            <Table TItem="EvalSystemListDto"
+                   @ref="SystemTable"
+                   IsPagination="true"
+                   IsStriped="false"
+                   IsBordered="false"
+                   IsHover="true"
+                   ShowToolbar="false"
+                   ShowDefaultButtons="false"
+                   OnQueryAsync="OnQueryAsync"
+                   RowClass="x => x.IsDeleted ? \" opacity-50 grayscale\" : \"\"">
 
-        <RowButtonTemplate>
-            @* 编辑/跳转到 Builder 按钮 *@
-            <Button Size="Size.ExtraSmall" Color="Color.Primary" Icon="fa-solid fa-edit" Text="编辑/构建" OnClick="() => OnEditSystem(context)" />
+                <TableColumns>
+                    <TableColumn @bind-Field="@context.Name" Text="体系名称">
+                        <Template Context="value">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded p-2 me-3">
+                                    <i class="fa-solid fa-folder-tree"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">@value.Row.Name</div>
+                                    <small class="text-muted">ID: @value.Row.Id</small>
+                                </div>
+                            </div>
+                        </Template>
+                    </TableColumn>
 
-            @* 删除按钮 *@
-            <PopConfirmButton Placement="Placement.Left" Color="Color.Danger" Icon="fa-solid fa-trash-alt" Text="删除"
-                              ConfirmButtonText="确认删除"
-                              Content="确认删除该体系及其所有指标吗？"
-                              OnConfirm="() => OnDelete(context)" />
-        </RowButtonTemplate>
-    </Table>
+                    <TableColumn @bind-Field="@context.Category" Text="类型" Width="180">
+                        <Template Context="value">
+                            <Tag Color="Color.Info" Icon="fa-solid fa-tag">@CategoryOptions.FirstOrDefault(x => x.Value == value.Value)?.Text</Tag>
+                        </Template>
+                    </TableColumn>
+
+                    <TableColumn @bind-Field="@context.CreatedAt" Text="创建时间" Width="180" Sortable="true">
+                        <Template Context="value">
+                            <div class="d-flex flex-column">
+                                <span>@value.Value.ToString("yyyy-MM-dd")</span>
+                                <small class="text-muted">@value.Value.ToString("HH:mm")</small>
+                            </div>
+                        </Template>
+                    </TableColumn>
+
+                    <TableColumn @bind-Field="@context.UpdatedAt" Text="最近更新" Width="180">
+                        <Template Context="value">
+                            <span class="text-secondary">@value.Value.ToString("yyyy-MM-dd")</span>
+                        </Template>
+                    </TableColumn>
+
+                    <TableColumn @bind-Field="@context.IsDeleted" Text="状态" Width="120" Align="Alignment.Center">
+                        <Template Context="value">
+                            @if (!value.Value)
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                                    <i class="fa-solid fa-check-circle me-1"></i>启用中
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">
+                                    <i class="fa-solid fa-ban me-1"></i>已停用
+                                </span>
+                            }
+                        </Template>
+                    </TableColumn>
+
+                    <TableColumn @bind-Field="@context.Id" Text="操作" Width="220" Align="Alignment.Center">
+                        <Template Context="value">
+                            <div class="btn-group shadow-sm rounded">
+                                <Button Size="Size.ExtraSmall" Color="Color.Light" Icon="fa-solid fa-pen-to-square text-primary"
+                                        TooltipText="构建/编辑" OnClick="() => OnEditSystem(value.Row)" />
+
+                                <PopConfirmButton Placement="Placement.Left" Color="Color.Light" Icon="fa-solid fa-trash text-danger"
+                                                  ConfirmButtonText="确认删除"
+                                                  Content="确认删除该体系及其所有指标吗？操作不可逆！"
+                                                  TooltipText="删除"
+                                                  OnConfirm="() => OnDelete(value.Row)" />
+                            </div>
+                        </Template>
+                    </TableColumn>
+                </TableColumns>
+            </Table>
+        </div>
+    </div>
 </div>

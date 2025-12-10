@@ -85,6 +85,7 @@ namespace Tsjy.Web.Entry.Shared
 
         new MenuItem() { Text = "用户列表", Icon = "fa-solid fa-fw fa-user", Url = "/UserList" },
         new MenuItem() { Text = "学校上传", Icon = "fa-solid fa-fw fa-user", Url = "/School/Assignment" },
+         new MenuItem() { Text = "新建评价体系", Icon = "fa-solid fa-fw fa-user", Url = "/Admin/EvalSystemList" },
         new MenuItem() { Text = "新建评价体系", Icon = "fa-solid fa-fw fa-user", Url = "/Admin/EvalBuilder" },
         new MenuItem() { Text = "新建评分模板", Icon = "fa-solid fa-fw fa-user", Url = "/Admin/ScoringModels" },
 

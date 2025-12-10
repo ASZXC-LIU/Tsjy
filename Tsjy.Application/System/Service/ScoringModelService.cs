@@ -32,7 +32,9 @@ namespace Tsjy.Application.System.Service
         public async Task<List<ScoringModel>> GetList()
         {
             // 列表页只查主表，过滤掉已删除的
-            return await _modelRepo.Where(x => !x.IsDeleted)
+            return await _modelRepo.AsQueryable() // 建议加上 AsQueryable 保持链式调用习惯
+                                   .Include(x => x.Items)
+                                   .Where(x => !x.IsDeleted)
                                    .OrderByDescending(x => x.CreatedAt)
                                    .ToListAsync();
         }

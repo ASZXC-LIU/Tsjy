@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
 using Tsjy.Application.System.Dtos;
 using Tsjy.Application.System.Service;
+
 namespace Tsjy.Web.Entry.Pages.Admin
 {
     public partial class EvalSystemList
@@ -21,10 +22,10 @@ namespace Tsjy.Web.Entry.Pages.Admin
         [NotNull]
         private NavigationManager? Nav { get; set; }
 
+        // 绑定表格数据源（作为缓存，用于分页）
         private List<EvalSystemListDto> SystemItems { get; set; } = new();
-        private bool IsLoading { get; set; } = false;
 
-        // 绑定表格数据源，用于手动刷新
+        // 绑定表格组件引用
         private Table<EvalSystemListDto>? SystemTable { get; set; }
 
         private string CurrentCategory { get; set; } = "special_school";
@@ -36,54 +37,48 @@ namespace Tsjy.Web.Entry.Pages.Admin
             new("education_bureau", "教育局评价体系")
         };
 
-        protected override async Task OnInitializedAsync()
+        // ★★★ 1. 删除 OnInitializedAsync 中的手动加载，完全依赖表格自动触发 ★★★
+        protected override Task OnInitializedAsync()
         {
-            await LoadData();
+            return base.OnInitializedAsync();
         }
 
-        // 加载所有根节点（根体系列表）
-        private async Task LoadData()
+        // ★★★ 2. 核心修改：在 OnQueryAsync 中直接请求数据 ★★★
+        private async Task<QueryData<EvalSystemListDto>> OnQueryAsync(QueryPageOptions options)
         {
-            if (IsLoading) return;
-
-            IsLoading = true;
             try
             {
+                // 直接根据当前选中的类型，从后端拉取最新数据
+                // 表格组件会自动显示“加载中”骨架屏，无需手动控制 IsLoading
                 SystemItems = await NodeService.GetSystemListAsync(CurrentCategory);
+
+                // 简单的内存分页逻辑
+                var total = SystemItems.Count;
+                var pagedItems = SystemItems
+                                    .Skip((options.PageIndex - 1) * options.PageItems)
+                                    .Take(options.PageItems)
+                                    .ToList();
+
+                return new QueryData<EvalSystemListDto>
+                {
+                    Items = pagedItems,
+                    TotalCount = total
+                };
             }
-            finally
+            catch (Exception ex)
             {
-                IsLoading = false;
-                // 确保 UI 刷新
-                StateHasChanged();
+                await Toast.Error("数据加载失败", ex.Message);
+                return new QueryData<EvalSystemListDto> { Items = new List<EvalSystemListDto>(), TotalCount = 0 };
             }
         }
 
-        // ★★★ 新增：表格查询事件 (手动从内存分页) ★★★
-        private Task<QueryData<EvalSystemListDto>> OnQueryAsync(QueryPageOptions options)
-        {
-            // 简单实现内存分页
-            var total = SystemItems.Count;
-            var pagedItems = SystemItems
-                                .Skip((options.PageIndex - 1) * options.PageItems)
-                                .Take(options.PageItems)
-                                .ToList();
-
-            return Task.FromResult(new QueryData<EvalSystemListDto>
-            {
-                Items = pagedItems,
-                TotalCount = total
-            });
-        }
-
-
+        // ★★★ 3. 切换类型时，只需通知表格刷新 ★★★
         private async Task OnCategoryChanged(SelectedItem item)
         {
-            if (IsLoading) return;
             CurrentCategory = item.Value;
-            await LoadData();
             if (SystemTable != null)
             {
+                // 这会触发 OnQueryAsync，从而拉取新类别的数据
                 await SystemTable.QueryAsync();
             }
         }
@@ -96,20 +91,19 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 Title = "新建体系",
                 Content = $"确定要在 **{CategoryOptions.FirstOrDefault(x => x.Value == CurrentCategory)?.Text}** 下创建一个新的空白体系吗？",
                 IsConfirm = true,
-
                 OnConfirmAsync = async () =>
                 {
-                    // 调用 CreateTree，它返回根节点的 ID
+                    // 调用 CreateTree
                     var newId = await NodeService.CreateTree(CurrentCategory, $"{DateTime.Now.Year}年新评价体系");
-                    await SystemTable!.QueryAsync(); // 刷新列表
 
-                   
+                    // 刷新表格
+                    if (SystemTable != null) await SystemTable.QueryAsync();
+                    await Toast.Success("创建成功");
                 }
             };
             await Swal.Show(op);
         }
 
-        // ★★★ 新增：跳转到构建器页面（查看/编辑）★★★
         private void OnEditSystem(EvalSystemListDto item)
         {
             Nav.NavigateTo($"/Admin/EvalBuilder/{item.Category}/{item.Id}");
@@ -125,18 +119,15 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 IsConfirm = true,
                 OnConfirmAsync = async () =>
                 {
-                    // 假设 NodeService 中 DeleteTree 方法已实现
+                    // 模拟删除逻辑
                     // await NodeService.DeleteTree(item.Category, item.Id); 
 
-                    // 【临时模拟删除】如果你的后端删除方法尚未实现，请先注释掉真实的调用
-                    // 假设删除成功，刷新列表
-                    await LoadData();
-                    await SystemTable!.QueryAsync();
+                    // 刷新表格 (重新从后端拉取，确保数据同步)
+                    if (SystemTable != null) await SystemTable.QueryAsync();
+
                     await Toast.Success("删除成功", $"体系 {item.Name} 已被移除。");
                 }
             });
         }
-
-        // 移除 OnSaveAsync, OnDeleteAsync, OnEditAsync 等，因为我们不使用 Table 的默认弹窗
     }
 }
