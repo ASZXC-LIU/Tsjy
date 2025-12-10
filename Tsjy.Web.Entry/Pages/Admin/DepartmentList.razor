@@ -1,0 +1,34 @@
+﻿@page "/Admin/DepartmentList"
+@using Tsjy.Application.System.Dtos.BasicDataDtos
+@using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "Admin")]
+@inherits BootstrapComponentBase
+
+<PageTitle>机构管理</PageTitle>
+
+<div class="container-fluid p-3">
+    <Table TItem="DepartmentDto"
+           IsPagination="true" IsStriped="true" IsBordered="false"
+           ShowToolbar="true" ShowSearch="true" ShowDefaultButtons="true"
+           ShowExtendButtons="true"
+           OnQueryAsync="OnQueryAsync"
+           OnSaveAsync="OnSaveAsync"
+           OnDeleteAsync="OnDeleteAsync">
+        <TableColumns>
+            <TableColumn @bind-Field="@context.Code" IsReadonlyWhenEdit="true" />
+            <TableColumn @bind-Field="@context.Name" Searchable="true" />
+            <TableColumn @bind-Field="@context.OrgType" />
+            <TableColumn @bind-Field="@context.RegionCode" Text="所属区域代码" />
+            @* 仅展示用，编辑时可以不需要 *@
+            <TableColumn @bind-Field="@context.RegionName" Text="区域名称" IsReadonlyWhenEdit="true" />
+            <TableColumn @bind-Field="@context.Phone" />
+            <TableColumn @bind-Field="@context.IsDeleted" Text="启用" Width="100">
+                <Template Context="value">
+                    <Switch Value="value.Row.IsDeleted"
+                            OnValueChanged="@(v => OnStatusChanged(value.Row, v))"
+                            OnColor="Color.Success" OffColor="Color.Secondary" />
+                </Template>
+            </TableColumn>
+        </TableColumns>
+    </Table>
+</div>

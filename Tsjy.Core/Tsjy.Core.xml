@@ -11,7 +11,7 @@
         </member>
         <member name="T:Tsjy.Core.Entities.Departments">
             <summary>
-            教育局
+            机构
             </summary>
         </member>
         <member name="T:Tsjy.Core.Entities.ScoringModel">

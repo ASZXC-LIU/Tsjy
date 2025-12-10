@@ -38,7 +38,7 @@ public class Region : IEntity
 }
 
 /// <summary>
-/// 教育局
+/// 机构
 /// </summary>
 [Table("departments")]
 public class Departments : IEntity

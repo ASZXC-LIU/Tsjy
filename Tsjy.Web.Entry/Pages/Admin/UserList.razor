@@ -1,0 +1,53 @@
+﻿@page "/Admin/UserList"
+@using Tsjy.Application.System.Dtos.SysusersDtos
+@using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "Admin")]
+@inherits BootstrapComponentBase
+
+<PageTitle>用户管理</PageTitle>
+
+<div class="container-fluid p-3">
+    <div class="card card-modern p-3">
+        @* 工具栏与筛选 *@
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-secondary">角色筛选:</span>
+                <Select @bind-Value="FilterRole" Items="RoleItems" OnSelectedItemChanged="OnFilterChanged"
+                        ShowLabel="false" style="width: 200px;" PlaceHolder="全部用户" />
+            </div>
+            @* 这里的添加用户可以使用 Table 自带的新增功能，或者自定义弹窗 *@
+        </div>
+
+        <Table TItem="SysUserListDto" @ref="UserTable"
+               IsPagination="true" IsStriped="true" IsBordered="false"
+               ShowToolbar="true" ShowSearch="true" ShowExtendButtons="true"
+               ShowDefaultButtons="true"
+               OnQueryAsync="OnQueryAsync"
+               OnDeleteAsync="OnDeleteAsync"
+               OnSaveAsync="OnSaveAsync"
+               RowClass="x => x.IsDeleted ? " opacity-50 bg-light" : "" " >
+
+            <TableColumns>
+                <TableColumn @bind-Field="@context.UserName" Searchable="true" Sortable="true" />
+                <TableColumn @bind-Field="@context.RealName" Searchable="true" />
+                <TableColumn @bind-Field="@context.Role" />
+                <TableColumn @bind-Field="@context.OrgType" />
+                <TableColumn @bind-Field="@context.Phone" />
+                <TableColumn @bind-Field="@context.IDNumber" Text="身份证号" />
+                <TableColumn @bind-Field="@context.IsDeleted" Text="状态/启用" Width="100" Align="Alignment.Center">
+                    <Template Context="value">
+                        @* 逻辑反转：
+                           Value=true (Switch ON)  代表 启用 (IsDeleted = false)
+                           Value=false (Switch OFF) 代表 禁用 (IsDeleted = true)
+                        *@
+                        <Switch Value="value.Row.IsDeleted"
+                                OnValueChanged="@(v => OnStatusChanged(value.Row, v))"
+                                OnColor="Color.Success" OffColor="Color.Secondary" />
+                    </Template>
+                </TableColumn>
+                <TableColumn @bind-Field="@context.CreatedAt" FormatString="yyyy-MM-dd" Width="150" />
+                <TableColumn @bind-Field="@context.Password" Text="密码"  />
+            </TableColumns>
+        </Table>
+    </div>
+</div>

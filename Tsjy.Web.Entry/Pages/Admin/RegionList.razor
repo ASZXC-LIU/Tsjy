@@ -1,0 +1,31 @@
+﻿@page "/Admin/RegionList"
+@using Tsjy.Application.System.Dtos.BasicDataDtos
+@using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "Admin")]
+@inherits BootstrapComponentBase
+
+<PageTitle>行政区划管理</PageTitle>
+
+<div class="container-fluid p-3">
+    <Table TItem="RegionDto"
+           IsPagination="true" IsStriped="true"
+           ShowToolbar="true" ShowSearch="true" ShowDefaultButtons="true"
+           ShowExtendButtons="true"
+           OnQueryAsync="OnQueryAsync"
+           OnSaveAsync="OnSaveAsync"
+           OnDeleteAsync="OnDeleteAsync">
+        <TableColumns>
+            <TableColumn @bind-Field="@context.Code" Text="行政代码(主键)" IsReadonlyWhenEdit="true" />
+            <TableColumn @bind-Field="@context.Name" Searchable="true" />
+            <TableColumn @bind-Field="@context.ParentCode" Text="上级代码" />
+            <TableColumn @bind-Field="@context.Level" />
+            <TableColumn @bind-Field="@context.IsDeleted" Text="启用" Width="100">
+                <Template Context="value">
+                    <Switch Value="value.Row.IsDeleted"
+                            OnValueChanged="@(v => OnStatusChanged(value.Row, v))"
+                            OnColor="Color.Success" OffColor="Color.Secondary" />
+                </Template>
+            </TableColumn>
+        </TableColumns>
+    </Table>
+</div>

@@ -8,10 +8,8 @@ namespace Tsjy.Core.Enums;
 public enum UserRole
 {
     [Description("系统管理员")] Admin,
-    [Description("评分专家")] Expert,
-    [Description("视导员")] Inspector,
-    [Description("学校管理员")] SchoolUser,
-    [Description("教育局")] BureauUser
+    [Description("专家")] Expert,
+    [Description("评价单位")] SchoolUser,
 
 }
 
@@ -31,9 +29,9 @@ public enum OrgType
 /// </summary>
 public enum RegionLevel
 {
-    [Description("特殊教育学校")] Province,
-    [Description("融合教育学校")] City,
-    [Description("教育局")] District
+    [Description("省")] Province,
+    [Description("市")] City,
+    [Description("县/区")] District
 }
 
 /// <summary>
