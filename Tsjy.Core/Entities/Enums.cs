@@ -51,7 +51,7 @@ public enum EvalNodeType
 /// <summary>
 /// 给评价单位的任务/作业状态流程
 /// </summary>
-public enum TaskStatus
+public enum TaskStatu
 {
     [Description("待发")] Pending,
     [Description("已下发")] Sent,

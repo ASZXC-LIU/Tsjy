@@ -1,0 +1,59 @@
+﻿@page "/School/MyTasks"
+@inherits BootstrapComponentBase
+
+<PageTitle>我的评价任务</PageTitle>
+
+<div class="container-fluid p-3">
+    <Card IsShadow="true">
+        <HeaderTemplate>
+            <i class="fa fa-tasks text-primary me-2"></i>任务列表
+        </HeaderTemplate>
+        <BodyTemplate>
+            <Table TItem="SchoolTaskListDto" Items="Tasks" IsStriped="true" IsBordered="true" ShowEmpty="true">
+                <TableColumns>
+                    <TableColumn @bind-Field="@context.BatchName" Text="任务名称" />
+
+                    <TableColumn @bind-Field="@context.Status" Text="当前状态" Align="Alignment.Center" Width="120">
+                        <Template Context="v">
+                            <Tag Color="@GetStatusColor(v.Value)">
+                                @v.Value.ToDescription()
+                            </Tag>
+                        </Template>
+                    </TableColumn>
+
+                    <TableColumn @bind-Field="@context.DueAt" Text="截止时间" FormatString="yyyy-MM-dd" Width="150" />
+
+                    <TableColumn @bind-Field="@context.FinalScore" Text="最终得分" Width="100">
+                        <Template Context="v">
+                            @if (v.Value.HasValue)
+                            {
+                                <span class="fw-bold text-success">@v.Value</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </Template>
+                    </TableColumn>
+
+                    <TableColumn Text="操作" Align="Alignment.Center" Width="150">
+                        <Template Context="v">
+                            @if (v.Value.Status == TaskStatus.Pending || v.Value.Status == TaskStatus.Sent || v.Value.Status == TaskStatus.Submitting || v.Value.Status == TaskStatus.Returned)
+                            {
+                                <a href="/School/DoTask/@v.Value.TaskId" class="btn btn-primary btn-sm">
+                                    <i class="fa fa-edit"></i> 去填报
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="/School/DoTask/@v.Value.TaskId" class="btn btn-secondary btn-sm">
+                                    <i class="fa fa-eye"></i> 查看详情
+                                </a>
+                            }
+                        </Template>
+                    </TableColumn>
+                </TableColumns>
+            </Table>
+        </BodyTemplate>
+    </Card>
+</div>
