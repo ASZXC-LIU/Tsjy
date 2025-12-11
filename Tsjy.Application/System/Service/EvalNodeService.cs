@@ -212,39 +212,38 @@ namespace Tsjy.Application.System.Service
         /// 通用的创建子节点逻辑
         /// </summary>
         /// <typeparam name="T">实体类型，必须同时实现 IEntity 和 IEvalNode</typeparam>
+        // 在 CreateChildNodeInternal 方法中修改类型判断逻辑
         private async Task<long> CreateChildNodeInternal<T>(IRepository<T> repo, CreateNodeDto input)
-            // ★★★ 核心修复：添加 IEntity 约束 ★★★
             where T : class, IEntity, IEvalNode, new()
         {
             // 1. 查找父节点
             var parentNode = await repo.FirstOrDefaultAsync(x => x.Id == input.ParentId);
-
-            if (parentNode == null)
-                throw new Exception("父节点不存在，无法创建子节点。");
+            if (parentNode == null) throw new Exception("父节点不存在");
 
             // 2. 计算 Path 和 Depth
             var newDepth = parentNode.Depth + 1;
-
-            // Path 逻辑：根节点的 Path 是 "0"，子节点不应包含 "0," 前缀，而是直接接 ID
-            // 举例：
-            // 根(ID=1, Path="0") -> 子(ID=2, Path="1") 
-            // 子(ID=2, Path="1") -> 孙(ID=3, Path="1,2")
-            var pathPrefix = (parentNode.Path == "0" || string.IsNullOrEmpty(parentNode.Path))
-                             ? ""
-                             : parentNode.Path + ",";
-
-            // 如果父节点是根(Path="0")，新Path就是父ID(如"1")；否则是 "父Path,父ID" (如 "1,2")
+            var pathPrefix = (parentNode.Path == "0" || string.IsNullOrEmpty(parentNode.Path)) ? "" : parentNode.Path + ",";
             var newPath = (parentNode.Path == "0") ? parentNode.Id.ToString() : (parentNode.Path + "," + parentNode.Id);
 
-            // 3. 自动推断类型
-            var newType = newDepth switch
+            // 3. 确定类型：如果前端传了明确的类型（非System默认值），则使用前端传的，否则自动推断
+            // 注意：CreateNodeDto中Type默认为System(0)
+            EvalNodeType newType;
+            if (input.Type != EvalNodeType.System)
             {
-                1 => EvalNodeType.FirstIndicator,
-                2 => EvalNodeType.SecondIndicator,
-                3 => EvalNodeType.Reference,
-                4 => EvalNodeType.Points,
-                _ => EvalNodeType.Method
-            };
+                newType = input.Type;
+            }
+            else
+            {
+                // 原有的自动推断逻辑
+                newType = newDepth switch
+                {
+                    1 => EvalNodeType.FirstIndicator,
+                    2 => EvalNodeType.SecondIndicator,
+                    3 => EvalNodeType.Reference,
+                    4 => EvalNodeType.Points,
+                    _ => EvalNodeType.Method
+                };
+            }
 
             // 4. 创建实体
             var newNode = new T
@@ -253,8 +252,7 @@ namespace Tsjy.Application.System.Service
                 ParentId = input.ParentId,
                 Path = newPath,
                 Depth = newDepth,
-                Type = newType,
-
+                Type = newType, // 使用新的类型逻辑
                 Code = input.Code,
                 Name = input.Name,
                 MaxScore = input.MaxScore,
@@ -263,9 +261,7 @@ namespace Tsjy.Application.System.Service
                 CreatedAt = DateTime.Now
             };
 
-            // 5. 保存
             await repo.InsertNowAsync(newNode);
-
             return newNode.Id;
         }
 

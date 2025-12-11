@@ -40,33 +40,10 @@
 
         @* 编辑/新建 弹窗模板 *@
         <EditTemplate Context="model">
-            @* 移除原本在这里的 EnsureCascadingState 调用，改为在 C# 代码的 OnEditAsync 中处理 *@
-
-            <div class="row g-3">
-                @* 使用 col-sm-6 让在中大屏幕上每行显示两个控件 *@
-                <div class="col-12 col-sm-6">
-                    <BootstrapInput @bind-Value="@model.Code" placeholder="请输入行政代码" Readonly="@(model.Code != null && !IsAdding)" />
-                </div>
-                <div class="col-12 col-sm-6">
-                    <BootstrapInput @bind-Value="@model.Name" placeholder="请输入名称" />
-                </div>
-                <div class="col-12 col-sm-6">
-                    <Select TValue="RegionLevel"
-                            Value="model.Level"
-                            OnValueChanged="@(v => OnLevelChanged(v, model))"
-                            ShowLabel="true"
-                            DisplayText="行政区级别"
-                            PlaceHolder="请选择行政级别" />
-                </div>
-                <div class="col-12 col-sm-6">
-                    <Select @bind-Value="@model.ParentCode"
-                            Items="ParentItems"
-                            ShowLabel="true"
-                            ShowSearch="true"
-                            DisplayText="所属行政区域"
-                            PlaceHolder="@ParentPlaceholder" />
-                </div>
-            </div>
+            @* 将逻辑委托给独立的编辑器组件 *@
+            <RegionEditor @bind-Value="@model"
+                          AllRegions="@AllRegions"
+                          IsAdding="@IsAdding" />
         </EditTemplate>
     </Table>
 </div>

@@ -15,7 +15,7 @@ public partial class DoTask
 
     // 树形结构数据
     private List<TreeViewItem<TaskNodeTreeDto>> TreeItems { get; set; } = new();
-
+    private bool IsLoading { get; set; } = true;
     // 当前选中的节点填报详情
     private NodeFillDetailDto CurrentNodeDetail { get; set; }
 
@@ -26,9 +26,24 @@ public partial class DoTask
 
     private async Task LoadTree()
     {
-        var nodes = await TaskService.GetTaskTree(TaskId);
-        // 将扁平的 DTO 列表递归转换为 BootstrapBlazor 的 TreeViewItem
-        TreeItems = BuildTreeItems(nodes, null);
+        // 开始加载前置为 true
+        IsLoading = true;
+        try
+        {
+            var nodes = await TaskService.GetTaskTree(TaskId);
+            // 将扁平的 DTO 列表递归转换为 BootstrapBlazor 的 TreeViewItem
+            TreeItems = BuildTreeItems(nodes, null);
+        }
+        catch (Exception ex)
+        {
+            // 可选：处理异常，例如弹出错误提示
+            await MessageService.Show(new MessageOption { Content = "加载指标数据失败", Color = Color.Danger });
+        }
+        finally
+        {
+            // 无论成功还是失败（或数据为空），都结束加载状态
+            IsLoading = false;
+        }
     }
 
     /// <summary>

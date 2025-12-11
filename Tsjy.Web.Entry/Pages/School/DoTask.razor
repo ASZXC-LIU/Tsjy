@@ -14,14 +14,21 @@
             <h6 class="m-0 fw-bold text-primary"><i class="fa fa-folder-tree me-2"></i>评价指标体系</h6>
         </div>
         <div class="flex-grow-1 overflow-auto p-2">
-            @if (TreeItems.Any())
+            @if (IsLoading)
+            {
+                <div class="text-center mt-5"><Spinner /> 加载中...</div>
+            }
+            else if (TreeItems.Any())
             {
                 @* 这里的 TItem 必须能在 Razor 中被正确识别，否则会报错 *@
                 <TreeView TItem="TaskNodeTreeDto" Items="TreeItems" OnTreeItemClick="OnNodeClick" ShowIcon="true" />
             }
             else
             {
-                <div class="text-center mt-5"><Spinner /> 加载中...</div>
+                <div class="text-center mt-5 text-muted">
+                    <i class="fa fa-inbox fa-3x mb-3 opacity-25"></i>
+                    <p>暂无评价指标数据</p>
+                </div>
             }
         </div>
     </div>

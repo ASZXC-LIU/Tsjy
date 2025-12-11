@@ -143,20 +143,19 @@ namespace Tsjy.Web.Entry.Shared
         }
         private static List<MenuItem> GetUserSideMenuItems()
         {
-            var menu1 = new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index", Match = NavLinkMatch.All };
+          
            
-            new MenuItem() { Text = "我的任务", Icon = "fa-solid fa-fw fa-user", Url = "/School/MyTasks" };
-
-            var menu5 = new MenuItem() { Text = "计数器", Icon = "fa-solid fa-fw fa-table", Url = "/counter" };
-
-
-            ;
-            menu5.Parent = menu1;
-
             var menus = new List<MenuItem>
-        {
-            menu1
-        };
+    {
+        new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
+        
+        
+       
+        new MenuItem() { Text = "我的任务", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/School/MyTasks" },
+        //new MenuItem() { Text = "用户列表", Icon = "fa-solid fa-fw fa-users", Url = "/UserList" },
+        //new MenuItem() { Text = "获取数据", Icon = "fa-solid fa-fw fa-database", Url = "/fetchdata" },
+    };
+
             return menus;
         }
 

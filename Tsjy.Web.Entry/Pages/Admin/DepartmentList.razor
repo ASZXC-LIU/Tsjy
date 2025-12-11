@@ -31,38 +31,8 @@
             <TableColumn @bind-Field="@context.RegionCode" Text="所属区域" ColSpan="3">
                 <EditTemplate Context="model">
                    
-                    <div class="row g-3">
-                        <div class="col-4">
-                            @* 1. 使用 OnSelectedItemChanged 代替 OnValueChanged
-                               2. 传入参数 item 是 SelectedItem 类型
-                            *@
-                            <Select TValue="string"
-                                    Items="@ProvinceItems"
-                                    Value="@SelectedProvinceCode"
-                                    OnSelectedItemChanged="@(item => OnProvinceChanged(item, model))"
-                                    ShowLabel="true" DisplayText="省"
-                                    />
-                        </div>
-                        <div class="col-4">
-                            @* 加上 @key 是解决刷新问题的关键 *@
-                            <Select TValue="string"
-                                    @key="@SelectedProvinceCode"
-                                    Items="@CityItems"
-                                    Value="@SelectedCityCode"
-                                    OnSelectedItemChanged="@(item => OnCityChanged(item, model))"
-                                    ShowLabel="true" DisplayText="市"
-                                   />
-                        </div>
-                        <div class="col-4">
-                            <Select TValue="string"
-                                    @key="@SelectedCityCode"
-                                    Items="@DistrictItems"
-                                    Value="@model.RegionCode"
-                                    OnSelectedItemChanged="@(item => OnDistrictChanged(item, model))"
-                                    ShowLabel="true" DisplayText="区/县"
-                                    />
-                        </div>
-                    </div>
+                    <DepartmentRegionEditor @bind-Value="@model.RegionCode"
+                                            AllRegions="@AllRegions" />
                 </EditTemplate>
                 <Template Context="value">
                     @value.Row.RegionName (@value.Value)

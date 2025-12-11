@@ -19,11 +19,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
         // 缓存所有数据
         private List<RegionDto> AllRegions { get; set; } = new();
 
-        // 动态计算的父级选项
-        private List<SelectedItem> ParentItems { get; set; } = new();
-
-        // 动态提示文字
-        private string ParentPlaceholder { get; set; } = "请先选择行政级别";
+        
 
         private bool IsAdding { get; set; } = false;
 
@@ -48,56 +44,9 @@ namespace Tsjy.Web.Entry.Pages.Admin
             };
         }
 
-        /// <summary>
-        /// 当行政级别改变时
-        /// </summary>
-        private async Task OnLevelChanged(RegionLevel level, RegionDto model)
-        {
-            model.Level = level;
-            model.ParentCode = ""; // 级别变了，清空已选的父级
-            UpdateParentItems(level);
-            // 强制刷新 UI 以确保 Select 组件的数据源更新
-            //StateHasChanged();
-            await Task.CompletedTask;
-        }
+     
 
-        /// <summary>
-        /// 核心逻辑：根据级别筛选父级列表
-        /// </summary>
-        private void UpdateParentItems(RegionLevel level)
-        {
-            IEnumerable<RegionDto> query = AllRegions;
-
-            switch (level)
-            {
-                case RegionLevel.Province:
-                    // 省级：没有父级
-                    query = Enumerable.Empty<RegionDto>();
-                    ParentPlaceholder = "省级区域无父级代码";
-                    break;
-
-                case RegionLevel.City:
-                    // 市级：父级必须是 省
-                    query = AllRegions.Where(x => x.Level == RegionLevel.Province);
-                    ParentPlaceholder = "请选择所属省份";
-                    break;
-
-                case RegionLevel.District:
-                    // 区县级：父级必须是 市
-                    query = AllRegions.Where(x => x.Level == RegionLevel.City);
-                    ParentPlaceholder = "请选择所属城市";
-                    break;
-
-                default:
-                    // 其他情况
-                    query = Enumerable.Empty<RegionDto>();
-                    ParentPlaceholder = "请先选择行政级别";
-                    break;
-            }
-
-            // 转换数据源
-            ParentItems = query.Select(x => new SelectedItem(x.Code, x.Name)).ToList();
-        }
+      
 
         // 处理树形结构
         private Task<IEnumerable<TableTreeNode<RegionDto>>> OnTreeNodeConverter(IEnumerable<RegionDto> items)
@@ -129,8 +78,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
         {
             IsAdding = true;
             var newItem = new RegionDto();
-            // 新建时初始化父级列表（默认 Level 是 Province，列表应为空）
-            UpdateParentItems(newItem.Level);
+            
             return Task.FromResult(newItem);
         }
 
@@ -138,8 +86,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
         private Task<bool> OnEditAsync(RegionDto item)
         {
             IsAdding = false;
-            // 编辑时，根据当前行的 Level 加载父级列表
-            UpdateParentItems(item.Level);
+         
             return Task.FromResult(true);
         }
 

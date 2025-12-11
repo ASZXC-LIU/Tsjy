@@ -1,0 +1,30 @@
+﻿@namespace Tsjy.Web.Entry.Pages.Admin
+@using BootstrapBlazor.Components
+@using Tsjy.Core.Enums
+
+<div class="row g-3">
+    <div class="col-12 col-sm-6">
+        @* Code 在非新建模式下只读 *@
+        <BootstrapInput @bind-Value="@Value.Code" placeholder="请输入行政代码" Readonly="@(!IsAdding)" />
+    </div>
+    <div class="col-12 col-sm-6">
+        <BootstrapInput @bind-Value="@Value.Name" placeholder="请输入名称" />
+    </div>
+    <div class="col-12 col-sm-6">
+        @* 注意：这里绑定 Value 而不是 @bind-Value，因为我们要拦截变更事件 *@
+        <Select TValue="RegionLevel"
+                Value="@Value.Level"
+                OnValueChanged="@OnLevelChanged"
+                ShowLabel="true"
+                DisplayText="行政区级别"
+                PlaceHolder="请选择行政级别" />
+    </div>
+    <div class="col-12 col-sm-6">
+        <Select @bind-Value="@Value.ParentCode"
+                Items="@ParentItems"
+                ShowLabel="true"
+                ShowSearch="true"
+                DisplayText="所属行政区域"
+                PlaceHolder="@ParentPlaceholder" />
+    </div>
+</div>

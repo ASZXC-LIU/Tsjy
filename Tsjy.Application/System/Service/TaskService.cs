@@ -14,7 +14,7 @@ namespace Tsjy.Application.System.Service
         private readonly IRepository<DistributionBatch> _batchRepo;
         private readonly IRepository<BatchTarget> _batchTargetRepo;
         private readonly IRepository<Tasks> _taskRepo;
-        private readonly IRepository<AssignmentEvidence> _evidenceRepo;
+        private readonly IRepository<TaskEvidences> _evidenceRepo;
         private readonly IRepository<Departments> _orgRepo;
         // 修改：注入 SysUsers 仓储
         private readonly IRepository<SysUsers> _userRepo;
@@ -27,7 +27,7 @@ namespace Tsjy.Application.System.Service
             IRepository<DistributionBatch> batchRepo,
             IRepository<BatchTarget> batchTargetRepo,
             IRepository<Tasks> taskRepo,
-            IRepository<AssignmentEvidence> evidenceRepo,
+            IRepository<TaskEvidences> evidenceRepo,
             IRepository<SysUsers> userRepo,
             IRepository<Departments> orgRepo, // Update
             IRepository<SpeEvalNode> speRepo,
@@ -257,7 +257,7 @@ namespace Tsjy.Application.System.Service
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == input.TaskId && e.NodeId == input.NodeId);
             if (evidence == null)
             {
-                evidence = new AssignmentEvidence
+                evidence = new TaskEvidences
                 {
                     TaskId = input.TaskId,
                     NodeId = input.NodeId,

@@ -1,0 +1,30 @@
+﻿@namespace Tsjy.Web.Entry.Pages.Admin
+@using BootstrapBlazor.Components
+
+@* 建议将此组件放在 Pages/Admin 目录下，
+    或者放在 Shared 目录下（如果在 Shared 下，请修改上面的 namespace 为 Tsjy.Web.Entry.Shared） 
+*@
+
+<div class="row g-3">
+    <div class="col-4">
+        <Select TValue="string"
+                Items="@ProvinceItems"
+                Value="@SelectedProvinceCode"
+                OnSelectedItemChanged="@OnProvinceChanged"
+                ShowLabel="true" DisplayText="省" />
+    </div>
+    <div class="col-4">
+        <Select TValue="string"
+                Items="@CityItems"
+                Value="@SelectedCityCode"
+                OnSelectedItemChanged="@OnCityChanged"
+                ShowLabel="true" DisplayText="市" />
+    </div>
+    <div class="col-4">
+        <Select TValue="string"
+                Items="@DistrictItems"
+                Value="@Value"
+                OnSelectedItemChanged="@OnDistrictChanged"
+                ShowLabel="true" DisplayText="区/县" />
+    </div>
+</div>
