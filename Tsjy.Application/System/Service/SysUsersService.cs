@@ -19,10 +19,12 @@ namespace Tsjy.Application.System.Service
     public class SysUsersService : ISysUsersService, IScoped, IDynamicApiController
     {
         private readonly IRepository<SysUsers> _usersRepo;
+        private readonly IRepository<Departments> _orgRepo;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public SysUsersService(
-            IRepository<SysUsers> usersRepo, 
+            IRepository<SysUsers> usersRepo,
+            IRepository<Departments> orgRepo,
             AuthenticationStateProvider authenticationStateProvider,
             IHttpContextAccessor httpContextAccessor)
         {
@@ -30,6 +32,7 @@ namespace Tsjy.Application.System.Service
         
             _authenticationStateProvider = authenticationStateProvider;
             _httpContextAccessor = httpContextAccessor;
+            _orgRepo = orgRepo;
         }
 
         // 在 SysUsersService 类中添加以下方法
@@ -37,19 +40,60 @@ namespace Tsjy.Application.System.Service
         public async Task SaveUserAsync(SysUserListDto dto)
         {
             // 判断是新增还是更新 (根据身份证号)
+            //var existingUser = await _usersRepo.FirstOrDefaultAsync(x => x.IDNumber == dto.IDNumber);
+
+            //if (existingUser != null)
+            //{
+            //    // --- 更新逻辑 ---
+            //    // 使用 Mapster 将 DTO 的值覆盖到现有实体上
+            //    dto.Adapt(existingUser);
+            //    existingUser.UpdatedAt = DateTime.Now;
+            //    if (!string.IsNullOrEmpty(dto.Password))
+            //    {
+            //        existingUser.Password = DataEncryption.SHA1Encrypt(dto.Password.Trim());
+            //    }
+            //    // 注意：SysUserListDto 通常不包含密码，所以这里不修改密码
+
+            //    await _usersRepo.UpdateNowAsync(existingUser);
+            //}
+            //else
+            //{
+            //    // --- 新增逻辑 ---
+            //    var newUser = dto.Adapt<SysUsers>();
+
+            //    newUser.CreatedAt = DateTime.Now;
+            //    newUser.UpdatedAt = DateTime.Now;
+            //    // 设置默认密码 (例如 123456)
+            //    if (!string.IsNullOrEmpty(dto.Password))
+            //    {
+            //        newUser.Password = DataEncryption.SHA1Encrypt(dto.Password.Trim());
+            //    }
+            //    else
+            //    {
+            //        // 设置默认密码 (例如 123456)
+            //        newUser.Password = DataEncryption.SHA1Encrypt("123456");
+            //    }
+            //    newUser.IsDeleted = false;
+
+            //    await _usersRepo.InsertNowAsync(newUser);
+            //}
             var existingUser = await _usersRepo.FirstOrDefaultAsync(x => x.IDNumber == dto.IDNumber);
 
             if (existingUser != null)
             {
                 // --- 更新逻辑 ---
-                // 使用 Mapster 将 DTO 的值覆盖到现有实体上
-                dto.Adapt(existingUser);
+                existingUser.RealName = dto.RealName;
+                existingUser.Phone = dto.Phone;
+                existingUser.Role = dto.Role;
+                existingUser.OrgType = dto.OrgType;
+                existingUser.OrgId = dto.OrgId; // 更新单位
                 existingUser.UpdatedAt = DateTime.Now;
+
+                // 只有当密码框不为空时，才更新密码
                 if (!string.IsNullOrEmpty(dto.Password))
                 {
                     existingUser.Password = DataEncryption.SHA1Encrypt(dto.Password.Trim());
                 }
-                // 注意：SysUserListDto 通常不包含密码，所以这里不修改密码
 
                 await _usersRepo.UpdateNowAsync(existingUser);
             }
@@ -57,20 +101,13 @@ namespace Tsjy.Application.System.Service
             {
                 // --- 新增逻辑 ---
                 var newUser = dto.Adapt<SysUsers>();
-
                 newUser.CreatedAt = DateTime.Now;
                 newUser.UpdatedAt = DateTime.Now;
-                // 设置默认密码 (例如 123456)
-                if (!string.IsNullOrEmpty(dto.Password))
-                {
-                    newUser.Password = DataEncryption.SHA1Encrypt(dto.Password.Trim());
-                }
-                else
-                {
-                    // 设置默认密码 (例如 123456)
-                    newUser.Password = DataEncryption.SHA1Encrypt("123456");
-                }
                 newUser.IsDeleted = false;
+
+                // 设置默认密码或指定密码
+                string rawPwd = string.IsNullOrEmpty(dto.Password) ? "123456" : dto.Password.Trim();
+                newUser.Password = DataEncryption.SHA1Encrypt(rawPwd);
 
                 await _usersRepo.InsertNowAsync(newUser);
             }
@@ -78,13 +115,38 @@ namespace Tsjy.Application.System.Service
         // 在 SysUsersService 类中添加以下方法
         public async Task<List<SysUserListDto>> GetUserListAsync(UserRole? roleFilter = null)
         {
-            var query = _usersRepo.AsQueryable(false)
-               .Where(x => !roleFilter.HasValue || x.Role == roleFilter.Value  ) // 如果有筛选条件则过滤
-        
-                .OrderByDescending(x => x.CreatedAt);
+            //var query = _usersRepo.AsQueryable(false)
+            //   .Where(x => !roleFilter.HasValue || x.Role == roleFilter.Value  ) // 如果有筛选条件则过滤
 
-            var list = await query.ToListAsync();
-            return list.Adapt<List<SysUserListDto>>();
+            //    .OrderByDescending(x => x.CreatedAt);
+
+            //var list = await query.ToListAsync();
+            //return list.Adapt<List<SysUserListDto>>();
+
+            var query = from u in _usersRepo.AsQueryable()
+                        join d in _orgRepo.AsQueryable() on u.OrgId equals d.Code into leftJoin // 左连接，防止没单位的用户查不出来
+                        from org in leftJoin.DefaultIfEmpty()
+                        //where !u.IsDeleted
+                        select new SysUserListDto
+                        {
+                            IDNumber = u.IDNumber,
+                            UserName = u.UserName,
+                            RealName = u.RealName,
+                            Role = u.Role,
+                            Phone = u.Phone,
+                            OrgId = u.OrgId,     // 绑定ID
+                            OrgType = u.OrgType, // 绑定类型
+                            OrgName = org != null ? org.Name : "未分配", // 显示名称
+                            IsDeleted = u.IsDeleted,
+                            CreatedAt = u.CreatedAt
+                        };
+
+            if (roleFilter.HasValue)
+            {
+                query = query.Where(x => x.Role == roleFilter.Value);
+            }
+
+            return await query.OrderByDescending(x => x.CreatedAt).ToListAsync();
         }
 
         public async Task DeleteUserAsync(SysUserListDto dto)

@@ -1,6 +1,7 @@
 ﻿@page "/School/MyTasks"
 @using Tsjy.Application.System.Dtos
 @using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "SchoolUser")]
 @inherits BootstrapComponentBase
 
 <PageTitle>我的任务</PageTitle>

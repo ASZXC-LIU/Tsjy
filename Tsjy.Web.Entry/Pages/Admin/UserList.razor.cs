@@ -1,6 +1,7 @@
 ﻿using BootstrapBlazor.Components;
+using Mapster; // 记得引用 Mapster
 using Microsoft.AspNetCore.Components;
-using Tsjy.Application.System.Dtos;
+using Microsoft.AspNetCore.Components.Forms;
 using Tsjy.Application.System.Dtos.SysusersDtos;
 using Tsjy.Application.System.Service;
 using Tsjy.Core.Enums;
@@ -10,39 +11,51 @@ namespace Tsjy.Web.Entry.Pages.Admin
     public partial class UserList
     {
         [Inject] private SysUsersService UserService { get; set; }
+        [Inject] private DepartmentsService DeptService { get; set; }
         [Inject] private ToastService Toast { get; set; }
 
         private Table<SysUserListDto> UserTable { get; set; }
-        private UserRole? FilterRole { get; set; } = null;
+        private Modal EditModal { get; set; }
+
+        // 数据模型
+        private SysUserListDto Model { get; set; } = new();
+        private bool IsEditMode { get; set; } = false;
+
+        // 筛选与下拉框数据源
+        private UserRole? FilterRole { get; set; } = null; // 默认为空（查看所有）
         private List<SelectedItem> RoleItems { get; set; } = new();
+        private List<SelectedItem> OrgTypeItems { get; set; } = new();
+        private List<SelectedItem> OrgItems { get; set; } = new(); // 单位列表
 
         protected override void OnInitialized()
         {
-            // 初始化角色筛选下拉框
-            RoleItems.Add(new SelectedItem("", "全部用户"));
-            foreach (UserRole role in Enum.GetValues(typeof(UserRole)))
-            {
-                RoleItems.Add(new SelectedItem(role.ToString(), role.ToDescriptionString()));
-            }
+            // 初始化角色筛选（添加"全部"选项）
+            RoleItems.Add(new SelectedItem("", "查看所有"));
+            RoleItems.AddRange(typeof(UserRole).ToSelectList());
+
+            // 初始化机构类型
+            OrgTypeItems = typeof(OrgType).ToSelectList().ToList();
         }
 
+        // 表格数据查询
         private async Task<QueryData<SysUserListDto>> OnQueryAsync(QueryPageOptions options)
         {
             var data = await UserService.GetUserListAsync(FilterRole);
 
-            // 处理搜索
+            // 前端内存搜索
             if (!string.IsNullOrEmpty(options.SearchText))
             {
                 data = data.Where(x => x.UserName.Contains(options.SearchText) || x.RealName.Contains(options.SearchText)).ToList();
             }
 
-            // 内存分页
-            var total = data.Count;
-            var items = data.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems).ToList();
-
-            return new QueryData<SysUserListDto> { Items = items, TotalCount = total };
+            return new QueryData<SysUserListDto>
+            {
+                Items = data.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems),
+                TotalCount = data.Count
+            };
         }
 
+        // 筛选变动
         private async Task OnFilterChanged(SelectedItem item)
         {
             if (string.IsNullOrEmpty(item.Value)) FilterRole = null;
@@ -51,47 +64,61 @@ namespace Tsjy.Web.Entry.Pages.Admin
             await UserTable.QueryAsync();
         }
 
-        // 保存逻辑（新增/编辑）需要你需要完善 DTO 到 Entity 的映射
-        private async Task<bool> OnSaveAsync(SysUserListDto dto, ItemChangedType changedType)
+        // --- 核心级联逻辑 ---
+        private async Task OnOrgTypeChanged(OrgType type)
         {
+            // 根据选中的类型，去后台查单位列表
+            OrgItems = await DeptService.GetOrgSelectListAsync(type);
 
-            try
+            // 如果不是在编辑初始加载阶段，切换类型时要清空已选的单位ID
+            if (Model.OrgType != type)
             {
-                
-                await UserService.SaveUserAsync(dto);
-
-                await Toast.Success("保存成功");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                await Toast.Error("保存失败", ex.Message);
-                return false;
+                Model.OrgId = "";
             }
         }
 
-        private async Task<bool> OnDeleteAsync(IEnumerable<SysUserListDto> items)
+        // 点击新增
+        private void OnAddUser()
         {
-            foreach (var item in items)
-            {
-                await UserService.DeleteUserAsync(item);
-            }
-            return true;
+            IsEditMode = false;
+            Model = new SysUserListDto();
+            OrgItems.Clear(); // 新增时单位列表先清空，等用户选类型
+            EditModal.Show();
         }
 
-        // 处理开关点击事件
+        // 点击编辑
+        private async Task OnEditUser(SysUserListDto item)
+        {
+            IsEditMode = true;
+            Model = item.Adapt<SysUserListDto>(); // 深拷贝
+
+            // ★ 关键：回显处理 ★
+            // 1. 根据这个用户当前的 OrgType，去后台加载对应的单位列表
+            OrgItems = await DeptService.GetOrgSelectListAsync(Model.OrgType);
+
+            // 2. 特殊处理：如果列表里没有当前用户的单位（比如被软删了），手动加上，保证下拉框能显示名字而不是Code
+            if (!string.IsNullOrEmpty(Model.OrgId) && !OrgItems.Any(x => x.Value == Model.OrgId))
+            {
+                OrgItems.Add(new SelectedItem(Model.OrgId, Model.OrgName));
+            }
+
+            await EditModal.Show();
+        }
+
+        // 保存提交
+        private async Task OnSaveUserSubmit(EditContext context)
+        {
+            await UserService.SaveUserAsync(Model);
+            await Toast.Success("保存成功");
+            await EditModal.Close();
+            await UserTable.QueryAsync();
+        }
+
+        // 状态开关
         private async Task OnStatusChanged(SysUserListDto item, bool isEnabled)
         {
-            // isEnabled = true (开关开启) -> IsDeleted 应该为 false
-            // isEnabled = false (开关关闭) -> IsDeleted 应该为 true
-            var targetDeleteStatus = !isEnabled;
-
-            await UserService.UpdateUserStatusAsync(item.IDNumber, targetDeleteStatus);
-
-            // 更新本地数据状态，避免刷新表格带来的闪烁（或者直接调用 QueryAsync 刷新也可以）
-            item.IsDeleted = targetDeleteStatus;
-
-            await Toast.Success("状态更新成功", $"用户 {item.RealName} 已{(isEnabled ? "启用" : "禁用")}");
+            await UserService.UpdateUserStatusAsync(item.IDNumber, !isEnabled); // isEnabled=true 代表 IsDeleted=false
+            // 无需刷新表格，因为 Switch 已经改变了 UI 状态
         }
     }
 }

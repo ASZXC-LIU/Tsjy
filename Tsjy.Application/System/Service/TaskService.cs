@@ -53,23 +53,20 @@ namespace Tsjy.Application.System.Service
         public async Task<List<SysUserTargetDto>> GetTargetsByType(OrgType type)
         {
 
-            var query = from u in _userRepo.AsQueryable()
-                        join o in _orgRepo.AsQueryable() on u.OrgId equals o.Code
-                        where !u.IsDeleted && u.Role == UserRole.SchoolUser
-                        // 如果机构表里也有 type 字段，可以在这里加筛选： && o.Type == type
-                        select new SysUserTargetDto
+            // 直接查询 Departments 表
+            var query = _orgRepo.AsQueryable()
+                        .Where(d => d.OrgType == type && !d.IsDeleted) // 筛选类型
+                        .Select(d => new SysUserTargetDto
                         {
-                            TargetId = u.OrgId,
-                            IDNumber = u.IDNumber,
+                            // ★★★ 关键：直接取 Code 作为 TargetId ★★★
+                            TargetId = d.Code,
+                            OrgName = d.Name,
 
-                            // ★★★ 关键：获取机构表的名字 ★★★
-                            OrgName = o.Name,
-
-                            // 优先显示用户真实姓名，没有则显示账号
-                            RealName = string.IsNullOrEmpty(u.RealName) ? u.UserName : u.RealName,
-                            UserName = u.UserName,
-                            Phone = u.Phone
-                        };
+                            // 因为是查单位，没有具体用户，这些字段可以给默认值，或者显示单位的固定电话
+                            //RealName = d.Principal ?? "暂无联系人", // 假设机构表有负责人字段
+                            //Phone = d.Phone ?? "",
+                            UserName = "-"
+                        });
 
             return await query.ToListAsync();
         }
@@ -133,6 +130,7 @@ namespace Tsjy.Application.System.Service
         /// <param name="myOrgId">当前登录用户的 OrgId</param>
         public async Task<List<SchoolTaskListDto>> GetMyTasks(string myOrgId)
         {
+            if (string.IsNullOrEmpty(myOrgId)) return new List<SchoolTaskListDto>();
             // 查找 TargetId 等于我的 OrgId 的任务
             var tasks = await _taskRepo.AsQueryable()
                 .Where(t => t.TargetId == myOrgId && !t.IsDeleted)

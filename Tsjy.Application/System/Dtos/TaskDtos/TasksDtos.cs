@@ -9,12 +9,14 @@ namespace Tsjy.Application.System.Dtos
     /// </summary>
     public class SysUserTargetDto
     {
-        // 这里返回 OrgId 作为选择的值，因为任务是发给 Org 的
+        // ★★★ 必须是 string，对应 Departments.Code ★★★
         public string TargetId { get; set; }
-        public string OrgName { get; set; }
-        public string IDNumber { get; set; } // 用户身份证/主键
-        public string RealName { get; set; }     // 显示名称 (RealName 或 UserName)
-        public string UserName { get; set; }  // 账号
+
+        public string OrgName { get; set; }  // 单位名称
+
+        // 下面这些字段对于“选单位”来说不是必须的，可以留空，或者用来显示单位负责人
+        public string RealName { get; set; } // 比如：单位联系人
+        public string UserName { get; set; }
         public string Phone { get; set; }
     }
 
@@ -32,7 +34,7 @@ namespace Tsjy.Application.System.Dtos
         [Required(ErrorMessage = "请选择单位类型")]
         public OrgType TargetType { get; set; }
 
-        // 选中的 OrgId 列表 (注意：这里存的是 OrgId)
+        // ★★★ 这里的 ID 是机构的代码 (Code)，所以必须是 string ★★★
         public List<string> SelectedTargetIds { get; set; } = new();
 
         public DateTime StartAt { get; set; } = DateTime.Now;

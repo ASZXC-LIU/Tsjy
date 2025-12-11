@@ -18,8 +18,12 @@ namespace Tsjy.Application.System.Dtos.SysusersDtos
         [DisplayName("角色")]
         public UserRole Role { get; set; }
 
+
+        public string OrgId { get; set; }
         [DisplayName("机构类型")]
         public OrgType OrgType { get; set; }
+        public string OrgName { get; set; }
+
 
         [DisplayName("电话")]
         public string Phone { get; set; }

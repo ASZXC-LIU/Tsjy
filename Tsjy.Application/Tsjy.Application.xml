@@ -164,6 +164,11 @@
             删除模板
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.DepartmentsService.GetOrgSelectListAsync(Tsjy.Core.Enums.OrgType)">
+            <summary>
+            根据机构类型获取下拉框列表
+            </summary>
+        </member>
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.GetNodesAsync(System.String,System.Int64)">
             <summary>
             获取指定体系下的所有节点（扁平列表，前端转树）

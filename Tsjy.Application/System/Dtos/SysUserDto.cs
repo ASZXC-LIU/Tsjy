@@ -16,9 +16,11 @@ namespace Tsjy.Application.System.Dtos
         public string Password { get; set; } = string.Empty;
         public string RealName { get; set; } = string.Empty;
         
-        public UserRole User_type { get; set; } 
+        public UserRole User_type { get; set; }
+        public string OrgId { get; set; }
+        public string OrgName { get; set; }
+        
 
 
-   
     }
 }

@@ -39,9 +39,8 @@
                                IsMultipleSelect="true" ShowCheckbox="true" @bind-SelectedRows="SelectedTargets"
                                ShowLoading="IsLoadingTargets">
                             <TableColumns>
-                                <TableColumn @bind-Field="@context.RealName" Text="单位名称" />
-                                <TableColumn @bind-Field="@context.UserName" Text="登录账号" />
-                                <TableColumn @bind-Field="@context.Phone" Text="联系方式" />
+                                <TableColumn @bind-Field="@context.TargetId" Text="单位代码" />
+                                <TableColumn @bind-Field="@context.OrgName" Text="单位名称" />
                             </TableColumns>
                         </Table>
                     </div>
