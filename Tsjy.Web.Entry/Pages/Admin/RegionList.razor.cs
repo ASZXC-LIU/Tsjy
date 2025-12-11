@@ -49,15 +49,6 @@ namespace Tsjy.Web.Entry.Pages.Admin
         }
 
         /// <summary>
-        /// 确保弹窗打开时的级联状态（新建和编辑都会调用）
-        /// </summary>
-        private void EnsureCascadingState(RegionDto model)
-        {
-            // 根据当前模型的级别，加载对应的父级列表
-            UpdateParentItems(model.Level);
-        }
-
-        /// <summary>
         /// 当行政级别改变时
         /// </summary>
         private async Task OnLevelChanged(RegionLevel level, RegionDto model)
@@ -65,7 +56,8 @@ namespace Tsjy.Web.Entry.Pages.Admin
             model.Level = level;
             model.ParentCode = ""; // 级别变了，清空已选的父级
             UpdateParentItems(level);
-            StateHasChanged();
+            // 强制刷新 UI 以确保 Select 组件的数据源更新
+            //StateHasChanged();
             await Task.CompletedTask;
         }
 
@@ -74,7 +66,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
         /// </summary>
         private void UpdateParentItems(RegionLevel level)
         {
-            IEnumerable<RegionDto> query = new List<RegionDto>();
+            IEnumerable<RegionDto> query = AllRegions;
 
             switch (level)
             {
@@ -137,10 +129,18 @@ namespace Tsjy.Web.Entry.Pages.Admin
         {
             IsAdding = true;
             var newItem = new RegionDto();
-            // 默认 RegionDto 的 Level 可能是 Province (0)，
-            // 我们初始化一下，让界面状态正确（父级为空，提示无父级）
+            // 新建时初始化父级列表（默认 Level 是 Province，列表应为空）
             UpdateParentItems(newItem.Level);
             return Task.FromResult(newItem);
+        }
+
+        // 编辑按钮回调 - 修复级联失效的关键
+        private Task<bool> OnEditAsync(RegionDto item)
+        {
+            IsAdding = false;
+            // 编辑时，根据当前行的 Level 加载父级列表
+            UpdateParentItems(item.Level);
+            return Task.FromResult(true);
         }
 
         private async Task<bool> OnSaveAsync(RegionDto dto, ItemChangedType changedType)

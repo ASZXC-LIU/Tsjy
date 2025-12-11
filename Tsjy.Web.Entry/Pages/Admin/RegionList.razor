@@ -7,9 +7,7 @@
 <PageTitle>行政区划管理</PageTitle>
 
 <div class="container-fluid p-3">
-    @* ShowDeleteButton="true": 恢复删除按钮
-       ShowEditButton="true": 显示修改按钮 (默认即为 true)
-    *@
+    @* 增加 OnEditAsync 用于在编辑前初始化数据 *@
     <Table @ref="Table" TItem="RegionDto"
            IsTree="true"
            IsPagination="false"
@@ -22,6 +20,7 @@
            OnQueryAsync="OnQueryAsync"
            OnAddAsync="OnAddAsync"
            OnSaveAsync="OnSaveAsync"
+           OnEditAsync="OnEditAsync"
            OnDeleteAsync="OnDeleteAsync"
            TreeNodeConverter="OnTreeNodeConverter">
 
@@ -41,34 +40,25 @@
 
         @* 编辑/新建 弹窗模板 *@
         <EditTemplate Context="model">
-            @{
-                // 初始化级联状态，确保修改时能正确加载父级列表
-                EnsureCascadingState(model);
-            }
+            @* 移除原本在这里的 EnsureCascadingState 调用，改为在 C# 代码的 OnEditAsync 中处理 *@
+
             <div class="row g-3">
-                <div class="col-12">
+                @* 使用 col-sm-6 让在中大屏幕上每行显示两个控件 *@
+                <div class="col-12 col-sm-6">
                     <BootstrapInput @bind-Value="@model.Code" placeholder="请输入行政代码" Readonly="@(model.Code != null && !IsAdding)" />
                 </div>
-                <div class="col-12">
+                <div class="col-12 col-sm-6">
                     <BootstrapInput @bind-Value="@model.Name" placeholder="请输入名称" />
                 </div>
-                <div class="col-12">
-                    @* 1. 隐藏“行政级别”文字：ShowLabel="false" 且 Placeholder="请选择行政级别"
-                       2. 改变时触发 OnLevelChanged 
-                    *@
+                <div class="col-12 col-sm-6">
                     <Select TValue="RegionLevel"
                             Value="model.Level"
                             OnValueChanged="@(v => OnLevelChanged(v, model))"
                             ShowLabel="true"
                             DisplayText="行政区级别"
                             PlaceHolder="请选择行政级别" />
-                    @* 注：使用 DisplayText=" " (空格) 可以保留布局占位但不显示文字，
-                       如果想完全去掉标签行可以使用 ShowLabel="false" *@
                 </div>
-                <div class="col-12">
-                    @* 1. 标签改为“父级代码”：DisplayText="父级代码"
-                       2. 数据源绑定 ParentItems
-                    *@
+                <div class="col-12 col-sm-6">
                     <Select @bind-Value="@model.ParentCode"
                             Items="ParentItems"
                             ShowLabel="true"

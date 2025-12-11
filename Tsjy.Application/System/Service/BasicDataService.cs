@@ -92,18 +92,23 @@ namespace Tsjy.Application.System.Service
 
         public async Task SaveDepartmentAsync(DepartmentDto dto)
         {
-            var entity = dto.Adapt<Departments>();
+            // 1. 尝试获取已存在的实体 (如果 Context 中已追踪，会直接返回追踪的实例)
+            var existingEntity = await _deptRepo.FirstOrDefaultAsync(x => x.Code == dto.Code);
 
-            // 检查是否存在
-            var isExist = await _deptRepo.AnyAsync(x => x.Code == entity.Code);
-
-            if (isExist)
+            if (existingEntity != null)
             {
-                await _deptRepo.UpdateNowAsync(entity);
+                // 2. 如果存在：将 DTO 的值更新到这个已被追踪的实体上
+                // Mapster 的 Adapt 方法支持将源对象的数据覆盖到目标对象
+                dto.Adapt(existingEntity);
+
+                // 3. 保存更新 (因为 existingEntity 已经被追踪，UpdateNowAsync 会处理得很好)
+                await _deptRepo.UpdateNowAsync(existingEntity);
             }
             else
             {
-                await _deptRepo.InsertNowAsync(entity);
+                // 4. 如果不存在：这是一个新插入的操作
+                var newEntity = dto.Adapt<Departments>();
+                await _deptRepo.InsertNowAsync(newEntity);
             }
         }
 
