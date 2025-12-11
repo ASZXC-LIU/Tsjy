@@ -16,7 +16,16 @@ public partial class BatchManagement
     [Inject]
     [NotNull]
     private ToastService? ToastService { get; set; }
+    /// <summary>
+    /// 搜索用的机构类型
+    /// </summary>
+    private OrgType? SearchOrgType { get; set; }
 
+    /// <summary>
+    /// 表格组件引用，用于刷新
+    /// </summary>
+    [NotNull]
+    private Table<BatchListDto>? BatchTable { get; set; }
     /// <summary>
     /// 数据查询方法 (接管数据加载)
     /// </summary>
@@ -24,7 +33,7 @@ public partial class BatchManagement
     {
         // 1. 获取所有数据
         // 注意：如果 IBatchService 将来支持分页查询，应优先使用分页接口
-        var items = await BatchService.GetListAsync();
+        var items = await BatchService.GetListAsync(SearchOrgType);
 
         // 2. 内存中进行搜索过滤
         if (!string.IsNullOrEmpty(options.SearchText))
@@ -44,7 +53,14 @@ public partial class BatchManagement
             TotalCount = total
         };
     }
-
+    /// <summary>
+    /// 查看进度点击事件
+    /// </summary>
+    private async Task CheckProgress(long batchId)
+    {
+        // TODO: 这里写具体的跳转逻辑或弹窗逻辑
+        await ToastService.Information("提示", $"正在查看批次 {batchId} 的进度...");
+    }
     /// <summary>
     /// 保存方法 (新增/编辑)
     /// </summary>

@@ -12,30 +12,51 @@ public class BatchService : IBatchService, ITransient
 {
     private readonly IRepository<DistributionBatch> _batchRepo;
     private readonly IRepository<BatchTarget> _targetRepo;
-
-    public BatchService(IRepository<DistributionBatch> batchRepo, IRepository<BatchTarget> targetRepo)
+    private readonly IRepository<Tasks> _taskRepo;
+    public BatchService(IRepository<DistributionBatch> batchRepo, IRepository<BatchTarget> targetRepo, IRepository<Tasks> taskRepo)
     {
         _batchRepo = batchRepo;
         _targetRepo = targetRepo;
+        _taskRepo = taskRepo; 
     }
 
-    public async Task<List<BatchListDto>> GetListAsync()
+    public async Task<List<BatchListDto>> GetListAsync(OrgType? orgType = null)
     {
-        // 关联查询计算机构数量
-        var query = from b in _batchRepo.AsQueryable()
-                    where !b.IsDeleted
-                    orderby b.CreatedAt descending
-                    select new BatchListDto
-                    {
-                        Id = b.Id,
-                        Name = b.Name,
-                        Status = b.Status,
-                        CreatedAt = b.CreatedAt,
-                        // ★★★ 修复 CS0854：显式传入 false 参数 ★★★
-                        OrgCount = _targetRepo.AsQueryable(false).Count(t => t.BatchId == b.Id && !t.IsDeleted)
-                    };
+        var query = _batchRepo.AsQueryable()
+                    .Where(b => !b.IsDeleted);
 
-        return await query.ToListAsync();
+        // 如果传入了机构类型，则通过子查询过滤包含该类型任务的批次
+        if (orgType.HasValue)
+        {
+            query = query.Where(b => _taskRepo.AsQueryable(false)
+                .Any(t => t.BatchId == b.Id && t.TargetType == orgType.Value));
+        }
+
+        var listQuery = query.OrderByDescending(b => b.CreatedAt)
+            .Select(b => new BatchListDto
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Status = b.Status,
+                CreatedAt = b.CreatedAt,
+                IsEnabled = b.Status != PublicStatus.NotStarted && b.Status != PublicStatus.Finished, // 简单的逻辑映射，根据实际需求调整
+
+                // 计算机构数量
+                OrgCount = _targetRepo.AsQueryable(false).Count(t => t.BatchId == b.Id && !t.IsDeleted),
+
+                // 获取时间：假设同一批次下的任务时间是一致的，取第一个非空的
+                StartAt = _taskRepo.AsQueryable(false)
+                            .Where(t => t.BatchId == b.Id)
+                            .Select(t => (DateTime?)t.StartAt)
+                            .FirstOrDefault(),
+
+                DueAt = _taskRepo.AsQueryable(false)
+                            .Where(t => t.BatchId == b.Id)
+                            .Select(t => (DateTime?)t.DueAt)
+                            .FirstOrDefault()
+            });
+
+        return await listQuery.ToListAsync();
     }
 
     public async Task DeleteAsync(long id)

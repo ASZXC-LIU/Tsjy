@@ -18,6 +18,12 @@ public class BatchListDto
 
     // 辅助属性：是否启用（用于绑定 Switch）
     public bool IsEnabled { get; set; }
+
+    // 新增：任务开始时间
+    public DateTime? StartAt { get; set; }
+
+    // 新增：任务截止时间
+    public DateTime? DueAt { get; set; }
 }
 
 public class BatchInputDto

@@ -7,72 +7,86 @@
 <PageTitle>批次管理</PageTitle>
 
 <div class="container-fluid p-3">
+    @* 顶部搜索区域 *@
+    <div class="row mb-3">
+        <div class="col-12 col-md-4">
+            <Select TValue="OrgType?"
+                    @bind-Value="@SearchOrgType"
+                    PlaceHolder="请选择批次类型进行筛选"
+                    ShowLabel="true"
+                    Label="批次类型"
+                    OnValueChanged="@(async _ => await BatchTable.QueryAsync())"
+                    IsClearable="true" />
+        </div>
+    </div>
+
+    @* 表格区域 *@
     <Table TItem="BatchListDto"
+           @ref="BatchTable"
            IsPagination="true"
            IsStriped="true"
            IsBordered="true"
-           ShowToolbar="true"
+           ShowToolbar="false"
            ShowSearch="true"
-           ShowDefaultButtons="true"
-           ShowExtendButtons="true"
-           OnQueryAsync="@OnQueryAsync"
-           OnSaveAsync="@OnSaveAsync"
-           OnDeleteAsync="@OnDeleteAsync">
+           ShowDefaultButtons="false"
+           ShowExtendButtons="false"
+           OnQueryAsync="@OnQueryAsync">
 
         <TableColumns>
-            @* ID 列 *@
-            <TableColumn @bind-Field="@context.Id" Text="ID" Width="60" IsReadonly="true" />
+            <TableColumn @bind-Field="@context.Id" Text="ID" Width="60" />
 
-            @* 名称列 (可搜索) *@
             <TableColumn @bind-Field="@context.Name" Text="批次名称" Searchable="true" />
 
-            @* 状态列 (显示为标签) *@
             <TableColumn @bind-Field="@context.Status" Text="状态" Width="100" Align="Alignment.Center">
                 <Template Context="value">
-                    @if(value.Row.Status == PublicStatus.NotStarted)
+                    @if (value.Row.Status == PublicStatus.NotStarted)
                     {
                         <Tag Color="Color.Success">未开始</Tag>
                     }
-                        else if(value.Row.Status == PublicStatus.InProgress)
+                    else if (value.Row.Status == PublicStatus.InProgress)
                     {
                         <Tag Color="Color.Success">已发布</Tag>
                     }
-						else
+                    else
                     {
                         <Tag Color="Color.Secondary">已经结束</Tag>
                     }
-                    
                 </Template>
-                <EditTemplate Context="value">
-                    @* 编辑模板这里的 value 也是实体本身 *@
-                    <Select @bind-Value="@value.Status" IsDisabled="true" />
-                </EditTemplate>
             </TableColumn>
 
-            @* 覆盖机构数列 (只读) *@
-            <TableColumn @bind-Field="@context.OrgCount" Text="覆盖机构数" Width="120" IsReadonly="true" Align="Alignment.Center">
+            <TableColumn @bind-Field="@context.OrgCount" Text="覆盖机构数" Width="100" Align="Alignment.Center">
                 <Template Context="value">
                     <span class="badge bg-info text-dark">@value.Value</span>
                 </Template>
             </TableColumn>
 
-            @* 生成时间列 (只读) *@
-            <TableColumn @bind-Field="@context.CreatedAt" Text="生成时间" Width="180" FormatString="yyyy-MM-dd HH:mm" IsReadonly="true" />
+            @* 新增：开始时间 *@
+            <TableColumn @bind-Field="@context.StartAt" Text="开始时间" Width="160" FormatString="yyyy-MM-dd HH:mm" />
 
-            @* 启用状态开关 *@
-            <TableColumn @bind-Field="@context.IsEnabled" Text="是否启用" Width="100" Align="Alignment.Center">
+            @* 新增：结束时间 *@
+            <TableColumn @bind-Field="@context.DueAt" Text="结束时间" Width="160" FormatString="yyyy-MM-dd HH:mm" />
+
+            <TableColumn @bind-Field="@context.CreatedAt" Text="生成时间" Width="160" FormatString="yyyy-MM-dd HH:mm" />
+            
+
+
+          @*   <TableColumn @bind-Field="@context.Id" Text="操作" Width="220" Align="Alignment.Center">
+                        <Template Context="value">
+                            <div class="btn-group shadow-sm rounded">
+                                <Button Size="Size.ExtraSmall" Color="Color.Light" Icon="fa-solid fa-pen-to-square text-primary"
+                                        TooltipText="构建/编辑" OnClick="() => OnEditSystem(value.Row)" /> *@
+
+
+            @* 操作列 *@
+            @* 操作列 *@
+            <TableColumn @bind-Field="@context.Id" Text="操作" Width="120" Align="Alignment.Center">
                 <Template Context="value">
-                    <Switch Value="@value.Row.IsEnabled"
-                            OnValueChanged="@((bool v) => OnStatusChanged(value.Row, v))"
-                            OnColor="Color.Success"
-                            OffColor="Color.Secondary" />
+                    @* 修正：这里必须传 .Id，因为 CheckProgress 方法接收的是 long batchId *@
+                    <Button Color="Color.Primary" Size="Size.ExtraSmall" Icon="fa fa-list-alt" TooltipText="构建/编辑"
+                            OnClick="() => CheckProgress(value.Row.Id)" />
                 </Template>
-                <EditTemplate Context="value">
-                    <div class="col-12">
-                        <span>请在列表页操作状态</span>
-                    </div>
-                </EditTemplate>
             </TableColumn>
+
         </TableColumns>
     </Table>
 </div>
