@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components.Server;
 using Tsjy.Web.Entry.Pages;
+using Tsjy.Web.Entry.Pages.Admin;
 using Tsjy.Web.Entry.Pages.School;
 
 namespace Tsjy.Web.Entry.Shared
@@ -112,7 +113,9 @@ namespace Tsjy.Web.Entry.Shared
     };
             taskMenu.Items = new List<MenuItem>
     {
-        new MenuItem() { Text = "发布任务", Icon = "fa-solid fa-fw fa-list-check", Url = "/Admin/TaskDistribute" }
+        new MenuItem() { Text = "发布任务", Icon = "fa-solid fa-fw fa-list-check", Url = "/Admin/TaskDistribute" },
+        new MenuItem() { Text = "任务批次", Icon = "fa-solid fa-fw fa-list-check", Url = "/Admin/BatchManagement" },
+        
     };
 
             // 3. 组装最终的菜单列表

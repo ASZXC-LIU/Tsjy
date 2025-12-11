@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
 using Tsjy.Application.System.Dtos.BatchDtos;
 using Tsjy.Application.System.IService;
+using Tsjy.Core.Enums;
 
 namespace Tsjy.Web.Entry.Pages.Admin;
 
@@ -16,34 +17,41 @@ public partial class BatchManagement
     [NotNull]
     private ToastService? ToastService { get; set; }
 
-    [Inject]
-    [NotNull]
-    private SwalService? SwalService { get; set; }
-
-    private List<BatchListDto> Items { get; set; } = new();
-
-    protected override async Task OnInitializedAsync()
+    /// <summary>
+    /// 数据查询方法 (接管数据加载)
+    /// </summary>
+    private async Task<QueryData<BatchListDto>> OnQueryAsync(QueryPageOptions options)
     {
-        await LoadData();
-    }
+        // 1. 获取所有数据
+        // 注意：如果 IBatchService 将来支持分页查询，应优先使用分页接口
+        var items = await BatchService.GetListAsync();
 
-    private async Task LoadData()
-    {
-        Items = await BatchService.GetListAsync();
-    }
+        // 2. 内存中进行搜索过滤
+        if (!string.IsNullOrEmpty(options.SearchText))
+        {
+            items = items.Where(i => i.Name.Contains(options.SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
 
-    private async Task OnStatusChanged(BatchListDto item, bool val)
-    {
-        item.IsEnabled = val;
-        await BatchService.UpdateStatusAsync(item.Id, val);
-        await ToastService.Success("操作成功", $"批次 {item.Name} 状态已更新");
+        // 3. 内存分页
+        var total = items.Count;
+        var pagedItems = items.Skip((options.PageIndex - 1) * options.PageItems)
+                              .Take(options.PageItems)
+                              .ToList();
+
+        return new QueryData<BatchListDto>()
+        {
+            Items = pagedItems,
+            TotalCount = total
+        };
     }
 
     /// <summary>
-    /// 保存方法 (重命名为 OnSave 以匹配 Lambda 调用)
+    /// 保存方法 (新增/编辑)
     /// </summary>
-    protected async Task<bool> OnSave(BatchListDto item, ItemChangedType changedType)
+    private async Task<bool> OnSaveAsync(BatchListDto item, ItemChangedType changedType)
     {
+        // 目前 IBatchService 似乎只提供了 UpdateAsync，未提供 Add 接口
+        // 如果需要新增功能，请确保 Service 层有对应方法
         if (changedType == ItemChangedType.Update)
         {
             var input = new BatchInputDto
@@ -54,28 +62,43 @@ public partial class BatchManagement
             };
 
             await BatchService.UpdateAsync(input);
-            await LoadData();
             await ToastService.Success("提示", "修改成功");
             return true;
         }
+        else if (changedType == ItemChangedType.Add)
+        {
+            // 如果后续实现了 CreateAsync，请在这里调用
+            await ToastService.Warning("提示", "暂不支持新增批次，请联系管理员");
+            return false;
+        }
+
         return false;
     }
 
-    private async Task OnDelete(BatchListDto item)
+    /// <summary>
+    /// 删除方法
+    /// </summary>
+    private async Task<bool> OnDeleteAsync(IEnumerable<BatchListDto> items)
     {
-        var ret = await SwalService.ShowModal(new SwalOption()
-        {
-            Category = SwalCategory.Warning,
-            Title = "删除确认",
-            Content = $"确定要删除批次【{item.Name}】吗？此操作不可恢复。",
-            ShowClose = true
-        });
-
-        if (ret)
+        foreach (var item in items)
         {
             await BatchService.DeleteAsync(item.Id);
-            await LoadData();
-            await ToastService.Success("提示", "删除成功");
         }
+        await ToastService.Success("提示", "删除成功");
+        return true;
+    }
+
+    /// <summary>
+    /// 状态切换处理
+    /// </summary>
+    private async Task OnStatusChanged(BatchListDto item, bool val)
+    {
+        // 1. 调用 Service 更新
+        await BatchService.UpdateStatusAsync(item.Id, val);
+
+        // 2. 更新本地对象状态 (IsEnabled setter 会自动更新 Status 枚举)
+        item.IsEnabled = val;
+
+        await ToastService.Success("操作成功", $"批次 {item.Name} 状态已更新");
     }
 }

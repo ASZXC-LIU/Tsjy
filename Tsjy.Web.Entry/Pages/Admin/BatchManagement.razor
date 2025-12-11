@@ -1,57 +1,71 @@
-﻿@page "/admin/batch-management"
+﻿@page "/Admin/BatchManagement"
 @using Tsjy.Application.System.Dtos.BatchDtos
 @using Tsjy.Core.Enums
-@using BootstrapBlazor.Components
 @attribute [Authorize(Roles = "Admin")]
+@inherits BootstrapComponentBase
 
-<div class="batch-manage-container">
+<PageTitle>批次管理</PageTitle>
+
+<div class="container-fluid p-3">
     <Table TItem="BatchListDto"
-           Items="@Items"
+           IsPagination="true"
            IsStriped="true"
            IsBordered="true"
            ShowToolbar="true"
            ShowSearch="true"
-           IsPagination="true"
-           PageItemsSource="new int[] { 10, 20 }"
-           EditMode="EditMode.Popup"
-           OnSaveAsync="@((item, type) => OnSave(item, type))">
+           ShowDefaultButtons="true"
+           ShowExtendButtons="true"
+           OnQueryAsync="@OnQueryAsync"
+           OnSaveAsync="@OnSaveAsync"
+           OnDeleteAsync="@OnDeleteAsync">
 
         <TableColumns>
+            @* ID 列 *@
             <TableColumn @bind-Field="@context.Id" Text="ID" Width="60" IsReadonly="true" />
 
+            @* 名称列 (可搜索) *@
             <TableColumn @bind-Field="@context.Name" Text="批次名称" Searchable="true" />
 
+            @* 状态列 (显示为标签) *@
             <TableColumn @bind-Field="@context.Status" Text="状态" Width="100" Align="Alignment.Center">
                 <Template Context="value">
-                    @{
-                        var row = (BatchListDto)value.Row;
-                        var color = row.Status == PublicStatus.finalized ? Color.Success : Color.Secondary;
-                        var text = row.Status == PublicStatus.finalized ? "已发布" : "草稿";
+                    @if(value.Row.Status == PublicStatus.finalized){
+                        // 修改前：var row = (BatchListDto)value.Row;
+                        // 修改后：直接使用 value，因为它已经是 BatchListDto
+                        // var row = value;
+                        // var color = row.Status == PublicStatus.finalized ? Color.Success : Color.Secondary;
+                        // var text = row.Status == PublicStatus.finalized ? "已发布" : "草稿";
+                        <Tag Color="Color.Success">已发布</Tag>
                     }
-                    <Tag Color="@color">@text</Tag>
+                    else
+                    {
+                        <Tag Color="Color.Secondary">草稿</Tag>
+                    }
+                    
                 </Template>
                 <EditTemplate Context="value">
-                    @{
-                        var row = (BatchListDto)value;
-                    }
-                    <Select @bind-Value="@row.Status" IsDisabled="true" />
+                    @* 编辑模板这里的 value 也是实体本身 *@
+                    <Select @bind-Value="@value.Status" IsDisabled="true" />
                 </EditTemplate>
             </TableColumn>
 
+            @* 覆盖机构数列 (只读) *@
             <TableColumn @bind-Field="@context.OrgCount" Text="覆盖机构数" Width="120" IsReadonly="true" Align="Alignment.Center">
                 <Template Context="value">
                     <span class="badge bg-info text-dark">@value.Value</span>
                 </Template>
             </TableColumn>
 
+            @* 生成时间列 (只读) *@
             <TableColumn @bind-Field="@context.CreatedAt" Text="生成时间" Width="180" FormatString="yyyy-MM-dd HH:mm" IsReadonly="true" />
 
-            <TableColumn Field="@nameof(BatchListDto.IsEnabled)" FieldType="@typeof(bool)" Text="是否启用" Width="100" Align="Alignment.Center">
+            @* 启用状态开关 *@
+            <TableColumn @bind-Field="@context.IsEnabled" Text="是否启用" Width="100" Align="Alignment.Center">
                 <Template Context="value">
-                    @{
-                        var row = (BatchListDto)value.Row;
-                    }
-                    <Switch Value="@row.IsEnabled" ValueChanged="@((bool val) => OnStatusChanged(row, val))" OnColor="Color.Success" OffColor="Color.Secondary" />
+                    <Switch Value="@value.Row.IsEnabled"
+                            OnValueChanged="@((bool v) => OnStatusChanged(value.Row, v))"
+                            OnColor="Color.Success"
+                            OffColor="Color.Secondary" />
                 </Template>
                 <EditTemplate Context="value">
                     <div class="col-12">
@@ -59,24 +73,6 @@
                     </div>
                 </EditTemplate>
             </TableColumn>
-
-            <TableColumn Text="操作" Width="160" Align="Alignment.Center">
-                <Template Context="value">
-                    @{
-                        var row = (BatchListDto)value.Row;
-                    }
-                    <Button Size="Size.ExtraSmall" Color="Color.Primary" Icon="fa-solid fa-pen" Text="编辑" OnClick="@(() => context.BeginEdit(row))" />
-                    <Button Size="Size.ExtraSmall" Color="Color.Danger" Icon="fa-solid fa-trash" Text="删除" OnClick="@(() => OnDelete(row))" Class="ms-2" />
-                </Template>
-            </TableColumn>
         </TableColumns>
     </Table>
 </div>
-
-<style>
-    .batch-manage-container {
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-    }
-</style>
