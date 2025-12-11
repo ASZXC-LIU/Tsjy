@@ -1,0 +1,82 @@
+﻿@page "/admin/batch-management"
+@using Tsjy.Application.System.Dtos.BatchDtos
+@using Tsjy.Core.Enums
+@using BootstrapBlazor.Components
+@attribute [Authorize(Roles = "Admin")]
+
+<div class="batch-manage-container">
+    <Table TItem="BatchListDto"
+           Items="@Items"
+           IsStriped="true"
+           IsBordered="true"
+           ShowToolbar="true"
+           ShowSearch="true"
+           IsPagination="true"
+           PageItemsSource="new int[] { 10, 20 }"
+           EditMode="EditMode.Popup"
+           OnSaveAsync="@((item, type) => OnSave(item, type))">
+
+        <TableColumns>
+            <TableColumn @bind-Field="@context.Id" Text="ID" Width="60" IsReadonly="true" />
+
+            <TableColumn @bind-Field="@context.Name" Text="批次名称" Searchable="true" />
+
+            <TableColumn @bind-Field="@context.Status" Text="状态" Width="100" Align="Alignment.Center">
+                <Template Context="value">
+                    @{
+                        var row = (BatchListDto)value.Row;
+                        var color = row.Status == PublicStatus.finalized ? Color.Success : Color.Secondary;
+                        var text = row.Status == PublicStatus.finalized ? "已发布" : "草稿";
+                    }
+                    <Tag Color="@color">@text</Tag>
+                </Template>
+                <EditTemplate Context="value">
+                    @{
+                        var row = (BatchListDto)value;
+                    }
+                    <Select @bind-Value="@row.Status" IsDisabled="true" />
+                </EditTemplate>
+            </TableColumn>
+
+            <TableColumn @bind-Field="@context.OrgCount" Text="覆盖机构数" Width="120" IsReadonly="true" Align="Alignment.Center">
+                <Template Context="value">
+                    <span class="badge bg-info text-dark">@value.Value</span>
+                </Template>
+            </TableColumn>
+
+            <TableColumn @bind-Field="@context.CreatedAt" Text="生成时间" Width="180" FormatString="yyyy-MM-dd HH:mm" IsReadonly="true" />
+
+            <TableColumn Field="@nameof(BatchListDto.IsEnabled)" FieldType="@typeof(bool)" Text="是否启用" Width="100" Align="Alignment.Center">
+                <Template Context="value">
+                    @{
+                        var row = (BatchListDto)value.Row;
+                    }
+                    <Switch Value="@row.IsEnabled" ValueChanged="@((bool val) => OnStatusChanged(row, val))" OnColor="Color.Success" OffColor="Color.Secondary" />
+                </Template>
+                <EditTemplate Context="value">
+                    <div class="col-12">
+                        <span>请在列表页操作状态</span>
+                    </div>
+                </EditTemplate>
+            </TableColumn>
+
+            <TableColumn Text="操作" Width="160" Align="Alignment.Center">
+                <Template Context="value">
+                    @{
+                        var row = (BatchListDto)value.Row;
+                    }
+                    <Button Size="Size.ExtraSmall" Color="Color.Primary" Icon="fa-solid fa-pen" Text="编辑" OnClick="@(() => context.BeginEdit(row))" />
+                    <Button Size="Size.ExtraSmall" Color="Color.Danger" Icon="fa-solid fa-trash" Text="删除" OnClick="@(() => OnDelete(row))" Class="ms-2" />
+                </Template>
+            </TableColumn>
+        </TableColumns>
+    </Table>
+</div>
+
+<style>
+    .batch-manage-container {
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+    }
+</style>

@@ -1,0 +1,137 @@
+﻿@page "/School/HistoryEvaluation"
+@using Tsjy.Application.System.Dtos.History
+@using BootstrapBlazor.Components
+
+<div class="history-page-content">
+    <div class="d-flex align-items-center mb-4">
+        <i class="fa-solid fa-school fa-2x text-primary me-3"></i>
+        <h3 class="mb-0 fw-bold">本校历史评价档案</h3>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-8">
+            <Card IsShadow="true" class="h-100 border-0">
+                <HeaderTemplate>
+                    <span class="fw-bold fs-5">历年得分趋势</span>
+                </HeaderTemplate>
+                <BodyTemplate>
+                    <div style="height: 300px;">
+                        <Chart @ref="LineChart" Type="ChartType.Line" OnInitAsync="OnInit" />
+                    </div>
+                </BodyTemplate>
+            </Card>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="best-score-card shadow-sm h-100 position-relative overflow-hidden text-white d-flex flex-column justify-content-center align-items-center">
+                <div class="circle-bg circle-1"></div>
+                <div class="circle-bg circle-2"></div>
+                <div class="z-1 text-center">
+                    <div class="display-2 fw-bold mb-2">
+                        @(BestScore.FinalScore?.ToString("F1") ?? "-")
+                    </div>
+                    <div class="fs-5 mb-4 opacity-75">当前最高得分</div>
+                    <span class="badge bg-white text-primary fs-6 px-3 py-2 rounded-pill shadow-sm">
+                        @BestScore.BatchName
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <Card IsShadow="true" class="border-0">
+        <HeaderTemplate>
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i>
+                <span class="fw-bold fs-5">历次评价列表</span>
+            </div>
+        </HeaderTemplate>
+        <BodyTemplate>
+            <Table TItem="HistoryTaskDto" Items="@TaskItems" IsStriped="true" IsBordered="false" ShowToolbar="false">
+                <TableColumns>
+                    <TableColumn @bind-Field="@context.BatchName" Text="年份/批次" Width="220" />
+                    <TableColumn @bind-Field="@context.Version" Text="评价体系版本" Width="180" />
+
+                    <TableColumn @bind-Field="@context.StatusCode" Text="状态" Width="120">
+                        <Template Context="value">
+                            @{
+                                var row = (HistoryTaskDto)value.Row;
+                                var isCompleted = row.StatusCode == "Completed";
+                                var color = isCompleted ? Color.Success : Color.Primary;
+                                var text = row.Status;
+                            }
+                            <Tag Color="@color">@text</Tag>
+                        </Template>
+                    </TableColumn>
+
+                    <TableColumn @bind-Field="@context.FinalScore" Text="最终得分" Width="120">
+                        <Template Context="value">
+                            @if (value.Value != null)
+                            {
+                                <span class="fw-bold text-dark">@value.Value</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </Template>
+                    </TableColumn>
+
+                    <TableColumn @bind-Field="@context.Rank" Text="排名" Width="120" />
+
+                    <TableColumn @bind-Field="@context.Id" Text="操作" Width="150" Align="Alignment.Center">
+                        <Template Context="value">
+                            @{
+                                var row = (HistoryTaskDto)value.Row;
+                            }
+                            @if (row.StatusCode == "Pending")
+                            {
+                                <Button Color="Color.Primary" Size="Size.ExtraSmall" Icon="fa-solid fa-pen-to-square" OnClick="() => OnFill(row)"> 去填报</Button>
+                            }
+                            else
+                            {
+                                <Button Color="Color.Primary" Size="Size.ExtraSmall" IsLink="true" Icon="fa-solid fa-eye" OnClick="() => OnViewDetail(row)"> 查看详情</Button>
+                            }
+                        </Template>
+                    </TableColumn>
+                </TableColumns>
+            </Table>
+        </BodyTemplate>
+    </Card>
+</div>
+
+<style>
+    .history-page-content {
+        padding: 10px;
+    }
+
+    .best-score-card {
+        background: linear-gradient(135deg, #2468f2 0%, #66b1ff 100%);
+        border-radius: 8px;
+        min-height: 300px;
+    }
+
+    .circle-bg {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .circle-1 {
+        width: 180px;
+        height: 180px;
+        top: -40px;
+        right: -40px;
+    }
+
+    .circle-2 {
+        width: 120px;
+        height: 120px;
+        bottom: -20px;
+        left: -20px;
+    }
+
+    .z-1 {
+        z-index: 1;
+    }
+</style>

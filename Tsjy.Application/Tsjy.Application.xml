@@ -274,5 +274,11 @@
             获取单个节点的详细填报信息
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.GetHistoryTasks(System.String)">
+            <summary>
+            获取历史任务列表（状态为已完成的任务）
+            </summary>
+            <param name="myOrgId">当前登录用户的 OrgId</param>
+        </member>
     </members>
 </doc>
