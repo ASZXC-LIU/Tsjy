@@ -17,11 +17,7 @@ public class BatchListDto
     public DateTime CreatedAt { get; set; }
 
     // 辅助属性：是否启用（用于绑定 Switch）
-    public bool IsEnabled
-    {
-        get => Status == PublicStatus.finalized;
-        set => Status = value ? PublicStatus.finalized : PublicStatus.Draft;
-    }
+    public bool IsEnabled { get; set; }
 }
 
 public class BatchInputDto
@@ -31,7 +27,7 @@ public class BatchInputDto
     [Required(ErrorMessage = "请输入批次名称")]
     public string Name { get; set; }
 
-    public PublicStatus Status { get; set; } = PublicStatus.Draft;
+    public PublicStatus Status { get; set; } = PublicStatus.NotStarted;
 
     // 如果有其他字段如 TreeId 也可以在这里添加
 }

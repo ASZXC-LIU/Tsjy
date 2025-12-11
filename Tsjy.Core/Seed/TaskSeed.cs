@@ -21,7 +21,7 @@ namespace Tsjy.Core.Seed
         {
             return new List<DistributionBatch>
             {
-                new DistributionBatch { Id = 1, TreeId = 202501, Name = "2025年度第一次普查", Status = PublicStatus.finalized, CreatedAt = DateTime.UtcNow }
+                new DistributionBatch { Id = 1, TreeId = 202501, Name = "2025年度第一次普查", Status = PublicStatus.NotStarted, CreatedAt = DateTime.UtcNow }
             };
         }
     }

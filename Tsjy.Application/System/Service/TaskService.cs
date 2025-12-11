@@ -84,7 +84,7 @@ namespace Tsjy.Application.System.Service
             {
                 TreeId = input.TreeId,
                 Name = input.BatchName,
-                Status = PublicStatus.finalized,
+                Status = PublicStatus.NotStarted,
                 CreatedAt = DateTime.Now
             };
             var batchEntity = await _batchRepo.InsertNowAsync(batch);

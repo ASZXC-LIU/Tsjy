@@ -54,7 +54,7 @@ public class BatchService : IBatchService, ITransient
         var entity = await _batchRepo.FindOrDefaultAsync(id);
         if (entity != null)
         {
-            entity.Status = isEnabled ? PublicStatus.finalized : PublicStatus.Draft;
+            
             entity.UpdatedAt = DateTime.Now;
             await _batchRepo.UpdateNowAsync(entity);
         }

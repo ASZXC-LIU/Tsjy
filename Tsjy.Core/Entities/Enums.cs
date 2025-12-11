@@ -97,6 +97,7 @@ public enum ReviewStatus
 /// </summary>
 public enum PublicStatus
 {
-    [Description("草稿")] Draft,
-    [Description("已发布")] finalized
+    [Description("未开始")]  NotStarted,
+    [Description("正在进行")] InProgress,
+    [Description("已经结束")] Finished
 }

@@ -29,17 +29,17 @@
             @* 状态列 (显示为标签) *@
             <TableColumn @bind-Field="@context.Status" Text="状态" Width="100" Align="Alignment.Center">
                 <Template Context="value">
-                    @if(value.Row.Status == PublicStatus.finalized){
-                        // 修改前：var row = (BatchListDto)value.Row;
-                        // 修改后：直接使用 value，因为它已经是 BatchListDto
-                        // var row = value;
-                        // var color = row.Status == PublicStatus.finalized ? Color.Success : Color.Secondary;
-                        // var text = row.Status == PublicStatus.finalized ? "已发布" : "草稿";
+                    @if(value.Row.Status == PublicStatus.NotStarted)
+                    {
+                        <Tag Color="Color.Success">未开始</Tag>
+                    }
+                        else if(value.Row.Status == PublicStatus.InProgress)
+                    {
                         <Tag Color="Color.Success">已发布</Tag>
                     }
-                    else
+						else
                     {
-                        <Tag Color="Color.Secondary">草稿</Tag>
+                        <Tag Color="Color.Secondary">已经结束</Tag>
                     }
                     
                 </Template>
