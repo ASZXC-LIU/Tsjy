@@ -286,6 +286,9 @@ namespace Tsjy.Application.System.Service
             var list = await repo.Where(x => !x.IsDeleted && x.TreeId == TreeId)
                                  .OrderBy(x => x.OrderIndex)
                                  .ToListAsync();
+            Console.WriteLine("1111");
+            Console.WriteLine("1111");
+            Console.WriteLine("1111");
             return list.Adapt<List<EvalNodeTreeDto>>();
         }
         #endregion

@@ -285,13 +285,15 @@ namespace Tsjy.Application.System.Service
             return new EvalNodeTreeDto
             {
                 Id = node.Id,
-                // 如果是根节点，ParentId 可能为 null，这里转为 0
                 ParentId = node.ParentId ?? 0,
                 Name = node.Name,
                 Code = node.Code,
                 MaxScore = node.MaxScore,
                 ScoringTemplateId = node.ScoringTemplateId,
-                OrderIndex = node.OrderIndex
+                OrderIndex = node.OrderIndex,
+
+                // ★★★ 在此处添加缺失的 Type 映射 ★★★
+                Type = node.Type
             };
         }
 

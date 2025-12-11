@@ -10,24 +10,50 @@
 
 @* 添加自定义样式优化滚动条和卡片高度 *@
 <style>
+    /* 1. 页面高度容器 */
+    .full-content-height {
+        /* 计算逻辑：
+               100vh (视口总高)
+               - 56px (顶部 Header)
+               - 40px (MainLayout padding)
+               - 40px (底部 Footer 及间隙)
+               = 约减去 140px。
+               你可以根据实际情况微调这个数值。
+            */
+        height: calc(100vh - 140px);
+    }
+
+    /* 2. 关键修复：强制卡片内容区不自动撑开 */
+    /* 当 Card 添加了 fixed-card 类时生效 */
+    .fixed-card .card-body {
+        flex: 1 1 auto;
+        min-height: 0; /* ★★★ 核心：允许 Flex 子项收缩到 0，防止撑破父容器 */
+        overflow: hidden; /* ★★★ 核心：隐藏卡片自身的溢出，交给内部 div 滚动 */
+        padding: 0; /* 清除默认内边距，我们在内部 div 补上，以免滚动条贴边 */
+    }
+
+    /* 3. 自定义滚动条区域 */
     .custom-scroll {
-        overflow-y: auto;
+        height: 100%; /* 占满 card-body 的高度 */
+        overflow-y: auto; /* 开启垂直滚动 */
+        padding: 1rem; /* 补上 padding */
+        /* 滚动条样式美化 */
         scrollbar-width: thin;
         scrollbar-color: #dee2e6 #fff;
     }
-    .custom-scroll::-webkit-scrollbar {
-        width: 6px;
-    }
-    .custom-scroll::-webkit-scrollbar-track {
-        background: #f8f9fa;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-        background-color: #dee2e6;
-        border-radius: 4px;
-    }
-    .full-content-height {
-        height: calc(100vh - 120px);
-    }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f8f9fa;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #dee2e6;
+            border-radius: 4px;
+        }
 </style>
 
 <div class="container-fluid p-3 full-content-height">
@@ -72,7 +98,7 @@
                             <TreeView TItem="EvalNodeTreeDto" Items="@TreeItems"
                                       OnTreeItemClick="@OnTreeItemClick"
                                       ShowIcon="true" IsAccordion="true"
-                                      ClickToggleNode="true" />
+                                      ClickToggleNode="false" />
                         }
                         else
                         {
@@ -89,7 +115,7 @@
 
         @* --- 右侧：表单编辑区 --- *@
         <div class="col-12 col-md-9 h-100">
-            <Card IsShadow="true" class="h-100 border-0 shadow-sm rounded-3 d-flex flex-column">
+            <Card IsShadow="true" class="h-100 border-0 shadow-sm rounded-3 d-flex flex-column fixed-card">
                 <HeaderTemplate>
                     @* ... Header 保持不变 ... *@
                     <div class="py-1">
@@ -126,7 +152,7 @@
                 </HeaderTemplate>
 
                 <BodyTemplate>
-                    <div class="custom-scroll h-100 pe-3 ps-1">
+                    <div class="custom-scroll pe-3 ps-1 pb-5">
                         @if (SelectedNode != null)
                         {
                             <ValidateForm Model="@CurrentEditModel" OnValidSubmit="OnSaveNode">
@@ -135,7 +161,7 @@
                                 @if (CurrentEditModel.Type == EvalNodeType.SecondIndicator)
                                 {
                                     <div class="alert alert-info border-0 bg-info bg-opacity-10 mb-4 shadow-sm">
-                                        <div class="d-flex gap-4">
+                                        <div class="d-flex flex-column gap-2">
                                             @{
                                                 var ancestors = GetAncestors(CurrentEditModel.ParentId);
                                             }
@@ -150,7 +176,7 @@
                                 else if (CurrentEditModel.Type == EvalNodeType.Reference)
                                 {
                                     <div class="alert alert-primary border-0 bg-primary bg-opacity-10 mb-4 shadow-sm">
-                                        <div class="d-flex gap-4">
+                                        <div class="d-flex flex-column gap-2">
                                             @{
                                                 var ancestors = GetAncestors(CurrentEditModel.ParentId);
                                             }
@@ -172,11 +198,21 @@
                                             }
                                             @if (ancestors.Count >= 4)
                                             {
-                                                <div class="d-flex gap-4 mb-3 border-bottom border-warning border-opacity-25 pb-2">
-                                                    <div><small class="text-muted d-block">一级指标</small><strong>@ancestors[1].Name</strong></div>
-                                                    <div><small class="text-muted d-block">二级指标</small><strong>@ancestors[2].Name</strong></div>
-                                                    <div><small class="text-muted d-block">评估参考点</small><strong>@ancestors[3].Name</strong></div>
+                                                <div class="d-flex flex-column gap-2 mb-3 border-bottom border-warning border-opacity-25 pb-3">
+                                                    <div class="border-bottom border-warning border-opacity-25 pb-2">
+                                                        <small class="text-muted d-block">一级指标</small>
+                                                        <strong>@ancestors[1].Name</strong>
+                                                    </div>
+                                                    <div class="border-bottom border-warning border-opacity-25 pb-2">
+                                                        <small class="text-muted d-block">二级指标</small>
+                                                        <strong>@ancestors[2].Name</strong>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">评估参考点</small>
+                                                        <strong>@ancestors[3].Name</strong>
+                                                    </div>
                                                 </div>
+
                                                 <div>
                                                     <small class="text-muted d-block mb-1"><i class="fa-solid fa-book-open me-1"></i>评估方法</small>
                                                     <div class="p-2 bg-white bg-opacity-50 rounded text-dark" style="white-space: pre-wrap;">@GetMethodContent(ancestors[3].Id)</div>
