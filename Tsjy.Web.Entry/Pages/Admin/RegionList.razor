@@ -7,18 +7,29 @@
 <PageTitle>行政区划管理</PageTitle>
 
 <div class="container-fluid p-3">
-    <Table TItem="RegionDto"
-           IsPagination="true" IsStriped="true"
-           ShowToolbar="true" ShowSearch="true" ShowDefaultButtons="true"
+    @* ShowDeleteButton="true": 恢复删除按钮
+       ShowEditButton="true": 显示修改按钮 (默认即为 true)
+    *@
+    <Table @ref="Table" TItem="RegionDto"
+           IsTree="true"
+           IsPagination="false"
+           IsStriped="true"
+           ShowToolbar="true"
+           ShowSearch="true"
+           ShowDefaultButtons="true"
+           ShowDeleteButton="true"
            ShowExtendButtons="true"
            OnQueryAsync="OnQueryAsync"
+           OnAddAsync="OnAddAsync"
            OnSaveAsync="OnSaveAsync"
-           OnDeleteAsync="OnDeleteAsync">
+           OnDeleteAsync="OnDeleteAsync"
+           TreeNodeConverter="OnTreeNodeConverter">
+
         <TableColumns>
-            <TableColumn @bind-Field="@context.Code" Text="行政代码(主键)" IsReadonlyWhenEdit="true" />
-            <TableColumn @bind-Field="@context.Name" Searchable="true" />
-            <TableColumn @bind-Field="@context.ParentCode" Text="上级代码" />
-            <TableColumn @bind-Field="@context.Level" />
+            <TableColumn @bind-Field="@context.Name" Text="区域名称" Searchable="true" Width="300" />
+            <TableColumn @bind-Field="@context.Code" Text="行政代码" IsReadonlyWhenEdit="true" />
+            <TableColumn @bind-Field="@context.Level" Text="级别" />
+
             <TableColumn @bind-Field="@context.IsDeleted" Text="启用" Width="100">
                 <Template Context="value">
                     <Switch Value="value.Row.IsDeleted"
@@ -27,5 +38,45 @@
                 </Template>
             </TableColumn>
         </TableColumns>
+
+        @* 编辑/新建 弹窗模板 *@
+        <EditTemplate Context="model">
+            @{
+                // 初始化级联状态，确保修改时能正确加载父级列表
+                EnsureCascadingState(model);
+            }
+            <div class="row g-3">
+                <div class="col-12">
+                    <BootstrapInput @bind-Value="@model.Code" placeholder="请输入行政代码" Readonly="@(model.Code != null && !IsAdding)" />
+                </div>
+                <div class="col-12">
+                    <BootstrapInput @bind-Value="@model.Name" placeholder="请输入名称" />
+                </div>
+                <div class="col-12">
+                    @* 1. 隐藏“行政级别”文字：ShowLabel="false" 且 Placeholder="请选择行政级别"
+                       2. 改变时触发 OnLevelChanged 
+                    *@
+                    <Select TValue="RegionLevel"
+                            Value="model.Level"
+                            OnValueChanged="@(v => OnLevelChanged(v, model))"
+                            ShowLabel="true"
+                            DisplayText="行政区级别"
+                            PlaceHolder="请选择行政级别" />
+                    @* 注：使用 DisplayText=" " (空格) 可以保留布局占位但不显示文字，
+                       如果想完全去掉标签行可以使用 ShowLabel="false" *@
+                </div>
+                <div class="col-12">
+                    @* 1. 标签改为“父级代码”：DisplayText="父级代码"
+                       2. 数据源绑定 ParentItems
+                    *@
+                    <Select @bind-Value="@model.ParentCode"
+                            Items="ParentItems"
+                            ShowLabel="true"
+                            ShowSearch="true"
+                            DisplayText="所属行政区域"
+                            PlaceHolder="@ParentPlaceholder" />
+                </div>
+            </div>
+        </EditTemplate>
     </Table>
 </div>

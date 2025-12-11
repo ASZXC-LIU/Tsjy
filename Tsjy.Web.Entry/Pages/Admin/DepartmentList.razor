@@ -15,12 +15,33 @@
            OnSaveAsync="OnSaveAsync"
            OnDeleteAsync="OnDeleteAsync">
         <TableColumns>
-            <TableColumn @bind-Field="@context.Code" IsReadonlyWhenEdit="true" />
+            <TableColumn @bind-Field="@context.Code" Text="机构代码" IsReadonlyWhenEdit="true" />
             <TableColumn @bind-Field="@context.Name" Searchable="true" />
             <TableColumn @bind-Field="@context.OrgType" />
-            <TableColumn @bind-Field="@context.RegionCode" Text="所属区域代码" />
-            @* 仅展示用，编辑时可以不需要 *@
-            <TableColumn @bind-Field="@context.RegionName" Text="区域名称" IsReadonlyWhenEdit="true" />
+
+            @* 这里的 RegionCode 在编辑时使用自定义模板 *@
+            <TableColumn @bind-Field="@context.RegionCode" Text="所属区域">
+                <EditTemplate Context="model">
+                    @{
+                        EnsureCascadingState(model);
+                    }
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <Select TValue="string" Items="ProvinceItems" Value="SelectedProvinceCode" OnValueChanged="OnProvinceChanged" ShowLabel="true" DisplayText="省" />
+                        </div>
+                        <div class="col-4">
+                            <Select TValue="string" Items="CityItems" Value="SelectedCityCode" OnValueChanged="OnCityChanged" ShowLabel="true" DisplayText="市" />
+                        </div>
+                        <div class="col-4">
+                            <Select TValue="string" Items="DistrictItems" Value="@model.RegionCode" OnValueChanged="@(val => OnDistrictChanged(val, model))" ShowLabel="true" DisplayText="区/县" />
+                        </div>
+                    </div>
+                </EditTemplate>
+                <Template Context="value">
+                    @value.Row.RegionName (@value.Value)
+                </Template>
+            </TableColumn>
+
             <TableColumn @bind-Field="@context.Phone" />
             <TableColumn @bind-Field="@context.IsDeleted" Text="启用" Width="100">
                 <Template Context="value">
