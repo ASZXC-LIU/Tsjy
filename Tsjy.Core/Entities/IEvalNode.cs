@@ -19,7 +19,7 @@ public interface IEvalNode
     string Name { get; set; }
     string Code { get; set; }
     decimal? MaxScore { get; set; }
-    long? ScoringModelId { get; set; }
+    long? ScoringTemplateId { get; set; }
     int OrderIndex { get; set; }
     public bool IsDeleted { get; set; } 
     DateTime CreatedAt { get; set; }

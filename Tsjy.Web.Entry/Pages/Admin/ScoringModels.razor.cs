@@ -22,6 +22,10 @@ namespace Tsjy.Web.Entry.Pages.Admin
         [Inject]
         [NotNull]
         private SwalService? Swal { get; set; } // 注入 Swal 用于弹窗
+
+
+      
+
         /// <summary>
         /// 表格查询数据
         /// </summary>

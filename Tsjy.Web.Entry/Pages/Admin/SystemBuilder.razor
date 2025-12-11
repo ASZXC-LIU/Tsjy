@@ -1,5 +1,5 @@
-
 @page "/Admin/EvalBuilder"
+@page "/Admin/EvalBuilder/{Category}/{TreeId:long}"
 @using Tsjy.Application.System.Dtos
 @using Tsjy.Core.Entities
 @using Tsjy.Core.Enums
@@ -140,15 +140,34 @@
                                                 <BootstrapInput @bind-Value="CurrentEditModel.Code" ShowLabel="true" DisplayText="指标序号" Placeholder="例如: 1.1" />
                                             </div>
                                             <div class="col-md-3">
-                                                <BootstrapInputNumber @bind-Value="CurrentEditModel.MaxScore" ShowLabel="true" DisplayText="标准分值" Min="0" Step="0.5" />
+                                                <BootstrapInputNumber @bind-Value="CurrentEditModel.MaxScore" ShowLabel="true" DisplayText="标准分值"  />
                                             </div>
                                             <div class="col-md-3">
                                                 <BootstrapInputNumber @bind-Value="CurrentEditModel.OrderIndex" ShowLabel="true" DisplayText="显示排序" />
                                             </div>
-                                            <div class="col-12">
-                                                <Textarea @bind-Value="CurrentEditModel.Name" ShowLabel="true" DisplayText="指标内容" Rows="3" 
-                                                          Placeholder="请输入指标的具体描述内容..." class="shadow-sm" />
-                                            </div>
+                                            @if ((int)(CurrentEditModel.Type) <5&&CurrentEditModel.Type>0)
+                                            {
+                                                <div class="col-12">
+                                                    <Textarea @bind-Value="CurrentEditModel.Name" ShowLabel="true" DisplayText="指标内容" Rows="3"
+                                                              Placeholder="请输入指标的具体描述内容..." class="shadow-sm" />
+                                                </div>
+                                            }
+                                            else if (CurrentEditModel.Type == 0)
+                                            {
+                                                <div class="col-12">
+                                                    <Textarea @bind-Value="CurrentEditModel.Name" ShowLabel="true" DisplayText="指标内容" Rows="3"
+                                                              Placeholder="请输入指标的具体描述内容" class="shadow-sm" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="col-12">
+                                                    <Textarea @bind-Value="CurrentEditModel.Name" ShowLabel="true" DisplayText="评价方法" Rows="3"
+                                                              Placeholder="请输入评价方法的具体内容..." class="shadow-sm" />
+                                                </div>
+                                            }
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -164,7 +183,7 @@
                                             <div class="col-md-7">
                                                 <div class="d-flex align-items-end gap-2">
                                                     <div class="flex-grow-1">
-                                                        <Select @bind-Value="CurrentEditModel.ScoringModelId"
+                                                        <Select @bind-Value="CurrentEditModel.ScoringTemplateId"
                                                                 Items="ScoringModelOptions"
                                                                 ShowLabel="true"
                                                                 DisplayText="选择评分模板"
@@ -209,7 +228,7 @@
                                                 </table>
                                             </div>
                                         }
-                                        else if (CurrentEditModel.ScoringModelId > 0)
+                                        else if (CurrentEditModel.ScoringTemplateId > 0)
                                         {
                                              <div class="text-center py-4 text-muted border rounded-3 border-dashed bg-white">
                                                 <Spinner Color="Color.Primary" Size="Size.Small" class="me-2"/> 正在加载模板详情...

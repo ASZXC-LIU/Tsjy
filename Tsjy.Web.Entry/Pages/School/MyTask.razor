@@ -1,0 +1,45 @@
+﻿@page "/School/MyTasks"
+@using Tsjy.Application.System.Dtos
+@using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "SchoolUser")]
+@inherits BootstrapComponentBase
+
+<PageTitle>我的任务</PageTitle>
+
+<div class="container-fluid p-3">
+    <Card>
+        <BodyTemplate>
+            @* TItem="SchoolTaskListDto" 已经正确指定 *@
+            <Table TItem="SchoolTaskListDto" Items="Tasks" IsStriped="true" ShowEmpty="true">
+                <TableColumns>
+                    <TableColumn @bind-Field="@context.BatchName" Text="任务名称" />
+
+                    @* 修复 1: 改回 @bind-Field。
+                       之前的报错是因为下方"操作"列缺失类型导致推断崩溃，
+                       现在下方修复了，这里用标准写法即可。
+                    *@
+                    <TableColumn @bind-Field="@context.Status" Text="状态">
+                        <Template Context="v">
+                            <Tag Color="@GetStatusColor(v.Value)">@GetDescription(v.Value)</Tag>
+                        </Template>
+                    </TableColumn>
+
+                    <TableColumn @bind-Field="@context.DueAt" Text="截止日期" FormatString="yyyy-MM-dd" />
+                    <TableColumn @bind-Field="@context.FinalScore" Text="最终得分" />
+
+                    @* ★ 关键修复 (解决 CS0411): 
+                       必须绑定一个字段（如 TaskId），否则编译器不知道这一列的泛型 TType 是什么。
+                    *@
+                    <TableColumn @bind-Field="@context.TaskId" Text="操作">
+                        <Template Context="v">
+                            @* 这里 v.Value 就是上面绑定的 TaskId。
+                               注意：直接用 v.Value，不要用 v.Value.TaskId 
+                            *@
+                            <a href="/School/DoTask/@v.Value" class="btn btn-primary btn-sm">进入填报</a>
+                        </Template>
+                    </TableColumn>
+                </TableColumns>
+            </Table>
+        </BodyTemplate>
+    </Card>
+</div>

@@ -1,0 +1,133 @@
+﻿@page "/Admin/UserList"
+@using Tsjy.Application.System.Dtos.SysusersDtos
+@using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "Admin")]
+@inherits BootstrapComponentBase
+
+<PageTitle>用户管理</PageTitle>
+
+<div class="container-fluid p-3">
+    <div class="card card-modern p-3">
+        @* 顶部筛选栏 *@
+        <div class="row mb-3">
+            <div class="col-auto d-flex align-items-center">
+                <span class="fw-bold me-2">用户类型:</span>
+                <Select @bind-Value="FilterRole" Items="RoleItems"
+                        OnSelectedItemChanged="OnFilterChanged"
+                        ShowLabel="false" style="width: 200px;" />
+            </div>
+            <div class="col text-end">
+                @* 手动调用新增方法 *@
+                <Button Icon="fa fa-plus" Text="新增用户" Color="Color.Primary" OnClick="@OnAddUser" />
+            </div>
+        </div>
+
+        @* 数据表格 *@
+        <Table TItem="SysUserListDto" @ref="UserTable"
+               IsPagination="true" IsStriped="true" IsBordered="false"
+               ShowToolbar="false" ShowSearch="true"
+               OnQueryAsync="OnQueryAsync">
+
+            <TableColumns>
+                <TableColumn @bind-Field="@context.UserName" Searchable="true" />
+                <TableColumn @bind-Field="@context.RealName" Searchable="true" />
+                <TableColumn @bind-Field="@context.Role" />
+
+                @* ★ 显示单位名称 (来自 Service 的联表查询) *@
+                <TableColumn @bind-Field="@context.OrgName" Text="所属单位" />
+
+                <TableColumn @bind-Field="@context.Phone" />
+
+                @* 状态开关 *@
+                <TableColumn @bind-Field="@context.IsDeleted" Text="状态" Width="100">
+                    <Template Context="value">
+                        <Switch Value="value.Row.IsDeleted"
+                                OnValueChanged="@(v => OnStatusChanged(value.Row, v))"
+                                OnColor="Color.Success" OffColor="Color.Secondary" />
+                    </Template>
+                </TableColumn>
+
+                @* 操作列 *@
+                <TableColumn @bind-Field="@context.IDNumber" Text="操作" Width="100" Align="Alignment.Center">
+                    <Template Context="value">
+                        <Button Icon="fa fa-edit" Size="Size.ExtraSmall" Color="Color.Primary"
+                                OnClick="@(() => OnEditUser(value.Row))" Text="编辑" />
+                    </Template>
+                </TableColumn>
+            </TableColumns>
+        </Table>
+    </div>
+</div>
+
+@* --- 编辑/新增 弹窗 (自定义布局) --- *@
+<Modal @ref="EditModal">
+    <ModalDialog ShowCloseButton="true" IsCentered="true" Size="Size.Large" Title="@(IsEditMode ? "编辑用户" : "新增用户")">
+        <BodyTemplate>
+            <ValidateForm Model="@Model" OnValidSubmit="@OnSaveUserSubmit">
+                <div class="row g-3">
+
+                    @* 上部分：个人信息 *@
+                    <div class="col-12">
+                        <Card HeaderText="个人信息" IsShadow="true">
+                            <BodyTemplate>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <BootstrapInput @bind-Value="Model.IDNumber" ShowLabel="true" DisplayText="身份证号" IsDisabled="@IsEditMode" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <BootstrapInput @bind-Value="Model.RealName" ShowLabel="true" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <BootstrapInput @bind-Value="Model.UserName" ShowLabel="true" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <BootstrapInput @bind-Value="Model.Phone" ShowLabel="true" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <Select @bind-Value="Model.Role" ShowLabel="true" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <BootstrapInput @bind-Value="Model.Password" ShowLabel="true" PlaceHolder="@(IsEditMode ? "留空则不修改" : "默认123456")" />
+                                    </div>
+                                </div>
+                            </BodyTemplate>
+                        </Card>
+                    </div>
+
+                    @* 下部分：归属单位 (级联选择) *@
+                    <div class="col-12">
+                        <Card HeaderText="归属单位" IsShadow="true">
+                            <BodyTemplate>
+                                <div class="row g-3">
+                                    @* 步骤1：选择类型 *@
+                                    <div class="col-md-6">
+                                        <Select TValue="OrgType" @bind-Value="Model.OrgType"
+                                                Items="OrgTypeItems"
+                                                ShowLabel="true"
+                                                DisplayText="部门类型"
+                                                OnValueChanged="@OnOrgTypeChanged" />
+                                    </div>
+
+                                    @* 步骤2：选择具体单位 (开启 ShowSearch 实现模糊搜索) *@
+                                    <div class="col-md-6">
+                                        <Select @bind-Value="Model.OrgId"
+                                                Items="OrgItems"
+                                                ShowLabel="true"
+                                                DisplayText="所属单位"
+                                                ShowSearch="true"
+                                                IsClearable="true"
+                                                PlaceHolder="输入名称可搜索..." />
+                                    </div>
+                                </div>
+                            </BodyTemplate>
+                        </Card>
+                    </div>
+
+                    <div class="col-12 text-end mt-3">
+                        <Button ButtonType="ButtonType.Submit" Icon="fa fa-save" Text="保存" Color="Color.Primary" />
+                    </div>
+                </div>
+            </ValidateForm>
+        </BodyTemplate>
+    </ModalDialog>
+</Modal>

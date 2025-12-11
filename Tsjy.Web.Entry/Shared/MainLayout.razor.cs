@@ -66,28 +66,66 @@ namespace Tsjy.Web.Entry.Shared
                     case "Admin":
                         Menus = GetDataAdminSideMenuItems();
                         break;
-                    case "SPECIAL":
+                    case "SchoolUser":
                         Menus = GetUserSideMenuItems();
                         break;
                     default:
-                        Menus = GetUserSideMenuItems();
+                        Menus = GetSysAdminSideMenuItems();
                         break;
                 }
             }
         }
         private static List<MenuItem> GetDataAdminSideMenuItems()
         {
+            var evalMenu = new MenuItem()
+            {
+                Text = "评价管理",
+                Icon = "fa-solid fa-fw fa-folder-open" // 找一个合适的图标
+            };
+
+            var baseMenu = new MenuItem()
+            {
+                Text = "基础信息管理",
+                Icon = "fa-solid fa-fw fa-folder-open" // 找一个合适的图标
+            };
+            var taskMenu = new MenuItem()
+            {
+                Text = "任务分发",
+                Icon = "fa-solid fa-fw fa-folder-open" // 找一个合适的图标
+            };
+            // 2. 将子菜单放入父菜单的 Items 列表中
+            evalMenu.Items = new List<MenuItem>
+    {
+        new MenuItem() { Text = "评价体系列表", Icon = "fa-solid fa-fw fa-list-check", Url = "/Admin/EvalSystemList" },
+        // 注意：EvalBuilder 通常需要参数(如 /Admin/EvalBuilder/school/1)，直接放菜单可能报错或需要处理默认路由
+        new MenuItem() { Text = "新建评价体系", Icon = "fa-solid fa-fw fa-pen-ruler", Url = "/Admin/EvalBuilder" },
+        new MenuItem() { Text = "评分模板管理", Icon = "fa-solid fa-fw fa-table", Url = "/Admin/ScoringModels" }
+    };
+
+            baseMenu.Items = new List<MenuItem>
+    {
+        new MenuItem() { Text = "单位管理列表", Icon = "fa-solid fa-fw fa-list-check", Url = "/Admin/DepartmentList" },
+        // 注意：EvalBuilder 通常需要参数(如 /Admin/EvalBuilder/school/1)，直接放菜单可能报错或需要处理默认路由
+        new MenuItem() { Text = "区域管理列表", Icon = "fa-solid fa-fw fa-pen-ruler", Url = "/Admin/RegionList" },
+        new MenuItem() { Text = "用户管理列表", Icon = "fa-solid fa-fw fa-table", Url = "/Admin/UserList" }
+    };
+            taskMenu.Items = new List<MenuItem>
+    {
+        new MenuItem() { Text = "单位管理列表", Icon = "fa-solid fa-fw fa-list-check", Url = "/Admin/TaskDistribute" }
+    };
+
+            // 3. 组装最终的菜单列表
             var menus = new List<MenuItem>
-        {
+    {
         new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
-
-        new MenuItem() { Text = "获取数据", Icon = "fa-solid fa-fw fa-user", Url = "/fetchdata" },
-
-        new MenuItem() { Text = "用户列表", Icon = "fa-solid fa-fw fa-user", Url = "/UserList" },
-        new MenuItem() { Text = "学校上传", Icon = "fa-solid fa-fw fa-user", Url = "/School/Assignment" },
-        new MenuItem() { Text = "新建评价体系", Icon = "fa-solid fa-fw fa-user", Url = "/Admin/EvalBuilder" },
-        new MenuItem() { Text = "新建评分模板", Icon = "fa-solid fa-fw fa-user", Url = "/Admin/ScoringModels" },
-
+        
+        // 将刚才定义的父级菜单加入主列表
+        evalMenu,
+        baseMenu,
+        taskMenu,
+        //new MenuItem() { Text = "学校上传", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/School/Assignment" },
+        //new MenuItem() { Text = "用户列表", Icon = "fa-solid fa-fw fa-users", Url = "/UserList" },
+        //new MenuItem() { Text = "获取数据", Icon = "fa-solid fa-fw fa-database", Url = "/fetchdata" },
     };
 
             return menus;
@@ -106,8 +144,8 @@ namespace Tsjy.Web.Entry.Shared
         private static List<MenuItem> GetUserSideMenuItems()
         {
             var menu1 = new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index", Match = NavLinkMatch.All };
-            new MenuItem() { Text = "学校上传", Icon = "fa-solid fa-fw fa-user", Url = "/School/Assignment" };
-            new MenuItem() { Text = "新建评价体系", Icon = "fa-solid fa-fw fa-user", Url = "/Admin/EvalBuilder" };
+           
+            new MenuItem() { Text = "我的任务", Icon = "fa-solid fa-fw fa-user", Url = "/School/MyTasks" };
 
             var menu5 = new MenuItem() { Text = "计数器", Icon = "fa-solid fa-fw fa-table", Url = "/counter" };
 

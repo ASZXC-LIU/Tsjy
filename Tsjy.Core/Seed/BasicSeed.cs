@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Tsjy.Core.Entities;
 using Tsjy.Core.Enums;
-using Tsjy.Core.MyHelper;
 
 namespace Tsjy.Core.Seed
 {
@@ -14,81 +13,65 @@ namespace Tsjy.Core.Seed
     {
         public void Configure(EntityTypeBuilder<Region> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
-            entityBuilder.HasKey(u => u.Id);
-            entityBuilder.HasIndex(u => u.Code).IsUnique();
+            entityBuilder.HasKey(u => u.Code); // String Key
+            entityBuilder.Property(u => u.Name).HasMaxLength(100).IsRequired();
         }
 
         public IEnumerable<Region> HasData(DbContext dbContext, Type dbContextLocator)
         {
             return new List<Region>
             {
-                new Region { Id = 1, Code = "130000", Name = "河北省", Level = RegionLevel.Province, CreatedAt = DateTime.UtcNow },
-                new Region { Id = 2, Code = "130100", Name = "石家庄市", Level = RegionLevel.City, CreatedAt = DateTime.UtcNow },
-                new Region { Id = 3, Code = "130102", Name = "长安区", Level = RegionLevel.District, CreatedAt = DateTime.UtcNow }
-            };
-        }
-    }
-    // 教育局种子数据
-    public class EducationBureauSeed : IEntityTypeBuilder<EducationBureau>, IEntitySeedData<EducationBureau>
-    {
-        public void Configure(EntityTypeBuilder<EducationBureau> entityBuilder, DbContext dbContext, Type dbContextLocator)
-        {
-            entityBuilder.HasKey(u => u.Id);
-        }
-
-        public IEnumerable<EducationBureau> HasData(DbContext dbContext, Type dbContextLocator)
-        {
-            return new List<EducationBureau>
-            {
-                new EducationBureau
-                {
-                    Id = 1, RegionId = 2, Level = "city", Code = "B130100", Name = "石家庄市教育局",
-                    SpeSchoolsNum = 1, IncSchoolsNum = 10, Phone = 12345678, Address = "市局地址", CreatedAt = DateTime.UtcNow
-                }
-            };
-
-        }
-    }
-    // 特殊教育学校种子数据
-    public class SpecialSchoolSeed : IEntityTypeBuilder<SpecialSchool>, IEntitySeedData<SpecialSchool>
-    {
-        public void Configure(EntityTypeBuilder<SpecialSchool> entityBuilder, DbContext dbContext, Type dbContextLocator)
-        {
-            entityBuilder.HasKey(u => u.Id);
-        }
-
-        public IEnumerable<SpecialSchool> HasData(DbContext dbContext, Type dbContextLocator)
-        {
-            return new List<SpecialSchool>
-            {
-                new SpecialSchool
-                {
-                    Id = 1, RegionId = 2, Code = "S1301001", Name = "石家庄市特殊教育学校",
-                    Phone = 87654321, Address = "学校地址", Status = 1, CreatedAt = DateTime.UtcNow
-                }
+                new Region { Code = "330000", Name = "浙江省", Level = RegionLevel.Province, ParentCode = null, CreatedAt = DateTime.UtcNow },
+                new Region { Code = "330100", Name = "杭州市", Level = RegionLevel.City, ParentCode = "330000", CreatedAt = DateTime.UtcNow },
+                new Region { Code = "330106", Name = "西湖区", Level = RegionLevel.District, ParentCode = "330100", CreatedAt = DateTime.UtcNow }
             };
         }
     }
 
-    // 融合教育学校种子数据
-    public class InclusiveSchoolSeed : IEntityTypeBuilder<InclusiveSchool>, IEntitySeedData<InclusiveSchool>
+    // 教育局/部门种子数据
+    public class DepartmentsSeed : IEntityTypeBuilder<Departments>, IEntitySeedData<Departments>
     {
-        public void Configure(EntityTypeBuilder<InclusiveSchool> entityBuilder, DbContext dbContext, Type dbContextLocator)
+        public void Configure(EntityTypeBuilder<Departments> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
-            entityBuilder.HasKey(u => u.Id);
+            entityBuilder.HasKey(u => u.Code); // String Key
+            entityBuilder.Property(u => u.Name).IsRequired();
         }
 
-        public IEnumerable<InclusiveSchool> HasData(DbContext dbContext, Type dbContextLocator)
+        public IEnumerable<Departments> HasData(DbContext dbContext, Type dbContextLocator)
         {
-            return new List<InclusiveSchool>
+            return new List<Departments>
             {
-                new InclusiveSchool
+                // 市教育局
+                new Departments
                 {
-                    Id = 1, RegionId = 3, Code = "I1301021", Name = "石家庄市长安区第一小学(融合校)",
-                    Phone = 66666666, Address = "长安区地址", CreatedAt = DateTime.UtcNow
+                    Code = "330100_EDU",
+                    RegionCode = "330100",
+                    Name = "杭州市教育局",
+                    Level = RegionLevel.City,
+                    OrgType = OrgType.EducationBureau,
+                    SpeSchoolsNum = 8,
+                    IncSchoolsNum = 120,
+                    Address = "杭州市某某路1号",
+                    Phone = 88888888,
+                    IsDeleted = false,
+                    CreatedAt = DateTime.UtcNow
+                },
+                // 区教育局
+                new Departments
+                {
+                    Code = "330106_EDU",
+                    RegionCode = "330106",
+                    Name = "西湖区教育局",
+                    Level = RegionLevel.District,
+                    OrgType = OrgType.EducationBureau,
+                    SpeSchoolsNum = 2,
+                    IncSchoolsNum = 45,
+                    Address = "西湖区某某路2号",
+                    Phone = 66666666,
+                    IsDeleted = false,
+                    CreatedAt = DateTime.UtcNow
                 }
             };
         }
     }
-
 }

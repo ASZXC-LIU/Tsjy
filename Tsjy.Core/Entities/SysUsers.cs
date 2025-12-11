@@ -13,9 +13,9 @@ namespace Tsjy.Core.Entities;
 [Table("sys_users")]
 public class SysUsers : IEntity
 {
-    [DisplayName("主键")]
     [Key]
-    public int Id { get; set; }
+    [DisplayName("身份证号（主键）")]
+    public string IDNumber { get; set; }
     [DisplayName("账号")]
     public string UserName { get; set; } = string.Empty;
     [DisplayName("密码")]
@@ -28,7 +28,7 @@ public class SysUsers : IEntity
 
     public UserRole Role { get; set; }
     public OrgType OrgType { get; set; }
-    public int OrgId { get; set; }
+    public string OrgId { get; set; }
 
     public string Phone { get; set; } = "string.Empty";
  

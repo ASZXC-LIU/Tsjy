@@ -9,19 +9,9 @@
             行政区划表
             </summary>
         </member>
-        <member name="T:Tsjy.Core.Entities.SpecialSchool">
+        <member name="T:Tsjy.Core.Entities.Departments">
             <summary>
-            特殊教育学校
-            </summary>
-        </member>
-        <member name="T:Tsjy.Core.Entities.InclusiveSchool">
-            <summary>
-            融合教育学校
-            </summary>
-        </member>
-        <member name="T:Tsjy.Core.Entities.EducationBureau">
-            <summary>
-            教育局
+            机构
             </summary>
         </member>
         <member name="T:Tsjy.Core.Entities.ScoringModel">
@@ -114,7 +104,7 @@
             批次涉及的评价对象名单
             </summary>
         </member>
-        <member name="T:Tsjy.Core.Entities.Assignment">
+        <member name="T:Tsjy.Core.Entities.Tasks">
             <summary>
             具体的学校评价任务单
             </summary>
@@ -139,7 +129,7 @@
             评价体系节点类型
             </summary>
         </member>
-        <member name="T:Tsjy.Core.Enums.AssignmentStatus">
+        <member name="T:Tsjy.Core.Enums.TaskStatu">
             <summary>
             给评价单位的任务/作业状态流程
             </summary>

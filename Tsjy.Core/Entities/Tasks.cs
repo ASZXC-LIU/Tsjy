@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading.Tasks;
 using Furion.DatabaseAccessor;
 using Tsjy.Core.Enums;
 
@@ -24,7 +25,7 @@ public class DistributionBatch : IEntity
     public string Name { get; set; }
 
     [DisplayName("状态")]
-    public PublicStatus Status { get; set; } 
+    public PublicStatus Status { get; set; }
 
     public bool IsDeleted { get; set; } = false;
 
@@ -46,10 +47,9 @@ public class BatchTarget : IEntity
 
     public long BatchId { get; set; }
 
-    [DisplayName("机构类型")]
-    public OrgType OrgType { get; set; }
 
-    public long OrgId { get; set; }
+
+    public string OrgId { get; set; }
 
 
     public bool IsDeleted { get; set; } = false;
@@ -64,8 +64,8 @@ public class BatchTarget : IEntity
 /// <summary>
 /// 具体的学校评价任务单
 /// </summary>
-[Table("assignments")]
-public class Assignment : IEntity
+[Table("tasks")]
+public class Tasks : IEntity
 {
     [Key]
     public long Id { get; set; }
@@ -78,10 +78,10 @@ public class Assignment : IEntity
     public OrgType TargetType { get; set; }
 
     [DisplayName("学校ID")]
-    public long TargetId { get; set; }
+    public string TargetId { get; set; }
 
     [DisplayName("当前状态")]
-    public AssignmentStatus Status { get; set; } = AssignmentStatus.Pending;
+    public TaskStatu Status { get; set; } = TaskStatu.Pending;
 
     public DateTime StartAt { get; set; } = DateTime.UtcNow;
 

@@ -24,7 +24,7 @@
             该指标满分
             </summary>
         </member>
-        <member name="P:Tsjy.Application.System.Dtos.CreateNodeDto.ScoringModelId">
+        <member name="P:Tsjy.Application.System.Dtos.CreateNodeDto.ScoringTemplateId">
             <summary>
             评分模板ID，关联 scoring_models 表
             </summary>
@@ -69,6 +69,31 @@
             评分项明细 DTO
             </summary>
         </member>
+        <member name="T:Tsjy.Application.System.Dtos.SysUserTargetDto">
+            <summary>
+            单位/用户 简要信息 DTO (用于选择列表)
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.DistributeTaskDto">
+            <summary>
+            管理员分发任务的表单模型
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.SchoolTaskListDto">
+            <summary>
+            学校端：我的任务列表项
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.TaskNodeTreeDto">
+            <summary>
+            填报界面：左侧树节点
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.NodeFillDetailDto">
+            <summary>
+            填报界面：右侧填报详情
+            </summary>
+        </member>
         <member name="T:Tsjy.Application.System.Dtos.UpdateNodeDto">
             <summary>
             更新节点信息 DTO
@@ -99,7 +124,7 @@
             标准分
             </summary>
         </member>
-        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.ScoringModelId">
+        <member name="P:Tsjy.Application.System.Dtos.UpdateNodeDto.ScoringTemplateId">
             <summary>
             评分模板ID
             </summary>
@@ -139,9 +164,19 @@
             删除模板
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.DepartmentsService.GetOrgSelectListAsync(Tsjy.Core.Enums.OrgType)">
+            <summary>
+            根据机构类型获取下拉框列表
+            </summary>
+        </member>
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.GetNodesAsync(System.String,System.Int64)">
             <summary>
             获取指定体系下的所有节点（扁平列表，前端转树）
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.GetSystemListAsync(System.String)">
+            <summary>
+            获取指定类型的评价体系列表（查找所有的根节点）
             </summary>
         </member>
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.CreateTree(System.String,System.String)">
@@ -211,6 +246,32 @@
         <member name="M:Tsjy.Application.System.Service.ScoringModelService.Delete(System.Int64)">
             <summary>
             删除模板 (软删除)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.GetTargetsByType(Tsjy.Core.Enums.OrgType)">
+            <summary>
+            获取待选单位列表 (根据类型)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.PublishTask(Tsjy.Application.System.Dtos.DistributeTaskDto)">
+            <summary>
+            发布任务
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.GetMyTasks(System.String)">
+            <summary>
+            获取我的任务列表
+            </summary>
+            <param name="myOrgId">当前登录用户的 OrgId</param>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.GetTaskTree(System.Int64)">
+            <summary>
+            获取任务详情树 (带填报状态)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.GetNodeFillDetail(System.Int64,System.Int64)">
+            <summary>
+            获取单个节点的详细填报信息
             </summary>
         </member>
     </members>

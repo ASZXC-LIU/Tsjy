@@ -58,21 +58,79 @@ namespace Tsjy.Web.Entry.Pages.Admin
 
         // 当前体系类型 (可扩展为下拉选择，目前默认特教)
         private string CurrentCategory { get; set; } = "special_school";
+        [Parameter]
+        public string? Category { get; set; }
 
+        [Parameter]
+        public long? TreeId { get; set; }
         /// <summary>
         /// 初始化加载
         /// </summary>
         protected override async Task OnInitializedAsync()
         {
+            // 1. 处理参数逻辑
+            if (!string.IsNullOrEmpty(Category))
+            {
+                CurrentCategory = Category;
+            }
+
+            if (TreeId.HasValue && TreeId.Value > 0)
+            {
+                RootNodeId = TreeId.Value;
+            }
+            else
+            {
+                // 如果没有传ID（比如直接访问 /Admin/EvalBuilder），
+                // 这里可能需要逻辑去默认加载最新一个，或者提示用户去列表页
+                // 目前保持逻辑：RootNodeId 为 0，页面显示"暂无数据"
+            }
             await LoadScoringModelsAsync();
-            await RefreshTreeAsync();
+            if (RootNodeId > 0)
+            {
+                await RefreshTreeAsync();
+            }
         }
 
         // --- 数据加载逻辑 ---
+        /// <summary>
+        /// 通用方法：根据 ID 加载模板详情并更新预览区
+        /// </summary>
+        private async Task LoadPreviewAsync(long modelId)
+        {
+            // 0. 如果 ID 无效，直接清空
+            if (modelId <= 0)
+            {
+                PreviewScoringItems.Clear();
+                CurrentScoringModelName = "";
+                StateHasChanged();
+                return;
+            }
 
+            try
+            {
+                // 1. 调用接口获取详情
+                var detail = await ScoringService.GetDetail(modelId);
+
+                // ★★★ 关键修复：竞态保护 ★★★
+                // 请求回来后，检查当前表单选中的 ID 是否还等于刚才请求的 ID
+                // 如果用户在请求期间又点选了别的，这个 ID 就不匹配了，抛弃这次结果，防止覆盖
+                if (CurrentEditModel.ScoringTemplateId == modelId)
+                {
+                    PreviewScoringItems = detail.Items;
+                    CurrentScoringModelName = detail.Name;
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                // 容错处理：如果模板被删除了等情况
+                await Toast.Error("加载模板失败", ex.Message);
+                PreviewScoringItems.Clear();
+            }
+        }
         private async Task LoadScoringModelsAsync()
         {
-            var list = await ScoringService.GetOptions();
+            List<ScoringModel> list = await ScoringService.GetOptions();
             ScoringModelOptions = list.Select(x => new SelectedItem(x.Id.ToString(), x.Name)).ToList();
         }
 
@@ -120,15 +178,25 @@ namespace Tsjy.Web.Entry.Pages.Admin
             CurrentEditModel.Code = CurrentNodeDetail.Code;
             CurrentEditModel.MaxScore = CurrentNodeDetail.MaxScore;
             CurrentEditModel.OrderIndex = CurrentNodeDetail.OrderIndex;
-            CurrentEditModel.ScoringModelId = CurrentNodeDetail.ScoringModelId;
+            CurrentEditModel.ScoringTemplateId = CurrentNodeDetail.ScoringTemplateId;
             CurrentEditModel.ParentId = SelectedNode.Value.Id;
             CurrentEditModel.Category = CurrentCategory;
+            if (CurrentEditModel.ScoringTemplateId > 0)
+            {
+                await LoadPreviewAsync(CurrentEditModel.ScoringTemplateId.Value);
+            }
+            else
+            {
+                // 如果该节点没有关联模板，清空预览
+                PreviewScoringItems.Clear();
+                CurrentScoringModelName = "";
+            }
             StateHasChanged();
 
         }
 
 
-        private async void OnBeginCreateChild()
+        private async Task OnBeginCreateChild()
         {
             if (SelectedNode == null) return;
 
@@ -140,7 +208,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 Name = "新建节点",
                 Category = CurrentCategory,
                 ParentId = SelectedNode.Value.Id,
-                ScoringModelId = 0, // 重置模板
+                ScoringTemplateId = 0, // 重置模板
                 OrderIndex = (SelectedNode.Items.Count + 1) * 10 // 自动生成默认排序
             };
 
@@ -165,13 +233,20 @@ namespace Tsjy.Web.Entry.Pages.Admin
         /// </summary>
         private async Task OnScoringModelChanged(SelectedItem item)
         {
+            if (string.IsNullOrEmpty(item.Value)) return;
             if (long.TryParse(item.Value, out long modelId))
             {
-                // 获取模板详情以预览
-                var detail = await ScoringService.GetDetail(modelId);
-                PreviewScoringItems = detail.Items;
-                CurrentScoringModelName = detail.Name;
+                CurrentEditModel.ScoringTemplateId = modelId;
 
+                // 调用通用方法
+                await LoadPreviewAsync(modelId);
+
+            }
+            else
+            {
+                // 如果选了空项（比如“请选择”），清空预览
+                PreviewScoringItems.Clear();
+                CurrentScoringModelName = "";
             }
         }
 
@@ -223,7 +298,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
                     Name = CurrentEditModel.Name,
                     Code = CurrentEditModel.Code,
                     MaxScore = CurrentEditModel.MaxScore,
-                    ScoringModelId = CurrentEditModel.ScoringModelId,
+                    ScoringTemplateId = CurrentEditModel.ScoringTemplateId,
                     OrderIndex = CurrentEditModel.OrderIndex
                 };
 

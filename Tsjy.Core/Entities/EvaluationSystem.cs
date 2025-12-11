@@ -10,7 +10,7 @@ namespace Tsjy.Core.Entities;
 /// <summary>
 /// 评分模板主表
 /// </summary>
-[Table("scoring_models")]
+[Table("scoring_templates")]
 public class ScoringModel :  IEntity
 {
     [Key] // 主键
@@ -33,13 +33,13 @@ public class ScoringModel :  IEntity
 /// <summary>
 /// 评分模板明细表 (存具体选项)
 /// </summary>
-[Table("scoring_model_items")]
+[Table("scoring_template_items")]
 public class ScoringModelItem :  IEntity
 {
     [Key]
     public long Id { get; set; }
 
-    public long ModelId { get; set; } // 外键
+    public long TemplateId { get; set; } // 外键
 
     [MaxLength(20)]
     public string LevelCode { get; set; } // A, B, C...
@@ -92,7 +92,7 @@ public class SpeEvalNode : IEntity, IEvalNode
  
 
     [DisplayName("评分模板ID")]
-    public long? ScoringModelId { get; set; }
+    public long? ScoringTemplateId { get; set; }
 
     public int OrderIndex { get; set; } = 0;
 
@@ -142,7 +142,7 @@ public class IncEvalNode : IEntity, IEvalNode
 
 
     [DisplayName("评分模板ID")]
-    public long? ScoringModelId { get; set; }
+    public long? ScoringTemplateId { get; set; }
 
     public int OrderIndex { get; set; } = 0;
 
@@ -192,7 +192,7 @@ public class EduEvalNode : IEntity, IEvalNode
 
 
     [DisplayName("评分模板ID")]
-    public long? ScoringModelId { get; set; }
+    public long? ScoringTemplateId { get; set; }
 
     public int OrderIndex { get; set; } = 0;
 

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Tsjy.Core.Enums; // 引用你的枚举命名空间
 
 namespace Tsjy.Application.System.Dtos;
@@ -25,6 +26,10 @@ public class CreateNodeDto
     /// </summary>
     [Required]
     public string Name { get; set; }           // 指标内容
+
+    [DisplayName("节点类型")]
+    public EvalNodeType Type { get; set; } // 'system','first_indicator','second_indicator','reference','points','method'
+
     /// <summary>
     /// 该指标满分
     /// </summary>
@@ -33,6 +38,6 @@ public class CreateNodeDto
     /// 评分模板ID，关联 scoring_models 表
     /// </summary>
     [Required]
-    public long? ScoringModelId { get; set; }   // 评分模板ID
+    public long? ScoringTemplateId { get; set; }   // 评分模板ID
     public int OrderIndex { get; set; }        // 排序
 }

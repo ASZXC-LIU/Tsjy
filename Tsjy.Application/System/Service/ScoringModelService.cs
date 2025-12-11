@@ -32,7 +32,9 @@ namespace Tsjy.Application.System.Service
         public async Task<List<ScoringModel>> GetList()
         {
             // 列表页只查主表，过滤掉已删除的
-            return await _modelRepo.Where(x => !x.IsDeleted)
+            return await _modelRepo.AsQueryable() // 建议加上 AsQueryable 保持链式调用习惯
+                                   .Include(x => x.Items)
+                                   .Where(x => !x.IsDeleted)
                                    .OrderByDescending(x => x.CreatedAt)
                                    .ToListAsync();
         }
@@ -133,7 +135,7 @@ namespace Tsjy.Application.System.Service
                 // 将新生成的列表加入
                 entity.Items.AddRange(newEntityItems);
 
-                await _modelRepo.UpdateAsync(entity);
+                await _modelRepo.UpdateNowAsync(entity);
                 return entity.Id;
             }
             else
@@ -148,7 +150,7 @@ namespace Tsjy.Application.System.Service
                     Items = newEntityItems // 直接赋值，EF Core 会级联插入
                 };
 
-                await _modelRepo.InsertAsync(entity);
+                await _modelRepo.InsertNowAsync(entity);
                 return entity.Id;
             }
         }
@@ -164,7 +166,7 @@ namespace Tsjy.Application.System.Service
             {
                 entity.IsDeleted = true;
                 entity.UpdatedAt = DateTime.Now;
-                await _modelRepo.UpdateAsync(entity);
+                await _modelRepo.UpdateNowAsync(entity);
             }
         }
 

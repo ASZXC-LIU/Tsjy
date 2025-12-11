@@ -1,0 +1,125 @@
+﻿@page "/School/DoTask/{TaskId:long}"
+@inherits BootstrapComponentBase
+@using Tsjy.Application.System.Dtos
+@using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "SchoolUser")]
+<PageTitle>任务填报</PageTitle>
+
+@* 全屏高度布局容器 *@
+<div class="row g-0 h-100" style="height: calc(100vh - 60px);">
+
+    @* 左侧：指标树 *@
+    <div class="col-md-3 border-end bg-light d-flex flex-column h-100">
+        <div class="p-3 border-bottom bg-white">
+            <h6 class="m-0 fw-bold text-primary"><i class="fa fa-folder-tree me-2"></i>评价指标体系</h6>
+        </div>
+        <div class="flex-grow-1 overflow-auto p-2">
+            @if (TreeItems.Any())
+            {
+                @* 这里的 TItem 必须能在 Razor 中被正确识别，否则会报错 *@
+                <TreeView TItem="TaskNodeTreeDto" Items="TreeItems" OnTreeItemClick="OnNodeClick" ShowIcon="true" />
+            }
+            else
+            {
+                <div class="text-center mt-5"><Spinner /> 加载中...</div>
+            }
+        </div>
+    </div>
+
+    @* 右侧：内容区 *@
+    <div class="col-md-9 bg-white h-100 d-flex flex-column">
+        @if (CurrentNodeDetail != null)
+        {
+            <div class="p-0 h-100 d-flex flex-column">
+                @* 顶部：指标信息卡 *@
+                <div class="p-3 border-bottom bg-light bg-opacity-50">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="fw-bold mb-0">@CurrentNodeDetail.PointName</h5>
+                        <span class="badge bg-primary fs-6">标准分：@CurrentNodeDetail.MaxScore 分</span>
+                    </div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0 small text-muted">
+                            <li class="breadcrumb-item">@CurrentNodeDetail.FirstIndicator</li>
+                            <li class="breadcrumb-item">@CurrentNodeDetail.SecondIndicator</li>
+                            <li class="breadcrumb-item active">@CurrentNodeDetail.ReferencePoint</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                @* 中间：滚动填报区 *@
+                <div class="flex-grow-1 overflow-auto p-4">
+
+                    @* 驳回警告 *@
+                    @if (CurrentNodeDetail.Status == AuditStatus.Rejected)
+                    {
+                        <Alert Color="Color.Danger" Icon="fa fa-warning">
+                            <strong>驳回原因：</strong> @CurrentNodeDetail.RejectReason
+                        </Alert>
+                    }
+
+                    @* 评分标准展示 *@
+                    <div class="card border-info mb-4 shadow-sm">
+                        <div class="card-header bg-info bg-opacity-10 text-info fw-bold">
+                            <i class="fa fa-scale-balanced me-2"></i>评估方法与标准
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text" style="white-space: pre-wrap;">@CurrentNodeDetail.Method</p>
+                        </div>
+                    </div>
+
+                    @* 填报表单 *@
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-title fw-bold mb-3 border-start border-4 border-primary ps-2">佐证材料提交</h6>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">1. 自评说明</label>
+                                <Textarea @bind-Value="CurrentNodeDetail.MyContent" Rows="5"
+                                          Placeholder="请详细描述该指标的落实情况..." />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">2. 附件上传</label>
+                                <div class="alert alert-light border small text-muted mb-2">
+                                    <i class="fa fa-info-circle"></i> 支持图片、PDF、Word等格式。
+                                </div>
+                                <InputUpload TValue="string" ShowDeleteButton="true" OnChange="OnUploadFile"
+                                             BrowserButtonText="点击上传佐证文件" />
+
+                                @* 文件列表展示 *@
+                                @if (CurrentNodeDetail.FileUrls != null && CurrentNodeDetail.FileUrls.Any())
+                                {
+                                    <div class="list-group mt-2">
+                                        @foreach (var file in CurrentNodeDetail.FileUrls)
+                                        {
+                                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span class="text-truncate">
+                                                    <i class="fa fa-file-lines text-secondary me-2"></i>@file
+                                                </span>
+                                                <Button Icon="fa fa-trash-can" Size="Size.ExtraSmall" Color="Color.Danger" IsOutline="true"
+                                                        OnClick="() => RemoveFile(file)" />
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* 底部：操作栏 *@
+                <div class="p-3 border-top bg-light text-end">
+                    <Button Color="Color.Primary" Icon="fa fa-floppy-disk" Text="保存并提交本项"
+                            OnClick="OnSaveEvidence" IsAsync="true" class="px-4" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
+                <i class="fa fa-hand-pointer fa-4x mb-3 opacity-25"></i>
+                <h5>请点击左侧具体的“评估要点”进行填报</h5>
+            </div>
+        }
+    </div>
+</div>

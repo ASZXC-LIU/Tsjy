@@ -7,20 +7,24 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Tsjy.Application.System.Dtos;
+using Tsjy.Application.System.Dtos.SysusersDtos;
 using Tsjy.Application.System.IService;
 using Tsjy.Core.Entities;
 using Tsjy.Core.Enums;
 using Tsjy.Core.MyHelper;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Tsjy.Application.System.Service
 {
     public class SysUsersService : ISysUsersService, IScoped, IDynamicApiController
     {
         private readonly IRepository<SysUsers> _usersRepo;
+        private readonly IRepository<Departments> _orgRepo;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public SysUsersService(
-            IRepository<SysUsers> usersRepo, 
+            IRepository<SysUsers> usersRepo,
+            IRepository<Departments> orgRepo,
             AuthenticationStateProvider authenticationStateProvider,
             IHttpContextAccessor httpContextAccessor)
         {
@@ -28,12 +32,151 @@ namespace Tsjy.Application.System.Service
         
             _authenticationStateProvider = authenticationStateProvider;
             _httpContextAccessor = httpContextAccessor;
+            _orgRepo = orgRepo;
         }
 
+        // 在 SysUsersService 类中添加以下方法
 
+        public async Task SaveUserAsync(SysUserListDto dto)
+        {
+            // 判断是新增还是更新 (根据身份证号)
+            //var existingUser = await _usersRepo.FirstOrDefaultAsync(x => x.IDNumber == dto.IDNumber);
 
+            //if (existingUser != null)
+            //{
+            //    // --- 更新逻辑 ---
+            //    // 使用 Mapster 将 DTO 的值覆盖到现有实体上
+            //    dto.Adapt(existingUser);
+            //    existingUser.UpdatedAt = DateTime.Now;
+            //    if (!string.IsNullOrEmpty(dto.Password))
+            //    {
+            //        existingUser.Password = DataEncryption.SHA1Encrypt(dto.Password.Trim());
+            //    }
+            //    // 注意：SysUserListDto 通常不包含密码，所以这里不修改密码
 
-        
+            //    await _usersRepo.UpdateNowAsync(existingUser);
+            //}
+            //else
+            //{
+            //    // --- 新增逻辑 ---
+            //    var newUser = dto.Adapt<SysUsers>();
+
+            //    newUser.CreatedAt = DateTime.Now;
+            //    newUser.UpdatedAt = DateTime.Now;
+            //    // 设置默认密码 (例如 123456)
+            //    if (!string.IsNullOrEmpty(dto.Password))
+            //    {
+            //        newUser.Password = DataEncryption.SHA1Encrypt(dto.Password.Trim());
+            //    }
+            //    else
+            //    {
+            //        // 设置默认密码 (例如 123456)
+            //        newUser.Password = DataEncryption.SHA1Encrypt("123456");
+            //    }
+            //    newUser.IsDeleted = false;
+
+            //    await _usersRepo.InsertNowAsync(newUser);
+            //}
+            var existingUser = await _usersRepo.FirstOrDefaultAsync(x => x.IDNumber == dto.IDNumber);
+
+            if (existingUser != null)
+            {
+                // --- 更新逻辑 ---
+                existingUser.RealName = dto.RealName;
+                existingUser.Phone = dto.Phone;
+                existingUser.Role = dto.Role;
+                existingUser.OrgType = dto.OrgType;
+                existingUser.OrgId = dto.OrgId; // 更新单位
+                existingUser.UpdatedAt = DateTime.Now;
+
+                // 只有当密码框不为空时，才更新密码
+                if (!string.IsNullOrEmpty(dto.Password))
+                {
+                    existingUser.Password = DataEncryption.SHA1Encrypt(dto.Password.Trim());
+                }
+
+                await _usersRepo.UpdateNowAsync(existingUser);
+            }
+            else
+            {
+                // --- 新增逻辑 ---
+                var newUser = dto.Adapt<SysUsers>();
+                newUser.CreatedAt = DateTime.Now;
+                newUser.UpdatedAt = DateTime.Now;
+                newUser.IsDeleted = false;
+
+                // 设置默认密码或指定密码
+                string rawPwd = string.IsNullOrEmpty(dto.Password) ? "123456" : dto.Password.Trim();
+                newUser.Password = DataEncryption.SHA1Encrypt(rawPwd);
+
+                await _usersRepo.InsertNowAsync(newUser);
+            }
+        }
+        // 在 SysUsersService 类中添加以下方法
+        public async Task<List<SysUserListDto>> GetUserListAsync(UserRole? roleFilter = null)
+        {
+            //var query = _usersRepo.AsQueryable(false)
+            //   .Where(x => !roleFilter.HasValue || x.Role == roleFilter.Value  ) // 如果有筛选条件则过滤
+
+            //    .OrderByDescending(x => x.CreatedAt);
+
+            //var list = await query.ToListAsync();
+            //return list.Adapt<List<SysUserListDto>>();
+
+            var query = from u in _usersRepo.AsQueryable()
+                        join d in _orgRepo.AsQueryable() on u.OrgId equals d.Code into leftJoin // 左连接，防止没单位的用户查不出来
+                        from org in leftJoin.DefaultIfEmpty()
+                        //where !u.IsDeleted
+                        select new SysUserListDto
+                        {
+                            IDNumber = u.IDNumber,
+                            UserName = u.UserName,
+                            RealName = u.RealName,
+                            Role = u.Role,
+                            Phone = u.Phone,
+                            OrgId = u.OrgId,     // 绑定ID
+                            OrgType = u.OrgType, // 绑定类型
+                            OrgName = org != null ? org.Name : "未分配", // 显示名称
+                            IsDeleted = u.IsDeleted,
+                            CreatedAt = u.CreatedAt
+                        };
+
+            if (roleFilter.HasValue)
+            {
+                query = query.Where(x => x.Role == roleFilter.Value);
+            }
+
+            return await query.OrderByDescending(x => x.CreatedAt).ToListAsync();
+        }
+
+        public async Task DeleteUserAsync(SysUserListDto dto)
+        {
+            // 1. 先查找数据库中已存在的实体（如果上下文中已有，会直接返回该追踪对象，避免冲突）
+            var user = await _usersRepo.FirstOrDefaultAsync(u => u.IDNumber == dto.IDNumber);
+
+            // 2. 如果找到了，再进行修改
+            if (user != null)
+            {
+                // 仅修改软删除标记和更新时间，不影响其他字段（如密码）
+                user.IsDeleted = true;
+                user.UpdatedAt = DateTime.Now;
+
+                // 3. 更新实体
+                // 因为 user 是从 Repo 获取的，它已经被追踪，UpdateNowAsync 会自动处理
+                await _usersRepo.UpdateNowAsync(user);
+            }
+        }
+
+        public async Task UpdateUserStatusAsync(string idNumber, bool isDeleted)
+        {
+            var user = await _usersRepo.FirstOrDefaultAsync(u => u.IDNumber == idNumber);
+            if (user != null)
+            {
+                user.IsDeleted = isDeleted;
+                user.UpdatedAt = DateTime.Now;
+                await _usersRepo.UpdateNowAsync(user);
+            }
+        }
 
         public Task DeleteUsersAsync(IEnumerable<SysUserDto> users)
         {
@@ -93,7 +236,7 @@ namespace Tsjy.Application.System.Service
                 new List<Claim>()
                 {
                 new Claim(ClaimTypes.Name, user.RealName, ClaimValueTypes.String),
-                new Claim(ClaimTypes.Sid, user.Id.ToString(), ClaimValueTypes.String),
+                new Claim(ClaimTypes.Sid, user.IDNumber, ClaimValueTypes.String),
                 new Claim(ClaimTypes.GivenName, user.UserName, ClaimValueTypes.String),
                 new Claim(ClaimTypes.Role, user.Role.ToString(), ClaimValueTypes.String) }, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -103,7 +246,7 @@ namespace Tsjy.Application.System.Service
                 var tokenDict = new Dictionary<string, object>
                 {
                     { ClaimTypes.Name, user.RealName },
-                    { ClaimTypes.Sid, user.Id.ToString() },
+                    { ClaimTypes.Sid, user.IDNumber },
                     { ClaimTypes.GivenName, user.UserName },
                     { ClaimTypes.Role, user.Role.ToString() }
                 };
@@ -112,7 +255,7 @@ namespace Tsjy.Application.System.Service
 
                 var result = new AuthResult().Success();
                 result.Token = token;
-                result.userId = user.Id.ToString();
+                result.userId = user.IDNumber;
                 result.Role = user.Role.ToString();
                 result.UserName = user.UserName;
                 return result;
@@ -121,7 +264,7 @@ namespace Tsjy.Application.System.Service
         public async Task<AuthResult> LoginHttpContextAsync(LoginInput loginInput)
         {
             loginInput.Password = DataEncryption.SHA1Encrypt(loginInput.Password.Trim());
-            var user = await _usersRepo.FirstOrDefaultAsync(u => u.UserName == loginInput.UserName && u.Password == loginInput.Password && u.Role == loginInput.Role);
+            var user = await _usersRepo.FirstOrDefaultAsync(u => u.UserName == loginInput.UserName && u.Password == loginInput.Password && u.Role == loginInput.Role&& u.IsDeleted ==true);
             if (user is null)
             {
                 return new AuthResult().Failed("登录错误");
@@ -133,7 +276,7 @@ namespace Tsjy.Application.System.Service
                 var identity = new ClaimsIdentity(
                 new List<Claim>()
                 {
-                new Claim(ClaimTypes.Sid, user.Id.ToString(), ClaimValueTypes.String),
+                new Claim(ClaimTypes.Sid, user.IDNumber, ClaimValueTypes.String),
                 new Claim(ClaimTypes.GivenName, user.UserName, ClaimValueTypes.String),
                 new Claim(ClaimTypes.Role, user.Role.ToString(), ClaimValueTypes.String) }, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -154,7 +297,7 @@ namespace Tsjy.Application.System.Service
 
                 var tokenDict = new Dictionary<string, object>
                 {
-                    { ClaimTypes.Sid, user.Id.ToString() },
+                    { ClaimTypes.Sid, user.IDNumber },
                     { ClaimTypes.GivenName, user.UserName },
                     { ClaimTypes.Role, user.Role.ToString() }
                 };
@@ -166,7 +309,7 @@ namespace Tsjy.Application.System.Service
 
                 var result = new AuthResult().Success();
                 result.Token = token;
-                result.userId = user.Id.ToString();
+                result.userId = user.IDNumber;
                 result.Role = user.Role.ToString();
                 result.UserName = user.UserName;
                 return result;
