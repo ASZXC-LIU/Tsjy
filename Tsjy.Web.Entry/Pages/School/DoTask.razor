@@ -3,108 +3,177 @@
 @using Tsjy.Application.System.Dtos
 @using Tsjy.Core.Enums
 @attribute [Authorize(Roles = "SchoolUser")]
+
 <PageTitle>任务填报</PageTitle>
 
-@* 全屏高度布局容器 *@
 <div class="row g-0 h-100" style="height: calc(100vh - 60px);">
 
-    @* 左侧：指标树 *@
+    @* --- 左侧：扁平化的评估要点列表 --- *@
     <div class="col-md-3 border-end bg-light d-flex flex-column h-100">
-        <div class="p-3 border-bottom bg-white">
-            <h6 class="m-0 fw-bold text-primary"><i class="fa fa-folder-tree me-2"></i>评价指标体系</h6>
+        <div class="p-3 border-bottom bg-white fw-bold text-primary">
+            <i class="fa fa-list-check me-2"></i>评估要点列表
         </div>
-        <div class="flex-grow-1 overflow-auto p-2">
+        <div class="flex-grow-1 overflow-auto p-0">
             @if (IsLoading)
             {
-                <div class="text-center mt-5"><Spinner /> 加载中...</div>
+                <div class="text-center mt-5"><Spinner /></div>
             }
             else if (TreeItems.Any())
             {
-                @* 这里的 TItem 必须能在 Razor 中被正确识别，否则会报错 *@
-                <TreeView TItem="TaskNodeTreeDto" Items="TreeItems" OnTreeItemClick="OnNodeClick" ShowIcon="true" />
+                @* ClickToggleNode=false 确保点击整行都能触发选择 *@
+                <TreeView TItem="TaskNodeTreeDto" Items="TreeItems"
+                          OnTreeItemClick="OnNodeClick"
+                          ShowIcon="true" ClickToggleNode="false" />
             }
             else
             {
-                <div class="text-center mt-5 text-muted">
-                    <i class="fa fa-inbox fa-3x mb-3 opacity-25"></i>
-                    <p>暂无评价指标数据</p>
-                </div>
+                <div class="text-center mt-5 text-muted">暂无数据</div>
             }
         </div>
     </div>
 
-    @* 右侧：内容区 *@
+    @* --- 右侧：垂直分块详情页 --- *@
     <div class="col-md-9 bg-white h-100 d-flex flex-column">
         @if (CurrentNodeDetail != null)
         {
-            <div class="p-0 h-100 d-flex flex-column">
-                @* 顶部：指标信息卡 *@
-                <div class="p-3 border-bottom bg-light bg-opacity-50">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="fw-bold mb-0">@CurrentNodeDetail.PointName</h5>
-                        <span class="badge bg-primary fs-6">标准分：@CurrentNodeDetail.MaxScore 分</span>
+            <div class="d-flex flex-column h-100">
+
+                @* 1. 顶部：固定标题区 *@
+                <div class="p-3 border-bottom bg-white shadow-sm" style="z-index: 2;">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge bg-primary mb-2">当前评估要点</span>
+                            <h4 class="fw-bold text-dark mb-0">@CurrentNodeDetail.PointName</h4>
+                        </div>
+                        <div class="text-center bg-warning bg-opacity-10 rounded px-3 py-2 border border-warning">
+                            <small class="text-secondary d-block lh-1">标准分</small>
+                            <span class="fs-4 fw-bold text-dark">@CurrentNodeDetail.MaxScore</span>
+                        </div>
                     </div>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0 small text-muted">
-                            <li class="breadcrumb-item">@CurrentNodeDetail.FirstIndicator</li>
-                            <li class="breadcrumb-item">@CurrentNodeDetail.SecondIndicator</li>
-                            <li class="breadcrumb-item active">@CurrentNodeDetail.ReferencePoint</li>
-                        </ol>
-                    </nav>
                 </div>
 
-                @* 中间：滚动填报区 *@
-                <div class="flex-grow-1 overflow-auto p-4">
+                @* 2. 中间：可滚动的内容详情区 *@
+                <div class="flex-grow-1 overflow-auto p-4 custom-scroll" style="background-color: #f8f9fa;">
 
                     @* 驳回警告 *@
                     @if (CurrentNodeDetail.Status == AuditStatus.Rejected)
                     {
-                        <Alert Color="Color.Danger" Icon="fa fa-warning">
-                            <strong>驳回原因：</strong> @CurrentNodeDetail.RejectReason
-                        </Alert>
+                        <div class="alert alert-danger border-danger shadow-sm mb-4">
+                            <i class="fa fa-circle-exclamation me-2"></i><strong>驳回原因：</strong> @CurrentNodeDetail.RejectReason
+                        </div>
                     }
 
-                    @* 评分标准展示 *@
-                    <div class="card border-info mb-4 shadow-sm">
-                        <div class="card-header bg-info bg-opacity-10 text-info fw-bold">
-                            <i class="fa fa-scale-balanced me-2"></i>评估方法与标准
-                        </div>
+                    @* (A) 指标归属路径 (单独一块) *@
+                    @* (A) 指标归属路径 *@
+                    <div class="card border-0 shadow-sm mb-4">
                         <div class="card-body">
-                            <p class="card-text" style="white-space: pre-wrap;">@CurrentNodeDetail.Method</p>
+                            <h6 class="card-title fw-bold text-secondary mb-3 border-bottom pb-2">
+                                <i class="fa fa-sitemap me-2"></i>指标归属
+                            </h6>
+
+                            @* ★★★ 修改核心：改为垂直 Flex 布局，去除 Grid 列限制 ★★★ *@
+                            <div class="d-flex flex-column gap-3">
+
+                                @* 第一行：一级指标 *@
+                                <div>
+                                    <small class="text-muted d-block mb-1">一级指标</small>
+                                    <div class="fw-bold text-dark p-3 bg-light rounded border border-light">
+                                        @CurrentNodeDetail.FirstIndicator
+                                    </div>
+                                </div>
+
+                                @* 第二行：二级指标 *@
+                                <div>
+                                    <small class="text-muted d-block mb-1">二级指标</small>
+                                    <div class="fw-bold text-dark p-3 bg-light rounded border border-light">
+                                        @CurrentNodeDetail.SecondIndicator
+                                    </div>
+                                </div>
+
+                                @* 第三行：评估参考点 *@
+                                <div>
+                                    <small class="text-muted d-block mb-1">评估参考点</small>
+                                    <div class="fw-bold text-primary p-3 bg-primary bg-opacity-10 rounded border border-primary border-opacity-25">
+                                        @CurrentNodeDetail.ReferencePoint
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    @* 填报表单 *@
-                    <div class="card border-0 shadow-sm">
+                    @* (B) 评估方法 (单独一块) *@
+                    <div class="card border-0 shadow-sm mb-4">
                         <div class="card-body">
-                            <h6 class="card-title fw-bold mb-3 border-start border-4 border-primary ps-2">佐证材料提交</h6>
+                            <h6 class="card-title fw-bold text-secondary mb-3 border-bottom pb-2">
+                                <i class="fa fa-book-open me-2"></i>评估方法
+                            </h6>
+                            <div class="p-3 rounded bg-info bg-opacity-10 text-dark" style="white-space: pre-wrap; line-height: 1.6;">@CurrentNodeDetail.Method</div>
+                        </div>
+                    </div>
 
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">1. 自评说明</label>
-                                <Textarea @bind-Value="CurrentNodeDetail.MyContent" Rows="5"
-                                          Placeholder="请详细描述该指标的落实情况..." />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">2. 附件上传</label>
-                                <div class="alert alert-light border small text-muted mb-2">
-                                    <i class="fa fa-info-circle"></i> 支持图片、PDF、Word等格式。
+                    @* (C) 评分标准细则 (单独一块，直接展示表格) *@
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title fw-bold text-secondary mb-3 border-bottom pb-2">
+                                <i class="fa fa-scale-balanced me-2"></i>评分标准细则
+                            </h6>
+                            @if (CurrentNodeDetail.ScoringItems != null && CurrentNodeDetail.ScoringItems.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover mb-0 bg-white">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center" style="width: 80px;">等级</th>
+                                                <th class="text-center" style="width: 80px;">系数</th>
+                                                <th>详细评分描述</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in CurrentNodeDetail.ScoringItems)
+                                            {
+                                                <tr>
+                                                    <td class="text-center fw-bold align-middle bg-light">@item.LevelCode</td>
+                                                    <td class="text-center font-monospace align-middle">@item.Ratio</td>
+                                                    <td class="align-middle text-secondary">@item.Description</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <InputUpload TValue="string" ShowDeleteButton="true" OnChange="OnUploadFile"
-                                             BrowserButtonText="点击上传佐证文件" />
+                            }
+                            else
+                            {
+                                <div class="text-muted small fst-italic">暂无详细评分标准表</div>
+                            }
+                        </div>
+                    </div>
 
-                                @* 文件列表展示 *@
+                    @* (D) 填报区域 *@
+                    <div class="card border-0 shadow-sm border-top border-4 border-success">
+                        <div class="card-header bg-white fw-bold py-3">
+                            <i class="fa fa-pen-nib me-2 text-success"></i>自评填报
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">自评说明</label>
+                                <Textarea @bind-Value="CurrentNodeDetail.MyContent" Rows="6"
+                                          Placeholder="请根据上述标准，详细描述落实情况..."
+                                          class="bg-light" />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fw-bold">佐证材料 <span class="fw-normal text-muted small">(点击下方按钮上传)</span></label>
+                                <InputUpload TValue="string" ShowDeleteButton="true" OnChange="OnUploadFile"
+                                             BrowserButtonText="上传附件" class="mb-3" />
+
                                 @if (CurrentNodeDetail.FileUrls != null && CurrentNodeDetail.FileUrls.Any())
                                 {
-                                    <div class="list-group mt-2">
+                                    <div class="d-flex flex-wrap gap-2">
                                         @foreach (var file in CurrentNodeDetail.FileUrls)
                                         {
-                                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                <span class="text-truncate">
-                                                    <i class="fa fa-file-lines text-secondary me-2"></i>@file
-                                                </span>
-                                                <Button Icon="fa fa-trash-can" Size="Size.ExtraSmall" Color="Color.Danger" IsOutline="true"
-                                                        OnClick="() => RemoveFile(file)" />
+                                            <div class="badge bg-light text-dark border p-2 d-flex align-items-center">
+                                                <i class="fa fa-paperclip me-2 text-secondary"></i>
+                                                <span class="d-inline-block text-truncate" style="max-width: 200px;">@file</span>
+                                                <i class="fa fa-times ms-2 text-danger cursor-pointer" @onclick="() => RemoveFile(file)"></i>
                                             </div>
                                         }
                                     </div>
@@ -112,20 +181,23 @@
                             </div>
                         </div>
                     </div>
+
+                    @* 底部留白，防止按钮遮挡 *@
+                    <div style="height: 60px;"></div>
                 </div>
 
-                @* 底部：操作栏 *@
-                <div class="p-3 border-top bg-light text-end">
+                @* 3. 底部：固定操作栏 *@
+                <div class="p-3 border-top bg-white d-flex justify-content-end align-items-center shadow-lg" style="z-index: 10;">
                     <Button Color="Color.Primary" Icon="fa fa-floppy-disk" Text="保存并提交本项"
-                            OnClick="OnSaveEvidence" IsAsync="true" class="px-4" />
+                            OnClick="OnSaveEvidence" IsAsync="true" class="px-5 shadow-sm rounded-pill" />
                 </div>
             </div>
         }
         else
         {
-            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
-                <i class="fa fa-hand-pointer fa-4x mb-3 opacity-25"></i>
-                <h5>请点击左侧具体的“评估要点”进行填报</h5>
+            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted bg-light">
+                <i class="fa fa-arrow-left fa-2x mb-3 opacity-50"></i>
+                <h5>请点击左侧列表中的评估要点</h5>
             </div>
         }
     </div>

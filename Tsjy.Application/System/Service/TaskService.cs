@@ -22,8 +22,9 @@ namespace Tsjy.Application.System.Service
         private readonly IRepository<SpeEvalNode> _speRepo;
         private readonly IRepository<IncEvalNode> _incRepo;
         private readonly IRepository<EduEvalNode> _eduRepo;
-
+        private readonly IRepository<ScoringModelItem> _scoringItemRepo;
         public TaskService(
+            IRepository<ScoringModelItem> scoringItemRepo,
             IRepository<DistributionBatch> batchRepo,
             IRepository<BatchTarget> batchTargetRepo,
             IRepository<Tasks> taskRepo,
@@ -34,6 +35,7 @@ namespace Tsjy.Application.System.Service
             IRepository<IncEvalNode> incRepo,
             IRepository<EduEvalNode> eduRepo)
         {
+            _scoringItemRepo = scoringItemRepo;
             _batchRepo = batchRepo;
             _batchTargetRepo = batchTargetRepo;
             _taskRepo = taskRepo;
@@ -235,6 +237,21 @@ namespace Tsjy.Application.System.Service
 
             var methodNode = allNodes.FirstOrDefault(x => x.ParentId == nodeId && x.Type == EvalNodeType.Method);
             if (methodNode != null) dto.Method = methodNode.Name;
+
+
+            if (targetNode.ScoringTemplateId.HasValue)
+            {
+                var items = await _scoringItemRepo.Where(x => x.TemplateId == targetNode.ScoringTemplateId.Value && !x.IsDeleted)
+                                                  .OrderBy(x => x.Sort)
+                                                  .ToListAsync();
+                dto.ScoringItems = items.Select(x => new ScoringModelItemDto
+                {
+                    Id = x.Id,
+                    LevelCode = x.LevelCode,
+                    Ratio = x.Ratio,
+                    Description = x.Description
+                }).ToList();
+            }
 
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == taskId && e.NodeId == nodeId);
             if (evidence != null)

@@ -18,7 +18,7 @@ public partial class DoTask
     private bool IsLoading { get; set; } = true;
     // 当前选中的节点填报详情
     private NodeFillDetailDto CurrentNodeDetail { get; set; }
-
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
     protected override async Task OnInitializedAsync()
     {
         await LoadTree();
@@ -31,8 +31,22 @@ public partial class DoTask
         try
         {
             var nodes = await TaskService.GetTaskTree(TaskId);
+            var pointNodes = nodes.Where(x => x.Type == EvalNodeType.Points)
+                                  // 按 1.1, 1.2 这种序号排序
+                                  .OrderBy(x => x.Code)
+                                  .ToList();
             // 将扁平的 DTO 列表递归转换为 BootstrapBlazor 的 TreeViewItem
-            TreeItems = BuildTreeItems(nodes, null);
+            TreeItems = pointNodes.Select(node => new TreeViewItem<TaskNodeTreeDto>(node)
+            {
+                // 显示序号+名称
+                Text = string.IsNullOrEmpty(node.Code) ? node.Name : $"{node.Code} {node.Name}",
+                // 给个图标区分
+                Icon = "fa fa-file-pen",
+                // 默认就当作叶子节点
+                Items = new List<TreeViewItem<TaskNodeTreeDto>>(),
+                // 自定义模板用于显示“已完成”勾号
+                Template = CreateNodeTemplate(node)
+            }).ToList();
         }
         catch (Exception ex)
         {
@@ -52,15 +66,31 @@ public partial class DoTask
     private async Task OnNodeClick(TreeViewItem<TaskNodeTreeDto> item)
     {
         // 只有类型为 "Points" (评估要点) 的节点才允许填报
-        if (item.Value.Type == EvalNodeType.Points)
+        await _semaphore.WaitAsync();
+
+        try
         {
-            // 加载详情
-            CurrentNodeDetail = await TaskService.GetNodeFillDetail(TaskId, item.Value.Id);
-            StateHasChanged();
+            // 只有类型为 "Points" (评估要点) 的节点才允许填报
+            if (item.Value.Type == EvalNodeType.Points)
+            {
+                // 加载详情
+                CurrentNodeDetail = await TaskService.GetNodeFillDetail(TaskId, item.Value.Id);
+                StateHasChanged();
+            }
+            else
+            {
+                CurrentNodeDetail = null; //如果不允许填报，清空右侧
+                StateHasChanged();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            CurrentNodeDetail = null; //如果不允许填报，清空右侧
+            await MessageService.Show(new MessageOption { Content = "加载详情失败，请稍后重试", Color = Color.Danger });
+        }
+        finally
+        {
+            // ★★★ 核心修复：释放锁 ★★★
+            _semaphore.Release();
         }
     }
 
@@ -69,23 +99,39 @@ public partial class DoTask
     /// </summary>
     private async Task OnSaveEvidence()
     {
-        if (CurrentNodeDetail == null) return;
-
-        // 简单校验
-        if (string.IsNullOrWhiteSpace(CurrentNodeDetail.MyContent) && !CurrentNodeDetail.FileUrls.Any())
+        // 提交操作同样建议加锁，防止重复提交
+        await _semaphore.WaitAsync();
+        try
         {
-            await MessageService.Show(new MessageOption { Content = "请至少填写自评说明或上传一份附件", Color = Color.Warning });
-            return;
+            if (CurrentNodeDetail == null) return;
+
+            if (string.IsNullOrWhiteSpace(CurrentNodeDetail.MyContent) && !CurrentNodeDetail.FileUrls.Any())
+            {
+                await MessageService.Show(new MessageOption { Content = "请填写内容或上传附件", Color = Color.Warning });
+                return;
+            }
+
+            await TaskService.SubmitEvidence(CurrentNodeDetail);
+            await MessageService.Show(new MessageOption { Content = "保存成功！", Color = Color.Success });
+
+            // 更新左侧图标状态
+            var treeItem = TreeItems.FirstOrDefault(x => x.Value.Id == CurrentNodeDetail.NodeId);
+            if (treeItem != null)
+            {
+                treeItem.Value.IsCompleted = true;
+                treeItem.Template = CreateNodeTemplate(treeItem.Value); // 刷新图标
+            }
         }
-
-        await TaskService.SubmitEvidence(CurrentNodeDetail);
-
-        await MessageService.Show(new MessageOption { Content = "提交成功！", Color = Color.Success });
-
-        // 更新左侧树的状态图标 (设为已完成)
-        UpdateTreeStatus(TreeItems, CurrentNodeDetail.NodeId);
+        finally
+        {
+            _semaphore.Release();
+        }
     }
-
+    public void Dispose()
+    {
+        _semaphore?.Dispose();
+        GC.SuppressFinalize(this);
+    }
     // 模拟文件上传回调
     private async Task OnUploadFile(UploadFile file)
     {
@@ -141,19 +187,12 @@ public partial class DoTask
     // 更新树节点状态为“已完成”
     private void UpdateTreeStatus(List<TreeViewItem<TaskNodeTreeDto>> items, long nodeId)
     {
-        foreach (var item in items)
+        var item = items.FirstOrDefault(x => x.Value.Id == nodeId);
+        if (item != null)
         {
-            if (item.Value.Id == nodeId)
-            {
-                item.Value.IsCompleted = true;
-                // 强制刷新 Template 的一种方式是重新赋值（BB可能有更优解，这里简单处理）
-                item.Template = CreateNodeTemplate(item.Value);
-                return;
-            }
-            if (item.Items.Any())
-            {
-                UpdateTreeStatus(item.Items, nodeId);
-            }
+            item.Value.IsCompleted = true;
+            // 重新赋值 Template 以触发 UI 刷新图标
+            item.Template = CreateNodeTemplate(item.Value);
         }
     }
 
@@ -161,22 +200,28 @@ public partial class DoTask
     private RenderFragment<TaskNodeTreeDto> CreateNodeTemplate(TaskNodeTreeDto node) => (TaskNodeTreeDto item) => (RenderTreeBuilder builder) =>
     {
         // 注意：虽然方法参数传入了 node，但作为模板，建议使用 Lambda 参数 item (它们在这里是同一个对象)
-        builder.OpenElement(0, "span");
-        builder.AddContent(1, item.Code + " " + item.Name);
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "d-flex align-items-center w-100");
+
+        builder.OpenElement(2, "span");
+        builder.AddAttribute(3, "class", "flex-grow-1 text-truncate");
+        builder.AddContent(4, string.IsNullOrEmpty(item.Code) ? item.Name : $"{item.Code} {item.Name}");
         builder.CloseElement();
 
         if (item.IsCompleted)
         {
-            builder.OpenElement(2, "i");
-            builder.AddAttribute(3, "class", "fa fa-check-circle text-success ms-2");
+            builder.OpenElement(5, "i");
+            builder.AddAttribute(6, "class", "fa fa-check-circle text-success ms-2");
             builder.CloseElement();
         }
         else if (item.AuditStatus == AuditStatus.Rejected)
         {
-            builder.OpenElement(4, "i");
-            builder.AddAttribute(5, "class", "fa fa-exclamation-circle text-danger ms-2");
+            builder.OpenElement(7, "i");
+            builder.AddAttribute(8, "class", "fa fa-exclamation-circle text-danger ms-2");
             builder.CloseElement();
         }
+
+        builder.CloseElement();
     };
     #endregion
 }
