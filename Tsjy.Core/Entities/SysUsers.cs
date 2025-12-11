@@ -28,7 +28,7 @@ public class SysUsers : IEntity
 
     public UserRole Role { get; set; }
     public OrgType OrgType { get; set; }
-    public int OrgId { get; set; }
+    public string OrgId { get; set; }
 
     public string Phone { get; set; } = "string.Empty";
  

@@ -1,6 +1,8 @@
 ﻿using BootstrapBlazor.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.ComponentModel;
+using System.Reflection;
 using Tsjy.Application.System.Dtos;
 using Tsjy.Application.System.Service;
 using Tsjy.Core.Enums;
@@ -16,42 +18,55 @@ public partial class MyTask
 
     protected override async Task OnInitializedAsync()
     {
-        // 获取当前用户 ID
-        // 注意：这里需要你确保 AuthenticationStateProvider 配置正确，且能获取到 UserId
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
 
-        // 简单模拟：假设 Claim 中存了 UserId，或者通过 Name 查找
-        // 实际项目中建议封装一个 UserContextService 来统一获取
-        if (user.Identity != null && user.Identity.IsAuthenticated)
+        // 尝试获取 OrgId
+        var orgIdClaim = user.FindFirst("OrgId");
+
+        if (orgIdClaim != null)
         {
-            // 假设 ClaimTypes.NameIdentifier 存的是 Int64 的 ID
-            var userIdStr = user.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (long.TryParse(userIdStr, out var myId))
-            {
-                Tasks = await TaskService.GetMyTasks(myId);
-            }
-            else
-            {
-                // 如果拿不到 ID，临时硬编码方便调试，或者跳转登录
-                // myId = 1; 
-                // Tasks = await TaskService.GetMyTasks(myId);
-            }
+            Tasks = await TaskService.GetMyTasks(orgIdClaim.Value);
+        }
+        else
+        {
+            // 如果没找到 OrgId，这里可以做一些处理，比如查询用户表获取
+            // 目前先保持为空列表
         }
     }
 
-    private Color GetStatusColor(TaskStatu status)
+    /// <summary>
+    /// 获取状态对应的颜色
+    /// </summary>
+    private Color GetStatusColor(TaskStatu status) => status switch
     {
-        return status switch
+        TaskStatu.Pending => Color.Secondary,
+        TaskStatu.Sent => Color.Info,
+        TaskStatu.Submitting => Color.Primary,
+        TaskStatu.Submitted => Color.Warning,
+        TaskStatu.Reviewing => Color.Warning,
+        TaskStatu.Returned => Color.Danger,
+        TaskStatu.Finished => Color.Success,
+        _ => Color.Info
+    };
+
+    /// <summary>
+    /// 获取枚举的描述文本
+    /// </summary>
+    private string GetDescription(TaskStatu status)
+    {
+        var type = status.GetType();
+        var fieldInfo = type.GetField(status.ToString());
+
+        if (fieldInfo != null)
         {
-            TaskStatu.Pending => Color.Secondary,
-            TaskStatu.Sent => Color.Info,
-            TaskStatu.Submitting => Color.Primary,
-            TaskStatu.Submitted => Color.Warning,
-            TaskStatu.Reviewing => Color.Warning,
-            TaskStatu.Finished => Color.Success,
-            TaskStatu.Returned => Color.Danger,
-            _ => Color.Primary
-        };
+            var attrs = fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+            if (attrs != null && attrs.Length > 0)
+            {
+                return attrs[0].Description;
+            }
+        }
+
+        return status.ToString();
     }
 }

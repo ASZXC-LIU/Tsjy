@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Tsjy.Application.System.Dtos;
 using Tsjy.Application.System.Service;
 using Tsjy.Core.Enums;
-
+using Microsoft.AspNetCore.Components.Rendering;
 namespace Tsjy.Web.Entry.Pages.School;
 
 public partial class DoTask
@@ -143,25 +143,25 @@ public partial class DoTask
     }
 
     // 定义树节点显示的模板 (显示勾号)
-    private RenderFragment<TaskNodeTreeDto> CreateNodeTemplate(TaskNodeTreeDto node) => builder =>
+    private RenderFragment<TaskNodeTreeDto> CreateNodeTemplate(TaskNodeTreeDto node) => (TaskNodeTreeDto item) => (RenderTreeBuilder builder) =>
     {
+        // 注意：虽然方法参数传入了 node，但作为模板，建议使用 Lambda 参数 item (它们在这里是同一个对象)
         builder.OpenElement(0, "span");
-        builder.AddContent(1, node.Code + " " + node.Name);
+        builder.AddContent(1, item.Code + " " + item.Name);
         builder.CloseElement();
 
-        if (node.IsCompleted)
+        if (item.IsCompleted)
         {
             builder.OpenElement(2, "i");
             builder.AddAttribute(3, "class", "fa fa-check-circle text-success ms-2");
             builder.CloseElement();
         }
-        else if (node.AuditStatus == AuditStatus.Rejected)
+        else if (item.AuditStatus == AuditStatus.Rejected)
         {
             builder.OpenElement(4, "i");
             builder.AddAttribute(5, "class", "fa fa-exclamation-circle text-danger ms-2");
             builder.CloseElement();
         }
     };
-
     #endregion
 }

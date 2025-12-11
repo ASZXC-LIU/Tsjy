@@ -1,6 +1,7 @@
 ﻿@page "/School/DoTask/{TaskId:long}"
 @inherits BootstrapComponentBase
-
+@using Tsjy.Application.System.Dtos
+@using Tsjy.Core.Enums
 <PageTitle>任务填报</PageTitle>
 
 @* 全屏高度布局容器 *@
@@ -14,14 +15,12 @@
         <div class="flex-grow-1 overflow-auto p-2">
             @if (TreeItems.Any())
             {
-                <TreeView TItem="TaskNodeTreeDto" Items="TreeItems" OnTreeItemClick="OnNodeClick"
-                          ShowIcon="true" ClickToggleNode="true" />
+                @* 这里的 TItem 必须能在 Razor 中被正确识别，否则会报错 *@
+                <TreeView TItem="TaskNodeTreeDto" Items="TreeItems" OnTreeItemClick="OnNodeClick" ShowIcon="true" />
             }
             else
             {
-                <div class="text-center mt-5 text-muted">
-                    <Spinner Color="Color.Primary" /> 正在加载指标...
-                </div>
+                <div class="text-center mt-5"><Spinner /> 加载中...</div>
             }
         </div>
     </div>
@@ -52,9 +51,8 @@
                     @* 驳回警告 *@
                     @if (CurrentNodeDetail.Status == AuditStatus.Rejected)
                     {
-                        <Alert Color="Color.Danger" Icon="fa fa-circle-xmark" class="mb-4 shadow-sm">
-                            <h6 class="alert-heading fw-bold">审核未通过</h6>
-                            <div><strong>专家意见：</strong> @CurrentNodeDetail.RejectReason</div>
+                        <Alert Color="Color.Danger" Icon="fa fa-warning">
+                            <strong>驳回原因：</strong> @CurrentNodeDetail.RejectReason
                         </Alert>
                     }
 

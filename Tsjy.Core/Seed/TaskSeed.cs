@@ -38,7 +38,7 @@ namespace Tsjy.Core.Seed
         {
             return new List<BatchTarget>
             {
-                new BatchTarget { Id = 1, BatchId = 1, OrgId = 1, CreatedAt = DateTime.UtcNow }
+                new BatchTarget { Id = 1, BatchId = 1, OrgId = "330106_EDU", CreatedAt = DateTime.UtcNow }
             };
         }
     }
@@ -57,8 +57,8 @@ namespace Tsjy.Core.Seed
             {
                 new Tasks
                 {
-                    Id = 1, BatchId = 1, TreeId = 202501, TargetType = OrgType.SpecialSchool, TargetId = 1,
-                    Status = TaskStatus.Submitting, StartAt = DateTime.UtcNow, DueAt = DateTime.UtcNow.AddDays(7),
+                    Id = 1, BatchId = 1, TreeId = 202501, TargetType = OrgType.SpecialSchool, TargetId = "330100_EDU",
+                    Status = TaskStatu.Submitting, StartAt = DateTime.UtcNow, DueAt = DateTime.UtcNow.AddDays(7),
                     CreatedAt = DateTime.UtcNow
                 }
             };

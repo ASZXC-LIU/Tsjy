@@ -1,4 +1,6 @@
 ﻿@page "/Admin/TaskDistribute"
+@using Tsjy.Application.System.Dtos
+@using Tsjy.Core.Enums
 @inherits BootstrapComponentBase
 
 <PageTitle>发布评价任务</PageTitle>
@@ -11,59 +13,41 @@
         <BodyTemplate>
             <ValidateForm Model="@Model" OnValidSubmit="@OnSubmit">
                 <div class="row g-3">
-                    @* 1. 基础设置区域 *@
-                    <div class="col-12">
-                        <h6 class="text-primary fw-bold"><span class="badge bg-primary rounded-circle me-2">1</span>基础设置</h6>
-                        <hr class="mt-1 mb-3" />
-                    </div>
-
+                    @* 1. 基础设置 *@
+                    <div class="col-12"><h6 class="text-primary fw-bold">1. 基础设置</h6></div>
                     <div class="col-md-6">
-                        <BootstrapInput @bind-Value="Model.BatchName" ShowLabel="true" DisplayText="任务名称" Placeholder="例如：2025年上半年特教学校考评" />
+                        <BootstrapInput @bind-Value="Model.BatchName" ShowLabel="true" DisplayText="任务名称" />
                     </div>
-
                     <div class="col-md-6">
-                        <DateTimeRange @bind-Value="DateRange" ShowLabel="true" DisplayText="任务起止时间" />
+                        <DateTimeRange @bind-Value="DateRange" ShowLabel="true" DisplayText="起止时间" />
                     </div>
 
-                    @* 2. 评价体系选择 *@
-                    <div class="col-12 mt-4">
-                        <h6 class="text-primary fw-bold"><span class="badge bg-primary rounded-circle me-2">2</span>选择评价标准</h6>
-                        <hr class="mt-1 mb-3" />
-                    </div>
-
+                    @* 2. 选择体系 *@
+                    <div class="col-12 mt-3"><h6 class="text-primary fw-bold">2. 选择评价标准</h6></div>
                     <div class="col-md-4">
-                        <Select @bind-Value="Model.TargetType" Items="OrgTypeItems" OnSelectedItemChanged="OnOrgTypeChanged"
-                                ShowLabel="true" DisplayText="适用单位类型" />
+                        <Select @bind-Value="Model.TargetType" Items="OrgTypeItems" OnSelectedItemChanged="OnTypeChanged" ShowLabel="true" DisplayText="单位类型" />
                     </div>
-
                     <div class="col-md-8">
-                        <Select @bind-Value="Model.TreeId" Items="TreeItems" IsDisabled="@(!TreeItems.Any())"
-                                ShowLabel="true" DisplayText="选择评价体系版本" PlaceHolder="@(TreeItems.Any() ? "请选择..." : "该类型下暂无可用体系")" />
+                        <Select @bind-Value="Model.TreeId" Items="TreeItems" ShowLabel="true" DisplayText="评价体系版本" />
                     </div>
 
-                    @* 3. 单位选择 *@
-                    <div class="col-12 mt-4">
-                        <h6 class="text-primary fw-bold"><span class="badge bg-primary rounded-circle me-2">3</span>选择被评价单位</h6>
-                        <hr class="mt-1 mb-3" />
-                    </div>
-
+                    @* 3. 选择单位 *@
+                    <div class="col-12 mt-3"><h6 class="text-primary fw-bold">3. 选择被评价单位</h6></div>
                     <div class="col-12">
-                        <Table TItem="SysUserDto" Items="TargetList" IsStriped="true" IsBordered="true"
-                               ShowCheckbox="true" @bind-SelectedRows="SelectedTargets"
-                               ShowLoading="IsLoadingTargets"
-                               ShowEmpty="true" EmptyText="请先选择单位类型以加载列表">
+                        @* 这里的 TItem 必须显式匹配后台 List<SysUserTargetDto> *@
+                        <Table TItem="SysUserTargetDto" Items="TargetList" IsStriped="true" IsBordered="true"
+                               IsMultipleSelect="true" ShowCheckbox="true" @bind-SelectedRows="SelectedTargets"
+                               ShowLoading="IsLoadingTargets">
                             <TableColumns>
-                                <TableColumn @bind-Field="@context.Name" Text="单位名称" />
-                                <TableColumn @bind-Field="@context.Account" Text="登录账号" />
-                                <TableColumn @bind-Field="@context.Phone" Text="联系电话" />
+                                <TableColumn @bind-Field="@context.RealName" Text="单位名称" />
+                                <TableColumn @bind-Field="@context.UserName" Text="登录账号" />
+                                <TableColumn @bind-Field="@context.Phone" Text="联系方式" />
                             </TableColumns>
                         </Table>
                     </div>
 
-                    @* 底部按钮 *@
-                    <div class="col-12 text-end mt-4 pt-3 border-top">
-                        <Button ButtonType="ButtonType.Submit" Icon="fa fa-check-circle" Text="确认并发布任务"
-                                Color="Color.Primary" Size="Size.Large" IsAsync="true" />
+                    <div class="col-12 text-end mt-4">
+                        <Button ButtonType="ButtonType.Submit" Icon="fa fa-check" Text="确认发布" Color="Color.Primary" IsAsync="true" />
                     </div>
                 </div>
             </ValidateForm>

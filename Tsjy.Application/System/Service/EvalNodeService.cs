@@ -142,7 +142,7 @@ namespace Tsjy.Application.System.Service
             var roots = await repo.Where(x => x.ParentId == null && !x.IsDeleted)
                                   .OrderByDescending(x => x.CreatedAt)
                                   .ToListAsync();
-
+            Console.Write(roots);
             return roots.Select(x => new EvalSystemListDto
             {
                 Id = x.Id,

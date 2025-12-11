@@ -1,11 +1,10 @@
-﻿
-using Furion.DatabaseAccessor;
+﻿using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc; // [FromBody] 需要这个
-using System.ComponentModel.DataAnnotations; // [Required] 需要这个
-using Tsjy.Application.System.Dtos; // 引用刚刚创建的 DTO
-using Tsjy.Core.Entities; // 引用 Tasks, DistributionBatch 等实体
+using System.ComponentModel.DataAnnotations;
+using Tsjy.Application.System.Dtos;
+using Tsjy.Core.Entities;
 using Tsjy.Core.Enums;
 
 namespace Tsjy.Application.System.Service
@@ -16,9 +15,10 @@ namespace Tsjy.Application.System.Service
         private readonly IRepository<BatchTarget> _batchTargetRepo;
         private readonly IRepository<Tasks> _taskRepo;
         private readonly IRepository<AssignmentEvidence> _evidenceRepo;
+        private readonly IRepository<Departments> _orgRepo;
+        // 修改：注入 SysUsers 仓储
         private readonly IRepository<SysUsers> _userRepo;
 
-        // 注入不同类型的指标仓储
         private readonly IRepository<SpeEvalNode> _speRepo;
         private readonly IRepository<IncEvalNode> _incRepo;
         private readonly IRepository<EduEvalNode> _eduRepo;
@@ -29,6 +29,7 @@ namespace Tsjy.Application.System.Service
             IRepository<Tasks> taskRepo,
             IRepository<AssignmentEvidence> evidenceRepo,
             IRepository<SysUsers> userRepo,
+            IRepository<Departments> orgRepo, // Update
             IRepository<SpeEvalNode> speRepo,
             IRepository<IncEvalNode> incRepo,
             IRepository<EduEvalNode> eduRepo)
@@ -38,6 +39,7 @@ namespace Tsjy.Application.System.Service
             _taskRepo = taskRepo;
             _evidenceRepo = evidenceRepo;
             _userRepo = userRepo;
+            _orgRepo = orgRepo;
             _speRepo = speRepo;
             _incRepo = incRepo;
             _eduRepo = eduRepo;
@@ -48,19 +50,34 @@ namespace Tsjy.Application.System.Service
         /// <summary>
         /// 获取待选单位列表 (根据类型)
         /// </summary>
-        public async Task<List<SysUserDto>> GetTargetsByType(OrgType type)
+        public async Task<List<SysUserTargetDto>> GetTargetsByType(OrgType type)
         {
-            // 假设 SysUser 表中有 OrgType 字段或关联，这里简化处理，直接查用户
-            // 实际项目中可能需要关联 Departments 表
-            var role = type == OrgType.EducationBureau ? UserRole.Admin : UserRole.SchoolUser;
-            return await _userRepo.Where(u => !u.IsDeleted && u.Role == role)
-                                  .Select(u => new SysUserDto { IDNumber = u.IDNumber, RealName = u.RealName ?? u.UserName })
-                                  .ToListAsync();
+
+            var query = from u in _userRepo.AsQueryable()
+                        join o in _orgRepo.AsQueryable() on u.OrgId equals o.Code
+                        where !u.IsDeleted && u.Role == UserRole.SchoolUser
+                        // 如果机构表里也有 type 字段，可以在这里加筛选： && o.Type == type
+                        select new SysUserTargetDto
+                        {
+                            TargetId = u.OrgId,
+                            IDNumber = u.IDNumber,
+
+                            // ★★★ 关键：获取机构表的名字 ★★★
+                            OrgName = o.Name,
+
+                            // 优先显示用户真实姓名，没有则显示账号
+                            RealName = string.IsNullOrEmpty(u.RealName) ? u.UserName : u.RealName,
+                            UserName = u.UserName,
+                            Phone = u.Phone
+                        };
+
+            return await query.ToListAsync();
         }
 
         /// <summary>
         /// 发布任务
         /// </summary>
+        [HttpPost]
         public async Task PublishTask([FromBody] DistributeTaskDto input)
         {
             // 1. 创建批次
@@ -77,13 +94,14 @@ namespace Tsjy.Application.System.Service
             var tasks = new List<Tasks>();
             var batchTargets = new List<BatchTarget>();
 
-            foreach (var targetId in input.SelectedTargetIds)
+            // input.SelectedTargetIds 此时存的是 OrgId
+            foreach (var orgId in input.SelectedTargetIds)
             {
                 // 记录批次目标
                 batchTargets.Add(new BatchTarget
                 {
                     BatchId = batchEntity.Entity.Id,
-                    OrgId = targetId,
+                    OrgId = orgId, // 存 OrgId
                     CreatedAt = DateTime.Now
                 });
 
@@ -93,8 +111,8 @@ namespace Tsjy.Application.System.Service
                     BatchId = batchEntity.Entity.Id,
                     TreeId = input.TreeId,
                     TargetType = input.TargetType,
-                    TargetId = targetId,
-                    Status = TaskStatu.Pending, // 初始状态
+                    TargetId = orgId, // 存 OrgId
+                    Status = TaskStatu.Pending,
                     StartAt = input.StartAt,
                     DueAt = input.DueAt,
                     CreatedAt = DateTime.Now
@@ -112,17 +130,20 @@ namespace Tsjy.Application.System.Service
         /// <summary>
         /// 获取我的任务列表
         /// </summary>
-        public async Task<List<SchoolTaskListDto>> GetMyTasks(long myId)
+        /// <param name="myOrgId">当前登录用户的 OrgId</param>
+        public async Task<List<SchoolTaskListDto>> GetMyTasks(string myOrgId)
         {
+            // 查找 TargetId 等于我的 OrgId 的任务
             var tasks = await _taskRepo.AsQueryable()
-                .Include(t => t.BatchId) // 如果需要关联批次名，这里假设 Tasks 里没存 Name，得去 Batch 查
-                .Where(t => t.TargetId == myId && !t.IsDeleted)
+                .Where(t => t.TargetId == myOrgId && !t.IsDeleted)
                 .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync();
 
-            // 补全批次名称
+            if (!tasks.Any()) return new List<SchoolTaskListDto>();
+
             var batchIds = tasks.Select(t => t.BatchId).Distinct().ToList();
-            var batches = await _batchRepo.Where(b => batchIds.Contains(b.Id)).ToDictionaryAsync(b => b.Id, b => b.Name);
+            var batches = await _batchRepo.Where(b => batchIds.Contains(b.Id))
+                                          .ToDictionaryAsync(b => b.Id, b => b.Name);
 
             return tasks.Select(t => new SchoolTaskListDto
             {
@@ -130,8 +151,7 @@ namespace Tsjy.Application.System.Service
                 BatchName = batches.ContainsKey(t.BatchId) ? batches[t.BatchId] : "未知任务",
                 Status = t.Status,
                 DueAt = t.DueAt,
-                FinalScore = t.FinalScore,
-                Progress = 0 // TODO: 计算完成百分比
+                FinalScore = t.FinalScore
             }).ToList();
         }
 
@@ -143,7 +163,6 @@ namespace Tsjy.Application.System.Service
             var task = await _taskRepo.FindOrDefaultAsync(taskId);
             if (task == null) throw new Exception("任务不存在");
 
-            // 1. 根据类型获取对应的指标表
             List<EvalNodeTreeDto> rawNodes = task.TargetType switch
             {
                 OrgType.SpecialSchool => await GetNodesInternal(_speRepo, task.TreeId),
@@ -152,75 +171,73 @@ namespace Tsjy.Application.System.Service
                 _ => new List<EvalNodeTreeDto>()
             };
 
-            // 2. 获取已填报的佐证
             var evidences = await _evidenceRepo.Where(e => e.TaskId == taskId && !e.IsDeleted).ToListAsync();
             var evidenceDict = evidences.ToDictionary(e => e.NodeId, e => e.Status);
 
-            // 3. 转换为带状态的树节点
-            // 这里我们需要递归或者扁平转树，假设 GetNodesInternal 返回的是扁平列表
-            var treeNodes = rawNodes.Select(n => new TaskNodeTreeDto
+            return rawNodes.Select(n => new TaskNodeTreeDto
             {
                 Id = n.Id,
                 ParentId = n.ParentId,
                 Name = n.Name,
                 Code = n.Code,
                 Type = n.Type,
-                IsCompleted = evidenceDict.ContainsKey(n.Id), // 是否已填
+                MaxScore = n.MaxScore,
+                OrderIndex = n.OrderIndex,
+                IsCompleted = evidenceDict.ContainsKey(n.Id),
                 AuditStatus = evidenceDict.ContainsKey(n.Id) ? evidenceDict[n.Id] : AuditStatus.Pending
             }).ToList();
-
-            return treeNodes; // 前端会用 TreeView 组件处理层级关系，只要 ParentId 对就行
         }
 
         /// <summary>
-        /// 获取单个节点的详细填报信息 (含上下文)
+        /// 获取单个节点的详细填报信息
         /// </summary>
         public async Task<NodeFillDetailDto> GetNodeFillDetail(long taskId, long nodeId)
         {
             var task = await _taskRepo.FindOrDefaultAsync(taskId);
 
-            // 1. 获取节点及其上下文（递归找父级）
-            // 这里简化逻辑：根据 TargetType 选 Repo，然后查出该节点及其所有父节点
-            // 实际开发建议写个存储过程或递归查询，这里用内存处理演示思路
-            IEvalNode node = null;
+            IEvalNode targetNode = null;
             List<IEvalNode> allNodes = new();
 
-            if (task.TargetType == OrgType.SpecialSchool)
+            switch (task.TargetType)
             {
-                node = await _speRepo.FindOrDefaultAsync(nodeId);
-                allNodes = (await _speRepo.Where(x => x.TreeId == task.TreeId).ToListAsync()).Cast<IEvalNode>().ToList();
-            }
-            // ... 其他类型省略
-
-            if (node == null) throw new Exception("指标不存在");
-
-            // 2. 构建上下文路径
-            var dto = new NodeFillDetailDto { NodeId = nodeId, TaskId = taskId };
-
-            // 简单向上查找填充 FirstIndicator, SecondIndicator 等
-            var current = node;
-            while (current != null)
-            {
-                if (current.Type == EvalNodeType.Points) dto.PointName = current.Name;
-                else if (current.Type == EvalNodeType.Reference) dto.ReferencePoint = current.Name;
-                else if (current.Type == EvalNodeType.SecondIndicator) dto.SecondIndicator = current.Name;
-                else if (current.Type == EvalNodeType.FirstIndicator) dto.FirstIndicator = current.Name;
-                else if (current.Type == EvalNodeType.Method) dto.Method = current.Name;
-
-                if (current.ParentId == null) break;
-                current = allNodes.FirstOrDefault(x => x.Id == current.ParentId);
+                case OrgType.SpecialSchool:
+                    targetNode = await _speRepo.FindOrDefaultAsync(nodeId);
+                    allNodes = (await _speRepo.Where(x => x.TreeId == task.TreeId).ToListAsync()).Cast<IEvalNode>().ToList();
+                    break;
+                case OrgType.InclusiveSchool:
+                    targetNode = await _incRepo.FindOrDefaultAsync(nodeId);
+                    allNodes = (await _incRepo.Where(x => x.TreeId == task.TreeId).ToListAsync()).Cast<IEvalNode>().ToList();
+                    break;
+                case OrgType.EducationBureau:
+                    targetNode = await _eduRepo.FindOrDefaultAsync(nodeId);
+                    allNodes = (await _eduRepo.Where(x => x.TreeId == task.TreeId).ToListAsync()).Cast<IEvalNode>().ToList();
+                    break;
             }
 
-            // 如果选中的是 Method，可能需要特殊处理展示逻辑
-            if (node.Type == EvalNodeType.Points)
+            if (targetNode == null) throw new Exception("指标不存在");
+
+            var dto = new NodeFillDetailDto
             {
-                var methodNode = allNodes.FirstOrDefault(x => x.ParentId == node.Id && x.Type == EvalNodeType.Method);
-                if (methodNode != null) dto.Method = methodNode.Name;
+                NodeId = nodeId,
+                TaskId = taskId,
+                PointName = targetNode.Name,
+                MaxScore = targetNode.MaxScore
+            };
+
+            var current = targetNode;
+            while (current.ParentId != null)
+            {
+                var parent = allNodes.FirstOrDefault(x => x.Id == current.ParentId);
+                if (parent == null) break;
+                if (parent.Type == EvalNodeType.Reference) dto.ReferencePoint = parent.Name;
+                else if (parent.Type == EvalNodeType.SecondIndicator) dto.SecondIndicator = parent.Name;
+                else if (parent.Type == EvalNodeType.FirstIndicator) dto.FirstIndicator = parent.Name;
+                current = parent;
             }
 
-            dto.MaxScore = node.MaxScore;
+            var methodNode = allNodes.FirstOrDefault(x => x.ParentId == nodeId && x.Type == EvalNodeType.Method);
+            if (methodNode != null) dto.Method = methodNode.Name;
 
-            // 3. 获取已填内容
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == taskId && e.NodeId == nodeId);
             if (evidence != null)
             {
@@ -236,10 +253,8 @@ namespace Tsjy.Application.System.Service
             return dto;
         }
 
-        /// <summary>
-        /// 提交佐证
-        /// </summary>
-        public async Task SubmitEvidence(NodeFillDetailDto input)
+        [HttpPost]
+        public async Task SubmitEvidence([FromBody] NodeFillDetailDto input)
         {
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == input.TaskId && e.NodeId == input.NodeId);
             if (evidence == null)
@@ -255,24 +270,24 @@ namespace Tsjy.Application.System.Service
 
             evidence.Content = input.MyContent;
             evidence.FileUrls = global::System.Text.Json.JsonSerializer.Serialize(input.FileUrls);
-            evidence.Status = AuditStatus.Pending; // 提交后重置为待审核
+            if (evidence.Status == AuditStatus.Rejected) evidence.Status = AuditStatus.Pending;
             evidence.UpdatedAt = DateTime.Now;
 
             await _evidenceRepo.UpdateAsync(evidence);
 
-            // 更新任务状态为“填报中”
             var task = await _taskRepo.FindOrDefaultAsync(input.TaskId);
-            if (task.Status == TaskStatu.Pending || task.Status == TaskStatu.Sent)
+            if (task.Status == TaskStatu.Pending || task.Status == TaskStatu.Sent || task.Status == TaskStatu.Returned)
             {
                 task.Status = TaskStatu.Submitting;
                 await _taskRepo.UpdateAsync(task);
             }
         }
 
-        // 复用之前的 GetNodesInternal
         private async Task<List<EvalNodeTreeDto>> GetNodesInternal<T>(IRepository<T> repo, long TreeId) where T : class, IEntity, IEvalNode, new()
         {
-            var list = await repo.Where(x => !x.IsDeleted && x.TreeId == TreeId).OrderBy(x => x.OrderIndex).ToListAsync();
+            var list = await repo.Where(x => !x.IsDeleted && x.TreeId == TreeId)
+                                 .OrderBy(x => x.OrderIndex)
+                                 .ToListAsync();
             return list.Adapt<List<EvalNodeTreeDto>>();
         }
         #endregion

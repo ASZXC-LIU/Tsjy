@@ -129,7 +129,7 @@
             评价体系节点类型
             </summary>
         </member>
-        <member name="T:Tsjy.Core.Enums.TaskStatus">
+        <member name="T:Tsjy.Core.Enums.TaskStatu">
             <summary>
             给评价单位的任务/作业状态流程
             </summary>

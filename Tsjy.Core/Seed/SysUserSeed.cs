@@ -31,7 +31,7 @@ namespace Tsjy.Core.Seed
                     Phone = "13800000000",
                     Role = Enums.UserRole.Admin,
                     OrgType = Enums.OrgType.EducationBureau,
-                    OrgId = 1,
+                    OrgId = "330100_EDU",
                     IsDeleted = false,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -45,7 +45,7 @@ namespace Tsjy.Core.Seed
                     Phone = "13800000000",
                     Role = Enums.UserRole.Admin,
                     OrgType = Enums.OrgType.EducationBureau,
-                    OrgId = 1,
+                    OrgId = "330106_EDU",
                     IsDeleted = false,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow

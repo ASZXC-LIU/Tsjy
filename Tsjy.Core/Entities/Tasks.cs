@@ -49,7 +49,7 @@ public class BatchTarget : IEntity
 
 
 
-    public long OrgId { get; set; }
+    public string OrgId { get; set; }
 
 
     public bool IsDeleted { get; set; } = false;
@@ -78,7 +78,7 @@ public class Tasks : IEntity
     public OrgType TargetType { get; set; }
 
     [DisplayName("学校ID")]
-    public long TargetId { get; set; }
+    public string TargetId { get; set; }
 
     [DisplayName("当前状态")]
     public TaskStatu Status { get; set; } = TaskStatu.Pending;
