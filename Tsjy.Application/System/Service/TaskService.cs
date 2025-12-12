@@ -9,7 +9,7 @@ using Tsjy.Core.Enums;
 
 namespace Tsjy.Application.System.Service
 {
-    public class TaskService : IDynamicApiController, ITransient
+    public class TaskService : IDynamicApiController, ITransient, IScoped
     {
         private readonly IRepository<DistributionBatch> _batchRepo;
         private readonly IRepository<BatchTarget> _batchTargetRepo;
@@ -112,8 +112,7 @@ namespace Tsjy.Application.System.Service
                     TargetType = input.TargetType,
                     TargetId = orgId, // 存 OrgId
                     Status = TaskStatu.Pending,
-                    StartAt = input.StartAt,
-                    DueAt = input.DueAt,
+                   
                     CreatedAt = DateTime.Now
                 });
             }
@@ -150,7 +149,7 @@ namespace Tsjy.Application.System.Service
                 TaskId = t.Id,
                 BatchName = batches.ContainsKey(t.BatchId) ? batches[t.BatchId] : "未知任务",
                 Status = t.Status,
-                DueAt = t.DueAt,
+                //DueAt = t.DueAt,
                 FinalScore = t.FinalScore
             }).ToList();
         }
@@ -338,7 +337,7 @@ namespace Tsjy.Application.System.Service
                 TaskId = t.Id,
                 BatchName = batches.ContainsKey(t.BatchId) ? batches[t.BatchId] : "未知任务",
                 Status = t.Status,
-                DueAt = t.DueAt,
+                //DueAt = t.DueAt,
                 FinalScore = t.FinalScore
             }).ToList();
         }

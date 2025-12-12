@@ -129,5 +129,65 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 }
             });
         }
+        private async Task OnDeactivate(EvalSystemListDto item)
+        {
+            await Swal.Show(new SwalOption()
+            {
+                Category = SwalCategory.Warning,
+                Title = "确认停用",
+                Content = $"确定要停用评价体系 **{item.Name}** 吗？\n此操作将把该体系及其所有下属指标标记为“已停用”状态，且不会出现在新的评估任务中。",
+                IsConfirm = true,
+                ConfirmButtonText = "确认停用",
+                OnConfirmAsync = async () =>
+                {
+                    try
+                    {
+                        // 调用 Service 的停用方法
+                        await NodeService.DeactivateTree(item.Category, item.Id);
+
+                        // 刷新表格
+                        if (SystemTable != null) await SystemTable.QueryAsync();
+
+                        await Toast.Success("操作成功", $"体系 {item.Name} 已成功停用。");
+                    }
+                    catch (Exception ex)
+                    {
+                        await Toast.Error("操作失败", ex.Message);
+                    }
+                }
+            });
+        }
+
+        private async Task OnToggleStatus(EvalSystemListDto item)
+        {
+            var actionName = item.IsDeleted ? "启用" : "停用";
+            var confirmIcon = item.IsDeleted ? SwalCategory.Success : SwalCategory.Warning;
+
+            await Swal.Show(new SwalOption()
+            {
+                Category = confirmIcon,
+                Title = $"确认{actionName}",
+                Content = $"确定要{actionName}评价体系 **{item.Name}** 吗？",
+                IsConfirm = true,
+                ConfirmButtonText = $"确认{actionName}",
+                OnConfirmAsync = async () =>
+                {
+                    try
+                    {
+                        // 调用新的切换接口
+                        await NodeService.ToggleTreeStatus(item.Category, item.Id);
+
+                        // 刷新表格
+                        if (SystemTable != null) await SystemTable.QueryAsync();
+
+                        await Toast.Success("操作成功", $"体系 {item.Name} 已{actionName}。");
+                    }
+                    catch (Exception ex)
+                    {
+                        await Toast.Error("操作失败", ex.Message);
+                    }
+                }
+            });
+        }
     }
 }

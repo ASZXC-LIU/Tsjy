@@ -75,6 +75,8 @@ namespace Tsjy.Application.System.Service
                 _ => throw new ArgumentException($"无效的评价体系类型: {category}")
             };
         }
+
+       
         #endregion
         #region 核心业务接口
 
@@ -132,14 +134,34 @@ namespace Tsjy.Application.System.Service
                     throw new ArgumentException($"无效的评价体系类型: {input.Category}");
             }
         }
-
+        /// <summary>
+        /// 4. 停用（软删除）整个评价体系及其所有子节点
+        /// </summary>
+        [HttpPost("api/eval/deactivate-tree")]
+        public async Task DeactivateTree([Required] string category, [Required] long treeId)
+        {
+            switch (category?.ToLower())
+            {
+                case "special_school":
+                    await DeactivateTreeInternal(_speRepo, treeId);
+                    break;
+                case "inclusive_school":
+                    await DeactivateTreeInternal(_incRepo, treeId);
+                    break;
+                case "education_bureau":
+                    await DeactivateTreeInternal(_eduRepo, treeId);
+                    break;
+                default:
+                    throw new ArgumentException($"无效的评价体系类型: {category}");
+            }
+        }
 
         private async Task<List<EvalSystemListDto>> GetSystemListInternal<T>(IRepository<T> repo, string category)
     where T : class, IEntity, IEvalNode, new()
         {
             // 查找根节点 (ParentId 为空 或者 Type 为 System)
-           // 根据你的CreateTree逻辑，根节点ParentId为null [cite: 5]
-            var roots = await repo.Where(x => x.ParentId == null && !x.IsDeleted)
+            // 根据你的CreateTree逻辑，根节点ParentId为null [cite: 5]
+            var roots = await repo.Where(x => x.ParentId == null)
                                   .OrderByDescending(x => x.CreatedAt)
                                   .ToListAsync();
             Console.Write(roots);
@@ -149,6 +171,7 @@ namespace Tsjy.Application.System.Service
                 Name = x.Name,
                 Category = category,
                 CreatedAt = x.CreatedAt,
+                IsDeleted = x.IsDeleted
                 // 如果需要统计节点数，可能需要额外的查询，这里暂时略过
             }).ToList();
         }
@@ -325,6 +348,75 @@ namespace Tsjy.Application.System.Service
 
             // 3. 保存更改
             await repo.UpdateNowAsync(entity);
+        }
+
+
+
+
+        /// <summary>
+        /// 通用的递归停用逻辑
+        /// </summary>
+        private async Task DeactivateTreeInternal<T>(IRepository<T> repo, long treeId)
+            where T : class, IEntity, IEvalNode, new()
+        {
+            // 1. 查找该体系下的所有节点 (包括根节点)
+            // 注意：这里我们直接根据 TreeId 查找所有相关节点，这比递归查询更高效
+            var allNodes = await repo.Where(x => x.TreeId == treeId && !x.IsDeleted).ToListAsync();
+
+            if (!allNodes.Any())
+            {
+                // 如果找不到任何节点，可能已经被删除了，直接返回或抛异常
+                return;
+            }
+
+            // 2. 批量更新 IsDeleted 状态
+            foreach (var node in allNodes)
+            {
+                node.IsDeleted = true;
+                // node.UpdatedAt = DateTime.Now; // 如果实体有 UpdatedAt
+            }
+
+            // 3. 批量保存
+            await repo.UpdateNowAsync(allNodes);
+        }
+
+
+        [HttpPost("api/eval/toggle-status")]
+        public async Task ToggleTreeStatus([Required] string category, [Required] long treeId)
+        {
+            // 直接使用具体的 Repo 进行操作，避免泛型约束冲突
+            switch (category?.ToLower())
+            {
+                case "special_school":
+                    var rootSpe = await _speRepo.FirstOrDefaultAsync(x => x.Id == treeId);
+                    if (rootSpe != null)
+                    {
+                        rootSpe.IsDeleted = !rootSpe.IsDeleted;
+                        await _speRepo.UpdateNowAsync(rootSpe);
+                    }
+                    break;
+
+                case "inclusive_school":
+                    var rootInc = await _incRepo.FirstOrDefaultAsync(x => x.Id == treeId);
+                    if (rootInc != null)
+                    {
+                        rootInc.IsDeleted = !rootInc.IsDeleted;
+                        await _incRepo.UpdateNowAsync(rootInc);
+                    }
+                    break;
+
+                case "education_bureau":
+                    var rootEdu = await _eduRepo.FirstOrDefaultAsync(x => x.Id == treeId);
+                    if (rootEdu != null)
+                    {
+                        rootEdu.IsDeleted = !rootEdu.IsDeleted;
+                        await _eduRepo.UpdateNowAsync(rootEdu);
+                    }
+                    break;
+
+                default:
+                    throw new ArgumentException($"无效的评价体系类型: {category}");
+            }
         }
         #endregion
 

@@ -1,7 +1,9 @@
-﻿using BootstrapBlazor.Components;
+﻿using System.Diagnostics.CodeAnalysis;
+using BootstrapBlazor.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Tsjy.Application.System.Dtos;
+using Tsjy.Application.System.Dtos.BatchDtos;
+using Tsjy.Application.System.IService;
 using Tsjy.Application.System.Service;
 using Tsjy.Core.Enums;
 
@@ -9,34 +11,51 @@ namespace Tsjy.Web.Entry.Pages.Admin;
 
 public partial class TaskDistribute
 {
-    [Inject] private TaskService TaskService { get; set; }
-    [Inject] private EvalNodeService EvalNodeService { get; set; }
-    [Inject] private MessageService MessageService { get; set; }
+    [Inject]
+    [NotNull]
+    private IBatchService? BatchService { get; set; }
+    // 新增：注入 EvalNodeService 用于查询体系列表
+    [Inject]
+    [NotNull]
+    private EvalNodeService? NodeService { get; set; }
+    [Inject]
+    [NotNull]
+    private ToastService? ToastService { get; set; }
 
-    private DistributeTaskDto Model { get; set; } = new();
-    private DateTimeRangeValue DateRange { get; set; } = new() { Start = DateTime.Now, End = DateTime.Now.AddMonths(1) };
+    // ★★★ 关键修复：公开 Model 属性供外部传参 ★★★
+    [Parameter]
+    public BatchInputDto Model { get; set; } = new();
 
+    // ★★★ 关键修复：公开 OnClose 回调供外部关闭弹窗 ★★★
+    [Parameter]
+    public Func<Task>? OnClose { get; set; }
+    // 下拉框数据源
     private List<SelectedItem> OrgTypeItems { get; set; } = new();
     private List<SelectedItem> TreeItems { get; set; } = new();
 
-    // 目标列表现在是 SysUserTargetDto
-    private List<SysUserTargetDto> TargetList { get; set; } = new();
-    private List<SysUserTargetDto> SelectedTargets { get; set; } = new();
-    private bool IsLoadingTargets { get; set; }
-
     protected override void OnInitialized()
     {
+        // 初始化机构类型下拉框
         OrgTypeItems = typeof(OrgType).ToSelectList().ToList();
     }
 
-    private async Task OnTypeChanged(SelectedItem item)
-    {
-        if (Enum.TryParse<OrgType>(item.Value, out var type))
-        {
-            IsLoadingTargets = true;
-            StateHasChanged();
 
-            string category = type switch
+    /// <summary>
+    /// 当机构类型改变时，加载对应的评价体系
+    /// </summary>
+    private async Task OnOrgTypeChanged(OrgType? type)
+    {
+        // 1. 更新模型
+        Model.TargetType = type;
+
+        // 2. 清空已选的体系
+        Model.TreeId = null;
+        TreeItems.Clear();
+
+        if (type.HasValue)
+        {
+            // 3. 映射 OrgType 到 category 字符串 (与 EvalNodeService 约定一致)
+            string category = type.Value switch
             {
                 OrgType.SpecialSchool => "special_school",
                 OrgType.InclusiveSchool => "inclusive_school",
@@ -46,34 +65,40 @@ public partial class TaskDistribute
 
             if (!string.IsNullOrEmpty(category))
             {
-                var systems = await EvalNodeService.GetSystemListAsync(category);
+                // 4. 调用服务获取体系列表
+                var systems = await NodeService.GetSystemListAsync(category);
+
+                // 5. 转换为下拉框选项 (Value=Id, Text=Name)
                 TreeItems = systems.Select(x => new SelectedItem(x.Id.ToString(), x.Name)).ToList();
             }
-            else TreeItems.Clear();
-
-            TargetList = await TaskService.GetTargetsByType(type);
-            IsLoadingTargets = false;
-            StateHasChanged();
         }
     }
 
-    private async Task OnSubmit(EditContext context)
+
+    private async Task OnValidSubmit(EditContext context)
     {
-        if (!SelectedTargets.Any())
+        try
         {
-            await MessageService.Show(new MessageOption { Content = "请至少选择一个单位", Color = Color.Warning });
-            return;
+            if (Model.Id > 0)
+            {
+                await BatchService.UpdateAsync(Model);
+                await ToastService.Success("提示", "修改成功");
+            }
+            else
+            {
+                await BatchService.CreateAsync(Model);
+                await ToastService.Success("提示", "创建成功");
+            }
+
+            // 触发关闭回调（BatchManagement 会在此回调中刷新表格）
+            if (OnClose != null)
+            {
+                await OnClose.Invoke();
+            }
         }
-
-        // SelectedTargets 中的 TargetId 已经是 OrgId
-        Model.SelectedTargetIds = SelectedTargets.Select(x => x.TargetId).ToList();
-        Model.StartAt = DateRange.Start;
-        Model.DueAt = DateRange.End;
-
-        await TaskService.PublishTask(Model);
-        await MessageService.Show(new MessageOption { Content = "发布成功", Color = Color.Success });
-
-        Model = new DistributeTaskDto();
-        SelectedTargets.Clear();
+        catch (Exception ex)
+        {
+            await ToastService.Error("错误", ex.Message);
+        }
     }
 }

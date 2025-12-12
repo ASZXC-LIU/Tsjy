@@ -24,9 +24,8 @@ namespace Tsjy.Web.Entry.Pages.Admin
         // 筛选与下拉框数据源
         private UserRole? FilterRole { get; set; } = null; // 默认为空（查看所有）
         private List<SelectedItem> RoleItems { get; set; } = new();
-        private List<SelectedItem> OrgTypeItems { get; set; } = new();
-        private List<SelectedItem> OrgItems { get; set; } = new(); // 单位列表
 
+        private bool ShowEditForm { get; set; } = false;
         protected override void OnInitialized()
         {
             // 初始化角色筛选（添加"全部"选项）
@@ -34,7 +33,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
             RoleItems.AddRange(typeof(UserRole).ToSelectList());
 
             // 初始化机构类型
-            OrgTypeItems = typeof(OrgType).ToSelectList().ToList();
+        
         }
 
         // 表格数据查询
@@ -64,25 +63,13 @@ namespace Tsjy.Web.Entry.Pages.Admin
             await UserTable.QueryAsync();
         }
 
-        // --- 核心级联逻辑 ---
-        private async Task OnOrgTypeChanged(OrgType type)
-        {
-            // 根据选中的类型，去后台查单位列表
-            OrgItems = await DeptService.GetOrgSelectListAsync(type);
-
-            // 如果不是在编辑初始加载阶段，切换类型时要清空已选的单位ID
-            if (Model.OrgType != type)
-            {
-                Model.OrgId = "";
-            }
-        }
 
         // 点击新增
         private void OnAddUser()
         {
             IsEditMode = false;
             Model = new SysUserListDto();
-            OrgItems.Clear(); // 新增时单位列表先清空，等用户选类型
+            ShowEditForm = true;
             EditModal.Show();
         }
 
@@ -90,18 +77,8 @@ namespace Tsjy.Web.Entry.Pages.Admin
         private async Task OnEditUser(SysUserListDto item)
         {
             IsEditMode = true;
-            Model = item.Adapt<SysUserListDto>(); // 深拷贝
-
-            // ★ 关键：回显处理 ★
-            // 1. 根据这个用户当前的 OrgType，去后台加载对应的单位列表
-            OrgItems = await DeptService.GetOrgSelectListAsync(Model.OrgType);
-
-            // 2. 特殊处理：如果列表里没有当前用户的单位（比如被软删了），手动加上，保证下拉框能显示名字而不是Code
-            if (!string.IsNullOrEmpty(Model.OrgId) && !OrgItems.Any(x => x.Value == Model.OrgId))
-            {
-                OrgItems.Add(new SelectedItem(Model.OrgId, Model.OrgName));
-            }
-
+            Model = item.Adapt<SysUserListDto>();
+            ShowEditForm = true;
             await EditModal.Show();
         }
 
@@ -111,6 +88,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
             await UserService.SaveUserAsync(Model);
             await Toast.Success("保存成功");
             await EditModal.Close();
+            ShowEditForm = false;
             await UserTable.QueryAsync();
         }
 

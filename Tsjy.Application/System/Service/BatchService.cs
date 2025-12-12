@@ -8,7 +8,7 @@ using Tsjy.Core.Enums;
 
 namespace Tsjy.Application.System.Service;
 
-public class BatchService : IBatchService, ITransient
+public class BatchService : IBatchService, ITransient,IScoped
 {
     private readonly IRepository<DistributionBatch> _batchRepo;
     private readonly IRepository<BatchTarget> _targetRepo;
@@ -20,12 +20,20 @@ public class BatchService : IBatchService, ITransient
         _taskRepo = taskRepo; 
     }
 
-    public async Task<List<BatchListDto>> GetListAsync(OrgType? orgType = null)
+    // 修改：支持 includeDeleted 参数
+    public async Task<List<BatchListDto>> GetListAsync(OrgType? orgType = null, bool includeDeleted = false)
     {
-        var query = _batchRepo.AsQueryable()
-                    .Where(b => !b.IsDeleted);
+        // 1. 基础查询
+        var query = _batchRepo.AsQueryable();
 
-        // 如果传入了机构类型，则通过子查询过滤包含该类型任务的批次
+        // 2. 如果不包含已删除(未启用)，则过滤掉 IsDeleted=true 的
+        if (!includeDeleted)
+        {
+            query = query.Where(b => !b.IsDeleted);
+        }
+        // 否则（includeDeleted=true），就查询所有，不加过滤条件
+
+        // 3. 机构类型过滤
         if (orgType.HasValue)
         {
             query = query.Where(b => _taskRepo.AsQueryable(false)
@@ -37,23 +45,21 @@ public class BatchService : IBatchService, ITransient
             {
                 Id = b.Id,
                 Name = b.Name,
-                Status = b.Status,
+                Status = b.Status, // 保持原有的业务状态
                 CreatedAt = b.CreatedAt,
-                IsEnabled = b.Status != PublicStatus.NotStarted && b.Status != PublicStatus.Finished, // 简单的逻辑映射，根据实际需求调整
+                IsDeleted = b.IsDeleted, // 映射数据库的 IsDeleted
 
-                // 计算机构数量
                 OrgCount = _targetRepo.AsQueryable(false).Count(t => t.BatchId == b.Id && !t.IsDeleted),
 
-                // 获取时间：假设同一批次下的任务时间是一致的，取第一个非空的
-                StartAt = _taskRepo.AsQueryable(false)
-                            .Where(t => t.BatchId == b.Id)
-                            .Select(t => (DateTime?)t.StartAt)
-                            .FirstOrDefault(),
+                //StartAt = _taskRepo.AsQueryable(false)
+                //            .Where(t => t.BatchId == b.Id)
+                //            .Select(t => (DateTime?)t.StartAt)
+                //            .FirstOrDefault(),
 
-                DueAt = _taskRepo.AsQueryable(false)
-                            .Where(t => t.BatchId == b.Id)
-                            .Select(t => (DateTime?)t.DueAt)
-                            .FirstOrDefault()
+                //DueAt = _taskRepo.AsQueryable(false)
+                //            .Where(t => t.BatchId == b.Id)
+                //            .Select(t => (DateTime?)t.DueAt)
+                //            .FirstOrDefault()
             });
 
         return await listQuery.ToListAsync();
@@ -70,12 +76,16 @@ public class BatchService : IBatchService, ITransient
         }
     }
 
+    // 修改：只更新 IsDeleted，不修改 Status
     public async Task UpdateStatusAsync(long id, bool isEnabled)
     {
         var entity = await _batchRepo.FindOrDefaultAsync(id);
         if (entity != null)
         {
-            
+            // 启用(true) => IsDeleted = false
+            // 禁用(false) => IsDeleted = true
+            entity.IsDeleted = !isEnabled;
+
             entity.UpdatedAt = DateTime.Now;
             await _batchRepo.UpdateNowAsync(entity);
         }
@@ -88,8 +98,28 @@ public class BatchService : IBatchService, ITransient
         {
             entity.Name = input.Name;
             // 可以在这里更新其他字段
+            if (input.StartAt.HasValue) entity.StartAt = input.StartAt.Value;
+            if (input.DueAt.HasValue) entity.DueAt = input.DueAt.Value;
             entity.UpdatedAt = DateTime.Now;
             await _batchRepo.UpdateNowAsync(entity);
         }
+    }
+
+    // 新增：创建实现
+    public async Task CreateAsync(BatchInputDto input)
+    {
+        var entity = new DistributionBatch
+        {
+            Name = input.Name,
+            Status = PublicStatus.NotStarted,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now,
+            IsDeleted = false,
+            // 赋默认值或前端传来的值
+            StartAt = input.StartAt ?? DateTime.Now,
+            DueAt = input.DueAt ?? DateTime.Now.AddDays(30),
+            TreeId = input.TreeId ?? 0 // 暂时硬编码或从 Input 传入，根据业务需求调整
+        };
+        await _batchRepo.InsertNowAsync(entity);
     }
 }

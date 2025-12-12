@@ -28,7 +28,10 @@ public class DistributionBatch : IEntity
     public PublicStatus Status { get; set; }
 
     public bool IsDeleted { get; set; } = false;
+    public DateTime StartAt { get; set; } = DateTime.UtcNow;
 
+    [DisplayName("截止时间")]
+    public DateTime DueAt { get; set; }
     [DisplayName("日期")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -83,10 +86,7 @@ public class Tasks : IEntity
     [DisplayName("当前状态")]
     public TaskStatu Status { get; set; } = TaskStatu.Pending;
 
-    public DateTime StartAt { get; set; } = DateTime.UtcNow;
-
-    [DisplayName("截止时间")]
-    public DateTime DueAt { get; set; }
+  
 
     public DateTime? SubmittedAt { get; set; }
 

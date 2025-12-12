@@ -41,9 +41,9 @@ public partial class HistoryEvaluation
         if (!string.IsNullOrEmpty(orgId))
         {
             // 3. 将 orgId 传给后端
-            TaskItems = await HistoryService.GetHistoryListAsync(orgId);
-            BestScore = await HistoryService.GetBestScoreAsync(orgId);
-            TrendData = await HistoryService.GetScoreTrendAsync(orgId);
+            //TaskItems = await HistoryService.GetHistoryListAsync(orgId);
+            //BestScore = await HistoryService.GetBestScoreAsync(orgId);
+            //TrendData = await HistoryService.GetScoreTrendAsync(orgId);
         }
         else
         {

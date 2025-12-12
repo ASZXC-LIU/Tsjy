@@ -26,20 +26,26 @@
     /* 2. 关键修复：强制卡片内容区不自动撑开 */
     /* 当 Card 添加了 fixed-card 类时生效 */
     .fixed-card .card-body {
-        flex: 1 1 auto;
-        min-height: 0; /* ★★★ 核心：允许 Flex 子项收缩到 0，防止撑破父容器 */
-        overflow: hidden; /* ★★★ 核心：隐藏卡片自身的溢出，交给内部 div 滚动 */
-        padding: 0; /* 清除默认内边距，我们在内部 div 补上，以免滚动条贴边 */
+                flex: 1 1 auto;
+                min-height: 0; /* ★★★ 核心：允许 Flex 子项收缩到 0，防止撑破父容器 */
+
+        /* 修复剪裁问题：移除或注释掉 overflow: hidden; */
+
+        /* overflow: hidden; */
+                padding: 0; /* 清除默认内边距，我们在内部 div 补上，以免滚动条贴边 */
+
     }
 
     /* 3. 自定义滚动条区域 */
-    .custom-scroll {
-        height: 100%; /* 占满 card-body 的高度 */
-        overflow-y: auto; /* 开启垂直滚动 */
-        padding: 1rem; /* 补上 padding */
+        .custom-scroll {
+                height: 100%; /* 占满 card-body 的高度 */
+                overflow-y: auto; /* 开启垂直滚动 */
+                padding: 1rem; /* 补上 padding */
+
         /* 滚动条样式美化 */
-        scrollbar-width: thin;
-        scrollbar-color: #dee2e6 #fff;
+                scrollbar-width: thin;
+                scrollbar-color: #dee2e6 #fff;
+
     }
 
         .custom-scroll::-webkit-scrollbar {

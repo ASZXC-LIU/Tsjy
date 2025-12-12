@@ -1,55 +1,48 @@
-﻿@page "/Admin/TaskDistribute"
-@using Tsjy.Application.System.Dtos
+﻿@using Tsjy.Application.System.Dtos.BatchDtos
 @using Tsjy.Core.Enums
 @inherits BootstrapComponentBase
+@attribute [Authorize(Roles = "Admin")]
+@page "/Admin/TaskDistribute"
+<div class="container-fluid">
+    @* 使用传入的 Model *@
+    <ValidateForm Model="@Model" OnValidSubmit="@OnValidSubmit">
+        <div class="row g-3">
+            <div class="col-12">
+                <BootstrapInput @bind-Value="@Model.Name" Label="批次名称" ShowLabel="true" />
+            </div>
 
-<PageTitle>发布评价任务</PageTitle>
+            <div class="col-12 col-md-6">
+                <DateTimePicker @bind-Value="@Model.StartAt" Label="开始时间" ShowLabel="true" />
+            </div>
 
-<div class="container-fluid p-3">
-    <Card IsShadow="true">
-        <HeaderTemplate>
-            <i class="fa fa-paper-plane text-primary me-2"></i>任务分发向导
-        </HeaderTemplate>
-        <BodyTemplate>
-            <ValidateForm Model="@Model" OnValidSubmit="@OnSubmit">
-                <div class="row g-3">
-                    @* 1. 基础设置 *@
-                    <div class="col-12"><h6 class="text-primary fw-bold">1. 基础设置</h6></div>
-                    <div class="col-md-6">
-                        <BootstrapInput @bind-Value="Model.BatchName" ShowLabel="true" DisplayText="任务名称" />
-                    </div>
-                    <div class="col-md-6">
-                        <DateTimeRange @bind-Value="DateRange" ShowLabel="true" DisplayText="起止时间" />
-                    </div>
+            <div class="col-12 col-md-6">
+                <DateTimePicker @bind-Value="@Model.DueAt" Label="结束时间" ShowLabel="true" />
+            </div>
+            @* 2. 核心选项：类型 -> 体系 *@
+            <div class="col-12 col-md-6">
+                @* 使用 TValue="OrgType?" 确保类型匹配 *@
+                <Select TValue="OrgType?"
+                        Value="@Model.TargetType"
+                        ValueChanged="@OnOrgTypeChanged"
+                        Items="@OrgTypeItems"
+                        Label="适用机构"
+                        ShowLabel="true"
+                        PlaceHolder="请选择..." />
+            </div>
 
-                    @* 2. 选择体系 *@
-                    <div class="col-12 mt-3"><h6 class="text-primary fw-bold">2. 选择评价标准</h6></div>
-                    <div class="col-md-4">
-                        <Select @bind-Value="Model.TargetType" Items="OrgTypeItems" OnSelectedItemChanged="OnTypeChanged" ShowLabel="true" DisplayText="单位类型" />
-                    </div>
-                    <div class="col-md-8">
-                        <Select @bind-Value="Model.TreeId" Items="TreeItems" ShowLabel="true" DisplayText="评价体系版本" />
-                    </div>
-
-                    @* 3. 选择单位 *@
-                    <div class="col-12 mt-3"><h6 class="text-primary fw-bold">3. 选择被评价单位</h6></div>
-                    <div class="col-12">
-                        @* 这里的 TItem 必须显式匹配后台 List<SysUserTargetDto> *@
-                        <Table TItem="SysUserTargetDto" Items="TargetList" IsStriped="true" IsBordered="true"
-                               IsMultipleSelect="true" ShowCheckbox="true" @bind-SelectedRows="SelectedTargets"
-                               ShowLoading="IsLoadingTargets">
-                            <TableColumns>
-                                <TableColumn @bind-Field="@context.TargetId" Text="单位代码" />
-                                <TableColumn @bind-Field="@context.OrgName" Text="单位名称" />
-                            </TableColumns>
-                        </Table>
-                    </div>
-
-                    <div class="col-12 text-end mt-4">
-                        <Button ButtonType="ButtonType.Submit" Icon="fa fa-check" Text="确认发布" Color="Color.Primary" IsAsync="true" />
-                    </div>
-                </div>
-            </ValidateForm>
-        </BodyTemplate>
-    </Card>
+            <div class="col-12 col-md-6">
+                @* 绑定 TreeId，数据源来自 TreeItems *@
+                <Select @bind-Value="@Model.TreeId"
+                        Items="@TreeItems"
+                        Label="评价体系"
+                        ShowLabel="true"
+                        PlaceHolder="请先选择机构类型..."
+                        IsDisabled="@(!Model.TargetType.HasValue)" />
+            </div>
+            @* 如果是弹窗模式，按钮通常由弹窗 footer 提供，或者在这里自定义 *@
+            <div class="col-12 text-end">
+                <Button ButtonType="ButtonType.Submit" Icon="fa fa-save" Text="保存" Color="Color.Primary" />
+            </div>
+        </div>
+    </ValidateForm>
 </div>
