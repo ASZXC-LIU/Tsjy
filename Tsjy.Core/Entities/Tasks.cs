@@ -19,7 +19,9 @@ public class DistributionBatch : IEntity
 
     [DisplayName("评价体系ID")]
     public long TreeId { get; set; }
-
+    // ★★★ 新增：直接存储该批次针对的机构类型 ★★★
+    [DisplayName("适用对象类型")]
+    public OrgType TargetType { get; set; }
     [DisplayName("批次名称")]
     [MaxLength(255)]
     public string Name { get; set; }
