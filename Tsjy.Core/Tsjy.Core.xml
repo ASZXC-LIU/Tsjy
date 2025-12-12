@@ -39,7 +39,7 @@
             评价体系指标节点
             </summary>
         </member>
-        <member name="T:Tsjy.Core.Entities.AssignmentEvidence">
+        <member name="T:Tsjy.Core.Entities.TaskEvidences">
             <summary>
             指标佐证材料 (学校填写的)
             </summary>
@@ -153,6 +153,13 @@
             <summary>
             评审专家评审状态
             </summary>
+        </member>
+        <member name="M:Tsjy.Core.MyHelper.EnumExtensions.GetDescription(System.Enum)">
+            <summary>
+            获取枚举上的 Description 特性值，如果没有则返回枚举名称
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

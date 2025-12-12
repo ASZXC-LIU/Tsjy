@@ -9,12 +9,12 @@ using Tsjy.Core.Enums;
 
 namespace Tsjy.Application.System.Service
 {
-    public class TaskService : IDynamicApiController, ITransient
+    public class TaskService : IDynamicApiController, ITransient, IScoped
     {
         private readonly IRepository<DistributionBatch> _batchRepo;
         private readonly IRepository<BatchTarget> _batchTargetRepo;
         private readonly IRepository<Tasks> _taskRepo;
-        private readonly IRepository<AssignmentEvidence> _evidenceRepo;
+        private readonly IRepository<TaskEvidences> _evidenceRepo;
         private readonly IRepository<Departments> _orgRepo;
         // 修改：注入 SysUsers 仓储
         private readonly IRepository<SysUsers> _userRepo;
@@ -22,18 +22,20 @@ namespace Tsjy.Application.System.Service
         private readonly IRepository<SpeEvalNode> _speRepo;
         private readonly IRepository<IncEvalNode> _incRepo;
         private readonly IRepository<EduEvalNode> _eduRepo;
-
+        private readonly IRepository<ScoringModelItem> _scoringItemRepo;
         public TaskService(
+            IRepository<ScoringModelItem> scoringItemRepo,
             IRepository<DistributionBatch> batchRepo,
             IRepository<BatchTarget> batchTargetRepo,
             IRepository<Tasks> taskRepo,
-            IRepository<AssignmentEvidence> evidenceRepo,
+            IRepository<TaskEvidences> evidenceRepo,
             IRepository<SysUsers> userRepo,
             IRepository<Departments> orgRepo, // Update
             IRepository<SpeEvalNode> speRepo,
             IRepository<IncEvalNode> incRepo,
             IRepository<EduEvalNode> eduRepo)
         {
+            _scoringItemRepo = scoringItemRepo;
             _batchRepo = batchRepo;
             _batchTargetRepo = batchTargetRepo;
             _taskRepo = taskRepo;
@@ -82,7 +84,7 @@ namespace Tsjy.Application.System.Service
             {
                 TreeId = input.TreeId,
                 Name = input.BatchName,
-                Status = PublicStatus.finalized,
+                Status = PublicStatus.NotStarted,
                 CreatedAt = DateTime.Now
             };
             var batchEntity = await _batchRepo.InsertNowAsync(batch);
@@ -110,8 +112,7 @@ namespace Tsjy.Application.System.Service
                     TargetType = input.TargetType,
                     TargetId = orgId, // 存 OrgId
                     Status = TaskStatu.Pending,
-                    StartAt = input.StartAt,
-                    DueAt = input.DueAt,
+                   
                     CreatedAt = DateTime.Now
                 });
             }
@@ -148,7 +149,7 @@ namespace Tsjy.Application.System.Service
                 TaskId = t.Id,
                 BatchName = batches.ContainsKey(t.BatchId) ? batches[t.BatchId] : "未知任务",
                 Status = t.Status,
-                DueAt = t.DueAt,
+                //DueAt = t.DueAt,
                 FinalScore = t.FinalScore
             }).ToList();
         }
@@ -236,6 +237,21 @@ namespace Tsjy.Application.System.Service
             var methodNode = allNodes.FirstOrDefault(x => x.ParentId == nodeId && x.Type == EvalNodeType.Method);
             if (methodNode != null) dto.Method = methodNode.Name;
 
+
+            if (targetNode.ScoringTemplateId.HasValue)
+            {
+                var items = await _scoringItemRepo.Where(x => x.TemplateId == targetNode.ScoringTemplateId.Value && !x.IsDeleted)
+                                                  .OrderBy(x => x.Sort)
+                                                  .ToListAsync();
+                dto.ScoringItems = items.Select(x => new ScoringModelItemDto
+                {
+                    Id = x.Id,
+                    LevelCode = x.LevelCode,
+                    Ratio = x.Ratio,
+                    Description = x.Description
+                }).ToList();
+            }
+
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == taskId && e.NodeId == nodeId);
             if (evidence != null)
             {
@@ -257,7 +273,7 @@ namespace Tsjy.Application.System.Service
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == input.TaskId && e.NodeId == input.NodeId);
             if (evidence == null)
             {
-                evidence = new AssignmentEvidence
+                evidence = new TaskEvidences
                 {
                     TaskId = input.TaskId,
                     NodeId = input.NodeId,
@@ -286,7 +302,44 @@ namespace Tsjy.Application.System.Service
             var list = await repo.Where(x => !x.IsDeleted && x.TreeId == TreeId)
                                  .OrderBy(x => x.OrderIndex)
                                  .ToListAsync();
+            Console.WriteLine("1111");
+            Console.WriteLine("1111");
+            Console.WriteLine("1111");
             return list.Adapt<List<EvalNodeTreeDto>>();
+        }
+
+
+
+        /// <summary>
+        /// 获取历史任务列表（状态为已完成的任务）
+        /// </summary>
+        /// <param name="myOrgId">当前登录用户的 OrgId</param>
+        public async Task<List<SchoolTaskListDto>> GetHistoryTasks(string myOrgId)
+        {
+            if (string.IsNullOrEmpty(myOrgId)) return new List<SchoolTaskListDto>();
+
+            // 筛选 TargetId 等于我的 OrgId 且 状态为 Finished 的任务
+            var tasks = await _taskRepo.AsQueryable()
+                .Where(t => t.TargetId == myOrgId && !t.IsDeleted && t.Status == TaskStatu.Finished)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+
+            if (!tasks.Any()) return new List<SchoolTaskListDto>();
+
+            // 获取相关的批次信息以显示任务名称
+            var batchIds = tasks.Select(t => t.BatchId).Distinct().ToList();
+            var batches = await _batchRepo.Where(b => batchIds.Contains(b.Id))
+                                          .ToDictionaryAsync(b => b.Id, b => b.Name);
+
+            // 映射为 DTO
+            return tasks.Select(t => new SchoolTaskListDto
+            {
+                TaskId = t.Id,
+                BatchName = batches.ContainsKey(t.BatchId) ? batches[t.BatchId] : "未知任务",
+                Status = t.Status,
+                //DueAt = t.DueAt,
+                FinalScore = t.FinalScore
+            }).ToList();
         }
         #endregion
     }

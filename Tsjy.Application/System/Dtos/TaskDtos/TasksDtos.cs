@@ -77,7 +77,7 @@ namespace Tsjy.Application.System.Dtos
         public string PointName { get; set; }
         public string Method { get; set; }
         public decimal? MaxScore { get; set; }
-
+        public List<ScoringModelItemDto> ScoringItems { get; set; } = new();
         // --- 填报内容 ---
         public string MyContent { get; set; }
         public List<string> FileUrls { get; set; } = new();

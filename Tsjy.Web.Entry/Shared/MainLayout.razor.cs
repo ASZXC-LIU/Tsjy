@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components.Server;
 using Tsjy.Web.Entry.Pages;
+using Tsjy.Web.Entry.Pages.Admin;
+using Tsjy.Web.Entry.Pages.School;
 
 namespace Tsjy.Web.Entry.Shared
 {
@@ -111,7 +113,9 @@ namespace Tsjy.Web.Entry.Shared
     };
             taskMenu.Items = new List<MenuItem>
     {
-        new MenuItem() { Text = "单位管理列表", Icon = "fa-solid fa-fw fa-list-check", Url = "/Admin/TaskDistribute" }
+        new MenuItem() { Text = "发布任务", Icon = "fa-solid fa-fw fa-list-check", Url = "/Admin/TaskDistribute" },
+        new MenuItem() { Text = "任务批次", Icon = "fa-solid fa-fw fa-list-check", Url = "/Admin/BatchManagement" },
+        
     };
 
             // 3. 组装最终的菜单列表
@@ -143,20 +147,21 @@ namespace Tsjy.Web.Entry.Shared
         }
         private static List<MenuItem> GetUserSideMenuItems()
         {
-            var menu1 = new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index", Match = NavLinkMatch.All };
+          
            
-            new MenuItem() { Text = "我的任务", Icon = "fa-solid fa-fw fa-user", Url = "/School/MyTasks" };
-
-            var menu5 = new MenuItem() { Text = "计数器", Icon = "fa-solid fa-fw fa-table", Url = "/counter" };
-
-
-            ;
-            menu5.Parent = menu1;
-
             var menus = new List<MenuItem>
-        {
-            menu1
-        };
+    {
+        new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
+
+
+        
+         new MenuItem() { Text = "历史评价", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/School/HistoryEvaluation" },
+
+        new MenuItem() { Text = "我的任务", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/School/MyTasks" },
+        //new MenuItem() { Text = "用户列表", Icon = "fa-solid fa-fw fa-users", Url = "/UserList" },
+        //new MenuItem() { Text = "获取数据", Icon = "fa-solid fa-fw fa-database", Url = "/fetchdata" },
+    };
+
             return menus;
         }
 

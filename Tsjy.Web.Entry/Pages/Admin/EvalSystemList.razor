@@ -108,7 +108,18 @@
                             <div class="btn-group shadow-sm rounded">
                                 <Button Size="Size.ExtraSmall" Color="Color.Light" Icon="fa-solid fa-pen-to-square text-primary"
                                         TooltipText="构建/编辑" OnClick="() => OnEditSystem(value.Row)" />
-
+                                @if (value.Row.IsDeleted)
+                                {
+                                    @* 已停用 -> 显示启用按钮 (绿色) *@
+                                    <Button Size="Size.ExtraSmall" Color="Color.Success" Icon="fa-solid fa-play" IsOutline="true"
+                                            TooltipText="启用" OnClick="() => OnToggleStatus(value.Row)" />
+                                }
+                                else
+                                {
+                                    @* 启用中 -> 显示停用按钮 (黄色/警告) *@
+                                    <Button Size="Size.ExtraSmall" Color="Color.Warning" Icon="fa-solid fa-ban" IsOutline="true"
+                                            TooltipText="停用" OnClick="() => OnToggleStatus(value.Row)" />
+                                }
                                 <PopConfirmButton Placement="Placement.Left" Color="Color.Light" Icon="fa-solid fa-trash text-danger"
                                                   ConfirmButtonText="确认删除"
                                                   Content="确认删除该体系及其所有指标吗？操作不可逆！"

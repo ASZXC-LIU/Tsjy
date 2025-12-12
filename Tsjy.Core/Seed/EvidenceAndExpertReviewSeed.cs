@@ -10,19 +10,19 @@ using Tsjy.Core.MyHelper;
 namespace Tsjy.Core.Seed
 {
     // 佐证材料种子
-    public class AssignmentEvidenceSeed : IEntityTypeBuilder<AssignmentEvidence>, IEntitySeedData<AssignmentEvidence>
+    public class AssignmentEvidenceSeed : IEntityTypeBuilder<TaskEvidences>, IEntitySeedData<TaskEvidences>
     {
-        public void Configure(EntityTypeBuilder<AssignmentEvidence> entityBuilder, DbContext dbContext, Type dbContextLocator)
+        public void Configure(EntityTypeBuilder<TaskEvidences> entityBuilder, DbContext dbContext, Type dbContextLocator)
         {
             entityBuilder.HasKey(u => u.Id);
             entityBuilder.Property(u => u.FileUrls).HasColumnType("json");
         }
 
-        public IEnumerable<AssignmentEvidence> HasData(DbContext dbContext, Type dbContextLocator)
+        public IEnumerable<TaskEvidences> HasData(DbContext dbContext, Type dbContextLocator)
         {
-            return new List<AssignmentEvidence>
+            return new List<TaskEvidences>
             {
-                new AssignmentEvidence
+                new TaskEvidences
                 {
                     Id = 1, TaskId = 1, NodeId = 3, Content = "自评报告内容...",
                     FileUrls = "[\"http://file/a.pdf\"]", Status = AuditStatus.Pending, CreatedAt = DateTime.UtcNow

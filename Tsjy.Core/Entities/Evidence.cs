@@ -11,7 +11,7 @@ namespace Tsjy.Core.Entities;
 /// 指标佐证材料 (学校填写的)
 /// </summary>
 [Table("task_evidences")]
-public class AssignmentEvidence : IEntity
+public class TaskEvidences : IEntity
 {
     [Key]
     public long Id { get; set; }

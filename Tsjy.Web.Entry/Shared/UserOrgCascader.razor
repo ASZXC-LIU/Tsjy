@@ -1,0 +1,27 @@
+﻿@using Tsjy.Core.Enums
+@inherits BootstrapComponentBase
+
+<div class="row g-3">
+    @* 1. 机构类型选择 *@
+    <div class="col-md-6">
+        <Select TValue="OrgType"
+                Value="@OrgType"
+                ValueChanged="@OnOrgTypeChanged"
+                Items="@OrgTypeItems"
+                ShowLabel="true"
+                DisplayText="部门类型" />
+    </div>
+
+    @* 2. 具体单位选择 *@
+    <div class="col-md-6">
+        <Select TValue="string"
+                Value="@Value"
+                ValueChanged="@OnOrgIdChanged"
+                Items="@OrgItems"
+                ShowLabel="true"
+                DisplayText="所属单位"
+                ShowSearch="true"
+                IsClearable="true"
+                PlaceHolder="输入名称可搜索..." />
+    </div>
+</div>

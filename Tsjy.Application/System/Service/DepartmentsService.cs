@@ -9,7 +9,7 @@ using Tsjy.Core.Enums;
 
 namespace Tsjy.Application.System.Service
 {
-    public class DepartmentsService : IDynamicApiController, ITransient
+    public class DepartmentsService : IDynamicApiController, ITransient, IScoped
     {
         private readonly IRepository<Departments> _orgRepo;
 

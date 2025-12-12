@@ -19,7 +19,9 @@ public class DistributionBatch : IEntity
 
     [DisplayName("评价体系ID")]
     public long TreeId { get; set; }
-
+    // ★★★ 新增：直接存储该批次针对的机构类型 ★★★
+    [DisplayName("适用对象类型")]
+    public OrgType TargetType { get; set; }
     [DisplayName("批次名称")]
     [MaxLength(255)]
     public string Name { get; set; }
@@ -28,7 +30,10 @@ public class DistributionBatch : IEntity
     public PublicStatus Status { get; set; }
 
     public bool IsDeleted { get; set; } = false;
+    public DateTime StartAt { get; set; } = DateTime.UtcNow;
 
+    [DisplayName("截止时间")]
+    public DateTime DueAt { get; set; }
     [DisplayName("日期")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -83,10 +88,7 @@ public class Tasks : IEntity
     [DisplayName("当前状态")]
     public TaskStatu Status { get; set; } = TaskStatu.Pending;
 
-    public DateTime StartAt { get; set; } = DateTime.UtcNow;
-
-    [DisplayName("截止时间")]
-    public DateTime DueAt { get; set; }
+  
 
     public DateTime? SubmittedAt { get; set; }
 

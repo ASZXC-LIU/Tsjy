@@ -196,6 +196,11 @@
             3. 更新节点基本信息
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.DeactivateTree(System.String,System.Int64)">
+            <summary>
+            4. 停用（软删除）整个评价体系及其所有子节点
+            </summary>
+        </member>
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.CreateTreeInternal``1(Furion.DatabaseAccessor.IRepository{``0},System.String)">
             <summary>
             通用的创建树根逻辑
@@ -216,6 +221,11 @@
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.UpdateNodeInternal``1(Furion.DatabaseAccessor.IRepository{``0},Tsjy.Application.System.Dtos.UpdateNodeDto)">
             <summary>
             通用的更新节点逻辑
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.DeactivateTreeInternal``1(Furion.DatabaseAccessor.IRepository{``0},System.Int64)">
+            <summary>
+            通用的递归停用逻辑
             </summary>
         </member>
         <member name="T:Tsjy.Application.System.Service.ScoringModelService">
@@ -273,6 +283,12 @@
             <summary>
             获取单个节点的详细填报信息
             </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.GetHistoryTasks(System.String)">
+            <summary>
+            获取历史任务列表（状态为已完成的任务）
+            </summary>
+            <param name="myOrgId">当前登录用户的 OrgId</param>
         </member>
     </members>
 </doc>

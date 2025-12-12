@@ -271,17 +271,20 @@ namespace Tsjy.Application.System.Service
             }
             else
             {
-                Log.Information("111111111"+ user.Role.ToString());
+                Log.Information("用户登录: " + user.UserName);
                 //登录成功，设置Identity,需要命名空间using System.Security.Claims;
-                var identity = new ClaimsIdentity(
-                new List<Claim>()
-                {
-                new Claim(ClaimTypes.Sid, user.IDNumber, ClaimValueTypes.String),
-                new Claim(ClaimTypes.GivenName, user.UserName, ClaimValueTypes.String),
-                new Claim(ClaimTypes.Role, user.Role.ToString(), ClaimValueTypes.String) }, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claims = new List<Claim>()
+        {
+            new Claim(ClaimTypes.Sid, user.IDNumber ?? "", ClaimValueTypes.String),
+            new Claim(ClaimTypes.GivenName, user.UserName ?? "", ClaimValueTypes.String),
+            new Claim(ClaimTypes.Role, user.Role.ToString(), ClaimValueTypes.String),
+            // ★★★ 关键修复：添加 OrgId claim ★★★
+            new Claim("OrgId", user.OrgId ?? "", ClaimValueTypes.String)
+        };
 
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);
-               
+
 
                 var context = _httpContextAccessor.HttpContext;
 
@@ -296,11 +299,12 @@ namespace Tsjy.Application.System.Service
                 }
 
                 var tokenDict = new Dictionary<string, object>
-                {
-                    { ClaimTypes.Sid, user.IDNumber },
-                    { ClaimTypes.GivenName, user.UserName },
-                    { ClaimTypes.Role, user.Role.ToString() }
-                };
+        {
+            { ClaimTypes.Sid, user.IDNumber ?? "" },
+            { ClaimTypes.GivenName, user.UserName ?? "" },
+            { ClaimTypes.Role, user.Role.ToString() },
+            { "OrgId", user.OrgId ?? "" } // Token 也加上
+        };
 
                 var token = JWTEncryption.Encrypt(tokenDict);
 

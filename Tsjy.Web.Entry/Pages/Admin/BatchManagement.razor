@@ -1,0 +1,113 @@
+﻿@page "/Admin/BatchManagement"
+@using Tsjy.Application.System.Dtos.BatchDtos
+@using Tsjy.Core.Enums
+@using Tsjy.Core.MyHelper
+@attribute [Authorize(Roles = "Admin")]
+@inherits BootstrapComponentBase
+
+<PageTitle>批次管理</PageTitle>
+
+<div class="container-fluid p-3">
+    @* 顶部搜索与筛选区域 *@
+    <div class="row mb-3">
+        <div class="col-12 col-md-4">
+            <Select TValue="OrgType?"
+                    @bind-Value="@SearchOrgType"
+                    PlaceHolder="请选择批次类型进行筛选"
+                    ShowLabel="true"
+                    Label="批次类型"
+                    OnValueChanged="@(async _ => await BatchTable.QueryAsync())"
+                    IsClearable="true" />
+        </div>
+        <div class="col-12 col-md-4 d-flex align-items-end">
+            @* 控制是否显示 IsDeleted=true 的数据 *@
+            <Switch @bind-Value="@ShowInactiveBatches"
+                    OnValueChanged="@(async _ => await BatchTable.QueryAsync())"
+                    ShowLabel="true"
+                    Label="查看未启用批次" />
+        </div>
+        <div class="col-12 col-md-4 d-flex align-items-end justify-content-end">
+            <Button Color="Color.Success" Icon="fa fa-plus" Text="新建批次" OnClick="@OnCreateBatch" />
+        </div>
+    </div>
+
+    @* 表格区域 *@
+    <Table TItem="BatchListDto"
+           @ref="BatchTable"
+           IsPagination="true"
+           IsStriped="true"
+           IsBordered="true"
+           ShowToolbar="false"
+           ShowSearch="true"
+           ShowDefaultButtons="false"
+           ShowExtendButtons="false"
+           OnQueryAsync="@OnQueryAsync">
+
+        <TableColumns>
+            <TableColumn @bind-Field="@context.Id" Text="ID" Width="60" />
+
+            <TableColumn @bind-Field="@context.Name" Text="批次名称" Searchable="true" />
+            <TableColumn @bind-Field="@context.TargetType" Text="对象类型" Width="120" Align="Alignment.Center">
+                <Template Context="value">
+                    <Tag Color="Color.Info">@value.Value.GetDescription()</Tag>
+                </Template>
+            </TableColumn>
+            @* ★★★ 新增：评价体系名称 ★★★ *@
+            <TableColumn @bind-Field="@context.TreeName" Text="评价体系" />
+            @* 状态列只展示业务状态 *@
+            <TableColumn @bind-Field="@context.Status" Text="进行状态" Width="100" Align="Alignment.Center">
+                <Template Context="value">
+                    @if (value.Row.Status == PublicStatus.NotStarted)
+                    {
+                        <Tag Color="Color.Info">未开始</Tag>
+                    }
+                    else if (value.Row.Status == PublicStatus.InProgress)
+                    {
+                        <Tag Color="Color.Primary">进行中</Tag>
+                    }
+                    else
+                    {
+                        <Tag Color="Color.Success">已结束</Tag>
+                    }
+                </Template>
+            </TableColumn>
+
+            <TableColumn @bind-Field="@context.OrgCount" Text="覆盖机构数" Width="100" Align="Alignment.Center">
+                <Template Context="value">
+                    <span class="badge bg-info text-dark">@value.Value</span>
+                </Template>
+            </TableColumn>
+
+            <TableColumn @bind-Field="@context.StartAt" Text="开始时间" Width="160" FormatString="yyyy-MM-dd HH:mm" />
+            <TableColumn @bind-Field="@context.DueAt" Text="结束时间" Width="160" FormatString="yyyy-MM-dd HH:mm" />
+
+            @* 是否启用列：直接控制 IsDeleted *@
+            <TableColumn @bind-Field="@context.IsEnabled" Text="是否启用" Width="100" Align="Alignment.Center">
+                <Template Context="value">
+                    @* 这里绑定 IsEnabled 属性 (IsDeleted取反) *@
+                    <Switch Value="@value.Row.IsEnabled"
+                            ValueChanged="@((bool val) => OnStatusChanged(value.Row, val))" />
+                </Template>
+            </TableColumn>
+
+            <TableColumn @bind-Field="@context.Id" Text="操作" Width="120" Align="Alignment.Center">
+                @* <Template Context="value">
+                    <Button Color="Color.Primary" Size="Size.ExtraSmall" Icon="fa fa-list-alt" TooltipText="查看进度"
+                            OnClick="() => CheckProgress(value.Row.Id)" />
+                </Template> *@
+                <Template Context="value">
+                    <div class="btn-group">
+                        @* 按钮1: 名单管理 (分配对象) *@
+                        <Button Color="Color.Warning" Size="Size.ExtraSmall" Icon="fa fa-users" TooltipText="管理名单"
+                                OnClick="() => OnAssignTargets(value.Row)" />
+
+                        @* 按钮2: 查看进度 *@
+                        <Button Color="Color.Primary" Size="Size.ExtraSmall" Icon="fa fa-chart-bar" TooltipText="查看进度"
+                                OnClick="() => CheckProgress(value.Row.Id)" />
+                    </div>
+                </Template>
+            </TableColumn>
+
+        </TableColumns>
+    </Table>
+</div>

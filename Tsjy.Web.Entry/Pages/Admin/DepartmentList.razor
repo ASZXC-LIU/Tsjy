@@ -7,21 +7,40 @@
 <PageTitle>机构管理</PageTitle>
 
 <div class="container-fluid p-3">
+    @* 1. ItemsPerRow="3": 让普通字段每行显示3个，解决"格子太宽"问题
+       2. 增加 OnAddAsync 和 OnEditAsync 用于初始化级联数据 
+    *@
     <Table TItem="DepartmentDto"
            IsPagination="true" IsStriped="true" IsBordered="false"
            ShowToolbar="true" ShowSearch="true" ShowDefaultButtons="true"
            ShowExtendButtons="true"
+           ItemsPerRow="3"
            OnQueryAsync="OnQueryAsync"
+           OnAddAsync="OnAddAsync"
+           OnEditAsync="OnEditAsync"
            OnSaveAsync="OnSaveAsync"
            OnDeleteAsync="OnDeleteAsync">
         <TableColumns>
-            <TableColumn @bind-Field="@context.Code" IsReadonlyWhenEdit="true" />
+            <TableColumn @bind-Field="@context.Code" Text="机构代码" IsReadonlyWhenEdit="true" />
             <TableColumn @bind-Field="@context.Name" Searchable="true" />
             <TableColumn @bind-Field="@context.OrgType" />
-            <TableColumn @bind-Field="@context.RegionCode" Text="所属区域代码" />
-            @* 仅展示用，编辑时可以不需要 *@
-            <TableColumn @bind-Field="@context.RegionName" Text="区域名称" IsReadonlyWhenEdit="true" />
+
+            @* ColSpan="3": 因为区域选择包含3个下拉框，如果只占1/3格太挤了，
+               所以让它独占一行(跨3列)，内部的3个下拉框各占1/3，视觉更平衡。
+            *@
+            <TableColumn @bind-Field="@context.RegionCode" Text="所属区域" ColSpan="3">
+                <EditTemplate Context="model">
+                   
+                    <DepartmentRegionEditor @bind-Value="@model.RegionCode"
+                                            AllRegions="@AllRegions" />
+                </EditTemplate>
+                <Template Context="value">
+                    @value.Row.RegionName (@value.Value)
+                </Template>
+            </TableColumn>
+
             <TableColumn @bind-Field="@context.Phone" />
+
             <TableColumn @bind-Field="@context.IsDeleted" Text="启用" Width="100">
                 <Template Context="value">
                     <Switch Value="value.Row.IsDeleted"
