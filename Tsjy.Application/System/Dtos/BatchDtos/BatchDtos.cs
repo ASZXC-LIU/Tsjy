@@ -30,6 +30,10 @@ public class BatchListDto
 
     // 新增：任务截止时间
     public DateTime? DueAt { get; set; }
+    // ★★★ 新增：用于列表展示 ★★★
+    public OrgType TargetType { get; set; } // 对象类型枚举
+    public string TreeName { get; set; }    // 评价体系名称
+    public long TreeId { get; set; }        // 体系ID(用于查询名称)
 }
 
 public class BatchInputDto
