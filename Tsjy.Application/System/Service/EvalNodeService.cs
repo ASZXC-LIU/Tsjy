@@ -14,7 +14,7 @@ using Tsjy.Core.MyHelper;
 
 namespace Tsjy.Application.System.Service
 {
-    public class EvalNodeService : IDynamicApiController, IScoped
+    public class EvalNodeService : IDynamicApiController, IScoped, IEvalNodeService
     {
         private readonly IRepository<SpeEvalNode> _speRepo;
         private readonly IRepository<IncEvalNode> _incRepo;
