@@ -8,115 +8,130 @@
 
 <PageTitle>评分模板管理</PageTitle>
 
-<div class="container-fluid p-3">
-    @* 头部标题区 *@
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid page-container">
+    @* 1. 头部区域：清晰的标题和解释 *@
+    <div class="d-flex justify-content-between align-items-end mb-4 animate__animated animate__fadeInDown">
         <div>
-            <h4 class="mb-1 fw-bold text-dark">评分标准模板</h4>
-            <span class="text-muted small">定义不同指标的打分规则（如四级制、是非制等），供创建指标时调用。</span>
+            <h4 class="header-title">
+                <i class="fa-solid fa-scale-balanced me-2 text-primary"></i>评分标准模板
+            </h4>
+            <div class="header-desc">
+                在此定义通用的打分规则（如四级制、五级制），供后续创建评价指标时直接调用。
+            </div>
         </div>
     </div>
 
-    @* 主表格卡片 *@
-    <div class="card card-modern p-0">
+    @* 2. 主卡片表格 *@
+    <div class="card card-modern animate__animated animate__fadeInUp">
         <Table TItem="ScoringModel"
                IsPagination="true"
+               PageItemsSource="new[] { 10, 20, 50 }"
+               ShowPageInfo="true"
+
                IsStriped="false"
                IsBordered="false"
                IsHover="true"
                ShowToolbar="true"
                ShowExtendButtons="true"
                ShowDefaultButtons="true"
+               ShowSearch="false"
                OnQueryAsync="OnQueryAsync"
                OnSaveAsync="OnSaveAsync"
                OnDeleteAsync="OnDeleteAsync"
                OnEditAsync="OnEditAsync"
                OnAddAsync="OnAddAsync">
-            <TableColumns>
-                <TableColumn @bind-Field="@context.Id" Width="80" IsVisible="false" />
 
-                <TableColumn @bind-Field="@context.Name" Text="模板名称">
+            <TableColumns>
+                <TableColumn @bind-Field="@context.Id" Width="60" IsVisible="false" />
+
+                <TableColumn @bind-Field="@context.Name" Text="模板名称" Width="220">
                     <Template Context="value">
-                        <div class="fw-bold fs-6 text-primary">@value.Value</div>
+                        <div class="d-flex align-items-center">
+                            @* 图标装饰 *@
+                            <div class="symbol-circle">
+                                <i class="fa-solid fa-cube fs-5"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark fs-6">@value.Value</div>
+                                <div class="small text-muted">包含 @(value.Row.Items?.Count ?? 0) 个等级</div>
+                            </div>
+                        </div>
                     </Template>
                 </TableColumn>
 
-                <TableColumn @bind-Field="@context.UpdatedAt" Text="最近更新" FormatString="yyyy-MM-dd HH:mm" Width="200" />
-
-                @* 预览列：直观展示前几个等级 *@
-                <TableColumn @bind-Field="@context.Items" Text="包含等级" Width="300">
+                <TableColumn @bind-Field="@context.Items" Text="等级预览" Align="Alignment.Center">
                     <Template Context="value">
-                        @if (value.Value != null)
+                        @if (value.Value != null && value.Value.Any())
                         {
-                            <div class="d-flex gap-1">
-                                @foreach (var item in value.Value.OrderByDescending(x => x.Ratio).Take(4))
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                @* 仅展示前5个等级，避免表格过高 *@
+                                @foreach (var item in value.Value.OrderByDescending(x => x.Ratio).Take(5))
                                 {
-                                    <span class="badge bg-light text-dark border">@item.LevelCode (@item.Ratio)</span>
+                                    @* 使用 GetBadgeColor 方法动态获取颜色 *@
+                                    <span class="badge rounded-pill badge-pill-custom border @GetBadgeColor(item.LevelCode)">
+                                        @item.LevelCode <span class="opacity-50 mx-1">|</span> @(item.Ratio * 100)%
+                                    </span>
                                 }
-                                @if (value.Value.Count > 4)
+                                @if (value.Value.Count > 5)
                                 {
-                                    <span class="badge bg-light text-muted">...</span>
+                                    <span class="badge rounded-pill bg-light text-secondary border">...</span>
                                 }
                             </div>
                         }
                         else
                         {
-                            <span class="badge bg-light text-muted">无</span>
+                            <span class="text-muted small fst-italic">暂无定义</span>
                         }
                     </Template>
                 </TableColumn>
+
+                <TableColumn @bind-Field="@context.UpdatedAt" Text="最近更新" Width="180" FormatString="yyyy-MM-dd HH:mm" />
             </TableColumns>
 
+            @* 3. 编辑弹窗：引导式设计 *@
             <EditTemplate>
-                <div class="row g-4 p-2">
+                <div class="row g-4 px-2 py-2">
+                    @* 步骤 1 *@
                     <div class="col-12">
-                        <label class="form-label fw-bold text-secondary">模板基本信息</label>
-                        <BootstrapInput @bind-Value="@EditModel.Name" ShowLabel="false"
-                                        placeholder="请输入模板名称"
-                                        class="form-control-lg shadow-sm" />
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-header bg-light">
-                                <span class="fw-bold">评分指标管理</span>
-                            </div>
-                            <div class="card-body">
-                                <ScoringLevelEditor @bind-Value="@EditModel.Items" />
-                            </div>
+                        <div class="step-header">
+                            <span class="step-num">1</span>
+                            <span class="step-title">基础信息</span>
+                        </div>
+                        <div class="ps-2">
+                            <BootstrapInput @bind-Value="@EditModel.Name"
+                                            ShowLabel="true"
+                                            Label="模板名称"
+                                            placeholder="例如：通用四级评分制 (优秀/良好/及格/不及格)"
+                                            class="form-control-modern" />
                         </div>
                     </div>
 
+                    @* 步骤 2 *@
                     <div class="col-12">
-                        <div class="alert alert-secondary bg-opacity-25 border-0 d-flex align-items-center py-2 px-3">
-                            <i class="fa-solid fa-circle-info me-2 text-primary"></i>
-                            <small class="text-muted">系统将自动根据<b>系数从大到小</b>分配等级代号。</small>
+                        <div class="step-header">
+                            <span class="step-num">2</span>
+                            <span class="step-title">等级配置</span>
+                        </div>
+
+                        @* 引导提示 *@
+                        <div class="guide-alert d-flex align-items-start mb-3 mx-2">
+                            <i class="fa-solid fa-lightbulb text-warning fs-5 me-3 mt-1"></i>
+                            <div>
+                                <strong class="d-block text-dark">自动排序机制</strong>
+                                <small class="text-secondary">
+                                    系统将根据<b>系数 (Ratio)</b> 从大到小自动排序，并依次生成 <b>A、B、C...</b> 等级代码。
+                                    <br />
+                                    <i>建议：优秀填 1.0，不及格填 0。</i>
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="ps-2">
+                            <ScoringLevelEditor @bind-Value="@EditModel.Items" />
                         </div>
                     </div>
                 </div>
-
             </EditTemplate>
         </Table>
     </div>
 </div>
-
-<style>
-    /* 局部样式微调 */
-    .card-modern {
-        border: none;
-        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
-        border-radius: 0.75rem;
-        overflow: hidden;
-    }
-
-    .hover-danger:hover {
-        color: var(--bs-danger) !important;
-        background: rgba(220, 53, 69, 0.1);
-        border-radius: 50%;
-    }
-
-    .dashed-border {
-        border: 2px dashed #dee2e6;
-        border-radius: 0.5rem;
-    }
-</style>

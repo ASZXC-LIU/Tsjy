@@ -3,62 +3,70 @@
 @using Tsjy.Application.System.Dtos
 @inherits ValidateBase<List<ScoringModelItemDto>>
 
-<div class="scoring-level-editor">
+<div class="scoring-list">
     @if (Value == null || !Value.Any())
     {
-        <div class="text-center py-4 text-muted border rounded mb-3 bg-light">
-            <i class="fa-solid fa-folder-open mb-2 fs-3"></i>
-            <div>暂无评分等级，请点击下方按钮添加</div>
+        <div class="empty-state">
+            <i class="fa-solid fa-layer-group mb-3 text-secondary opacity-50 fs-1"></i>
+            <div class="text-muted small">暂无评分等级</div>
+            <div class="text-muted small opacity-75">点击下方按钮添加第一个等级</div>
         </div>
     }
     else
     {
-        <div class="items-container">
-            @foreach (var item in Value)
-            {
-                <div class="item-card card mb-3 shadow-sm border-start border-4 border-primary" @key="item">
-                    <div class="card-body py-3">
-                        <div class="row g-3 align-items-center">
-                            <div class="col-12 col-sm-4">
-                                <BootstrapInputNumber @bind-Value="@item.Ratio"
-                                                      ShowLabel="true"
-                                                      DisplayText="系数 (0-1)"
-                                                      Min="0" Max="1" Step="0.1" />
-                            </div>
+        @for (var i = 0; i < Value.Count; i++)
+        {
+            // 捕获局部变量以避免闭包问题
+            var index = i;
+            var item = Value[i];
+            var levelChar = GetLevelChar(index);
 
-                            <div class="col-12 col-sm-6">
-                                <BootstrapInput @bind-Value="@item.Description"
-                                                ShowLabel="true"
-                                                DisplayText="等级描述"
-                                                Placeholder="如：优秀，按总分100%计算" />
-                            </div>
+            <div class="scoring-row animate__animated animate__fadeIn" @key="item">
+                @* 1. 左侧：时尚的等级头像 *@
+                <div class="level-avatar @GetLevelColorClass(levelChar)">
+                    @levelChar
+                </div>
 
-                            <div class="col-12 col-sm-2 text-end">
-                                <Button Color="Color.Danger"
-                                        Icon="fa-solid fa-trash-can"
-                                        OnClickWithoutRender="@(() => OnRemoveItem(item))"
-                                        TooltipText="删除此行" />
-                            </div>
-                        </div>
+                @* 2. 中间：简洁的输入区 *@
+                <div class="input-group-modern">
+                    @* 系数输入 *@
+                    <div class="input-wrapper ratio-wrapper">
+                        <label class="mini-label">系数 (Ratio)</label>
+                        <BootstrapInputNumber @bind-Value="@item.Ratio"
+                                              ShowLabel="false"
+                                              Min="0" Max="1" Step="0.1"
+                                              class="border-0 bg-transparent fw-bold text-dark"
+                                              placeholder="0.0-1.0" />
+                    </div>
+
+                    @* 描述输入 *@
+                    <div class="input-wrapper desc-wrapper">
+                        <label class="mini-label">等级描述</label>
+                        <BootstrapInput @bind-Value="@item.Description"
+                                        ShowLabel="false"
+                                        class="border-0 bg-transparent"
+                                        placeholder="例如：优秀，表现突出..." />
                     </div>
                 </div>
-            }
-        </div>
+
+                @* 3. 右侧：隐形的操作区 *@
+                <div class="action-area">
+                    <Button Color="Color.None"
+                            Icon="fa-solid fa-xmark"
+                            class="btn-icon text-muted hover-danger"
+                            OnClickWithoutRender="@(() => OnRemoveItem(item))"
+                            TooltipText="移除" />
+                </div>
+            </div>
+        }
     }
 
-    <div class="text-center mt-2">
-        <Button Color="Color.Primary"
+    @* 底部：虚线添加按钮 *@
+    <div class="add-btn-area mt-3">
+        <Button Color="Color.None"
                 Icon="fa-solid fa-plus"
                 Text="添加新等级"
-                IsOutline="true"
                 OnClickWithoutRender="OnAddItem"
-                class="w-100 dashed-border-btn" />
+                class="w-100 py-2 text-primary fw-bold shadow-none" />
     </div>
 </div>
-
-<style>
-    .dashed-border-btn {
-        border-style: dashed !important;
-        border-width: 2px !important;
-    }
-</style>
