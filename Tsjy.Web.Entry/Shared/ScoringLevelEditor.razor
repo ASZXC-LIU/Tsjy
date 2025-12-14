@@ -1,0 +1,64 @@
+﻿@namespace Tsjy.Web.Entry.Shared
+@using BootstrapBlazor.Components
+@using Tsjy.Application.System.Dtos
+@inherits ValidateBase<List<ScoringModelItemDto>>
+
+<div class="scoring-level-editor">
+    @if (Value == null || !Value.Any())
+    {
+        <div class="text-center py-4 text-muted border rounded mb-3 bg-light">
+            <i class="fa-solid fa-folder-open mb-2 fs-3"></i>
+            <div>暂无评分等级，请点击下方按钮添加</div>
+        </div>
+    }
+    else
+    {
+        <div class="items-container">
+            @foreach (var item in Value)
+            {
+                <div class="item-card card mb-3 shadow-sm border-start border-4 border-primary" @key="item">
+                    <div class="card-body py-3">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-12 col-sm-4">
+                                <BootstrapInputNumber @bind-Value="@item.Ratio"
+                                                      ShowLabel="true"
+                                                      DisplayText="系数 (0-1)"
+                                                      Min="0" Max="1" Step="0.1" />
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <BootstrapInput @bind-Value="@item.Description"
+                                                ShowLabel="true"
+                                                DisplayText="等级描述"
+                                                Placeholder="如：优秀，按总分100%计算" />
+                            </div>
+
+                            <div class="col-12 col-sm-2 text-end">
+                                <Button Color="Color.Danger"
+                                        Icon="fa-solid fa-trash-can"
+                                        OnClickWithoutRender="@(() => OnRemoveItem(item))"
+                                        TooltipText="删除此行" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="text-center mt-2">
+        <Button Color="Color.Primary"
+                Icon="fa-solid fa-plus"
+                Text="添加新等级"
+                IsOutline="true"
+                OnClickWithoutRender="OnAddItem"
+                class="w-100 dashed-border-btn" />
+    </div>
+</div>
+
+<style>
+    .dashed-border-btn {
+        border-style: dashed !important;
+        border-width: 2px !important;
+    }
+</style>

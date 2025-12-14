@@ -1,11 +1,13 @@
-using BootstrapBlazor.Components;
-using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
+using BootstrapBlazor.Components;
+using Furion.DatabaseAccessor;
+using Mapster;
+using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 using Tsjy.Application.System.Dtos;
 using Tsjy.Application.System.IService;
 using Tsjy.Application.System.Service;
 using Tsjy.Core.Entities;
-
 namespace Tsjy.Web.Entry.Pages.Admin
 {
     public partial class ScoringModels
@@ -16,7 +18,8 @@ namespace Tsjy.Web.Entry.Pages.Admin
         [Inject]
         [NotNull]
         private ToastService? Toast { get; set; }
-
+        [Inject]
+        private IServiceScopeFactory ScopeFactory { get; set; }
         // 编辑弹窗绑定的 DTO
         private ScoringModelDto EditModel { get; set; } = new();
         [Inject]
@@ -46,73 +49,57 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 TotalCount = total
             };
         }
-
         /// <summary>
-        /// 点击“编辑”按钮时触发
+        /// 点击“新建”按钮时触发
         /// </summary>
-        private async Task<bool> OnEditAsync(ScoringModel model)
+        private Task<ScoringModel> OnAddAsync()
         {
-            if (model.Id > 0)
+            // 1. 清空 EditModel，确保表单干净
+            EditModel = new ScoringModelDto
             {
-                // 编辑模式：从后端拉取详情（包含 Items）
-                try
+                // 初始化默认值，比如默认给两行
+                Items = new List<ScoringModelItemDto>
                 {
-                    EditModel = await ScoringService.GetDetail(model.Id);
+                    new ScoringModelItemDto { Ratio = 1.0m, Description = "优秀" },
+                    new ScoringModelItemDto { Ratio = 0.8m, Description = "良好" }
                 }
-                catch (Exception ex)
-                {
-                    await Toast.Error("加载失败", ex.Message);
-                    return false;
-                }
-            }
-            else
-            {
-                // 新增模式：初始化一个空的 DTO，并默认给一行数据方便填写
-                EditModel = new ScoringModelDto
-                {
-                    Items = new List<ScoringModelItemDto>
-                    {
-                        new ScoringModelItemDto { Ratio = 1.0m, Description = "" }, // 默认给个 A
-                        new ScoringModelItemDto { Ratio = 0.8m, Description = "" }  // 默认给个 B
-                    }
-                };
-            }
-            return true;
+            };
+
+            // 2. 返回一个新的实体对象给 Table 组件（虽然我们在用 DTO，但这步是必须的格式）
+            return Task.FromResult(new ScoringModel());
         }
 
-        /// <summary>
-        /// 点击弹窗“保存”时触发
-        /// </summary>
-        private async Task<bool> OnSaveAsync(ScoringModel model, ItemChangedType changedType)
+        // 同时，你的 OnEditAsync 可以简化了，因为 else 分支已经不会被“新建”按钮触发了
+        private async Task<bool> OnEditAsync(ScoringModel model)
         {
             try
             {
-                // 简单的表单校验
-                if (string.IsNullOrWhiteSpace(EditModel.Name))
-                {
-                    await Toast.Error("提示", "模板名称不能为空");
-                    return false;
-                }
-                if (EditModel.Items == null || !EditModel.Items.Any())
-                {
-                    await Toast.Error("提示", "请至少配置一个评分等级");
-                    return false;
-                }
+                // 1. 从数据库查出详情（包含 Items）
+                // 注意：这里必须 Include(x => x.Items)，否则弹窗里看不到等级列表
+                // 假设你的 Service 已经处理了 Include，如果没处理，建议直接在这里用 Repo 查
 
-                // 调用后端 API
-                await ScoringService.Save(EditModel);
+                using var scope = ScopeFactory.CreateScope();
+                var repo = scope.ServiceProvider.GetRequiredService<IRepository<ScoringModel>>();
 
-                await Toast.Success("保存成功");
+                var entity = await repo.Include(u => u.Items)
+                                       .FirstOrDefaultAsync(u => u.Id == model.Id);
+
+                // 2. 转换为 DTO 供前端绑定
+                EditModel = entity.Adapt<ScoringModelDto>();
 
                 return true;
             }
             catch (Exception ex)
             {
-                await Toast.Error("保存失败", ex.Message);
+                await Toast.Error("加载失败", ex.Message);
                 return false;
             }
         }
 
+        /// <summary>
+        /// 点击弹窗“保存”时触发
+        /// </summary>
+       
         /// <summary>
         /// 点击“删除”按钮时触发
         /// </summary>
@@ -156,36 +143,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
             }
         }
 
-        #region 弹窗内的子表操作
+        
 
-        /// <summary>
-        /// 增加一行
-        /// </summary>
-        private void OnAddItem()
-        {
-            // 自动推断下一个系数：比如现在有 1.0, 0.8，下一个自动填 0.6
-            decimal nextRatio = 0;
-            if (EditModel.Items.Any())
-            {
-                var min = EditModel.Items.Min(x => x.Ratio);
-                nextRatio = min >= 0.2m ? min - 0.2m : 0;
-            }
-            else
-            {
-                nextRatio = 1.0m;
-            }
-
-            EditModel.Items.Add(new ScoringModelItemDto { Ratio = nextRatio });
-        }
-
-        /// <summary>
-        /// 删除一行
-        /// </summary>
-        private void OnRemoveItem(ScoringModelItemDto item)
-        {
-            EditModel.Items.Remove(item);
-        }
-
-        #endregion
     }
 }

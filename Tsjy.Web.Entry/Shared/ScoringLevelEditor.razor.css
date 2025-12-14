@@ -1,0 +1,25 @@
+﻿.scoring-item-editor {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.empty-placeholder {
+    text-align: center;
+    padding: 30px 0;
+    color: #adb5bd;
+}
+
+.item-card {
+    transition: all 0.2s;
+    border-left: 4px solid #0d6efd; /* 蓝色左边框增加辨识度 */
+}
+
+    .item-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+.dashed-border {
+    border-top-style: dashed !important;
+}
