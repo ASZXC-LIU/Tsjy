@@ -1,0 +1,45 @@
+﻿.batch-distribute-widget {
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+    min-height: 550px;
+}
+
+.step-container {
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.content-body {
+    flex: 1;
+    overflow-y: auto; /* 关键：让外层容器滚动，而不是表格内部滚动 */
+    padding: 1rem;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 1rem;
+    background-color: #fff;
+    /* 增加底部内边距，确保最后一行展开时有空间，虽然后面加了div垫高，这里也保险一下 */
+    padding-bottom: 2rem;
+}
+
+/* ... 其他样式保持不变 ... */
+
+.widget-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.5rem;
+    background-color: #fff; /* 确保底部按钮背景不透明 */
+    z-index: 10; /* 确保底部按钮在最上层 */
+}
+
+/* ★★★ 修复下拉框遮挡问题 ★★★ */
+/* 强制表格单元格允许内容溢出 */
+::deep .table-cell {
+    overflow: visible !important;
+}
+
+/* 如果表格行有相对定位，可能会导致层级问题，强制重置 */
+::deep .table tbody tr {
+    position: static !important;
+}

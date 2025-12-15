@@ -264,7 +264,7 @@ namespace Tsjy.Application.System.Service
         public async Task<AuthResult> LoginHttpContextAsync(LoginInput loginInput)
         {
             loginInput.Password = DataEncryption.SHA1Encrypt(loginInput.Password.Trim());
-            var user = await _usersRepo.FirstOrDefaultAsync(u => u.UserName == loginInput.UserName && u.Password == loginInput.Password && u.Role == loginInput.Role&& u.IsDeleted ==true);
+            var user = await _usersRepo.FirstOrDefaultAsync(u => u.UserName == loginInput.UserName && u.Password == loginInput.Password && u.Role == loginInput.Role&& u.IsDeleted ==false);
             if (user is null)
             {
                 return new AuthResult().Failed("登录错误");
@@ -319,7 +319,11 @@ namespace Tsjy.Application.System.Service
                 return result;
             }
         }
-
+        public async Task<List<SysUsers>> GetListAsync()
+        {
+            // 返回未删除的所有用户
+            return await _usersRepo.Where(u => !u.IsDeleted).ToListAsync();
+        }
         public async Task<bool> LogoutBlazorAsync()
         {
             // 重置认证状态

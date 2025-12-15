@@ -49,14 +49,13 @@
             AI 预评价分析
             </summary>
         </member>
-        <member name="T:Tsjy.Core.Entities.ReviewAllocation">
+        <member name="T:Tsjy.Core.Entities.ExpertReview">
             <summary>
             专家评审任务分配
             </summary>
-        </member>
-        <member name="T:Tsjy.Core.Entities.ExpertReview">
             <summary>
-            专家评分结果
+            专家评分明细表 (兼具任务分配表的功能)
+            <para>预生成模式：任务发布时即插入数据，Score 为 NULL</para>
             </summary>
         </member>
         <member name="T:Tsjy.Core.Entities.InspectionTeam">
@@ -97,11 +96,6 @@
         <member name="T:Tsjy.Core.Entities.DistributionBatch">
             <summary>
             任务分发批次
-            </summary>
-        </member>
-        <member name="T:Tsjy.Core.Entities.BatchTarget">
-            <summary>
-            批次涉及的评价对象名单
             </summary>
         </member>
         <member name="T:Tsjy.Core.Entities.Tasks">

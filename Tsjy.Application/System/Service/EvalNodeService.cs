@@ -61,6 +61,34 @@ namespace Tsjy.Application.System.Service
                 _ => throw new ArgumentException($"无效的评价体系类型: {category}")
             };
         }
+
+        public async Task<List<EvalNodeTreeDto>> GetFlatListAsync(string category, long treeId)
+        {
+            // 根据 category 决定查哪个表，并映射为 EvalNodeTreeDto
+            // 这里为了简单，假设 EvalNodeTreeDto 有 Id, Name, Code, Type 属性
+            if (category == "special_school")
+            {
+                return await _speRepo.Where(x => x.TreeId == treeId && !x.IsDeleted)
+                                     .OrderBy(x => x.Code)
+                                     .ProjectToType<EvalNodeTreeDto>()
+                                     .ToListAsync();
+            }
+            else if (category == "inclusive_school")
+            {
+                return await _incRepo.Where(x => x.TreeId == treeId && !x.IsDeleted)
+                                     .OrderBy(x => x.Code)
+                                     .ProjectToType<EvalNodeTreeDto>()
+                                     .ToListAsync();
+            }
+            else if (category == "education_bureau")
+            {
+                return await _eduRepo.Where(x => x.TreeId == treeId && !x.IsDeleted)
+                                     .OrderBy(x => x.Code)
+                                     .ProjectToType<EvalNodeTreeDto>()
+                                     .ToListAsync();
+            }
+            return new List<EvalNodeTreeDto>();
+        }
         /// <summary>
         /// 获取指定类型的评价体系列表（查找所有的根节点）
         /// </summary>

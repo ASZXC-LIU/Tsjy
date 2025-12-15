@@ -37,33 +37,7 @@ namespace Tsjy.Core.Seed
         }
     }
 
-    // 2. 批次名单
-    public class BatchTargetSeed : IEntityTypeBuilder<BatchTarget>, IEntitySeedData<BatchTarget>
-    {
-        public void Configure(EntityTypeBuilder<BatchTarget> entityBuilder, DbContext dbContext, Type dbContextLocator) { entityBuilder.HasKey(u => u.Id); }
-        public IEnumerable<BatchTarget> HasData(DbContext dbContext, Type dbContextLocator)
-        {
-            long id = 20000;
-            return new List<BatchTarget>
-            {
-                // 批次10000 (特教普查) -> 朝阳特教, 海淀特教, 石家庄特教
-                new BatchTarget { Id = id++, BatchId = 10000, OrgId = "110105_SPE_01" },
-                new BatchTarget { Id = id++, BatchId = 10000, OrgId = "110108_SPE_01" },
-                new BatchTarget { Id = id++, BatchId = 10000, OrgId = "130100_SPE_01" },
-
-                // 批次10001 (融合监测) -> 中关村一小, 石家庄草场街
-                new BatchTarget { Id = id++, BatchId = 10001, OrgId = "110108_INC_01" },
-                new BatchTarget { Id = id++, BatchId = 10001, OrgId = "130104_INC_01" },
-
-                // 批次10002 (局端评估) -> 朝阳教委, 石家庄教育局
-                new BatchTarget { Id = id++, BatchId = 10002, OrgId = "110105_EDU" },
-                new BatchTarget { Id = id++, BatchId = 10002, OrgId = "130100_EDU" },
-
-                // 批次10003 (历史任务) -> 邯郸特教
-                new BatchTarget { Id = id++, BatchId = 10003, OrgId = "130400_SPE_01" },
-            };
-        }
-    }
+    
 
     // 3. 任务单 (Tasks - 移除了StartAt/DueAt的赋值)
     public class TaskSeed : IEntityTypeBuilder<Tasks>, IEntitySeedData<Tasks>

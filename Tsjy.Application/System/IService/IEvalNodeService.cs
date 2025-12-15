@@ -21,5 +21,6 @@ namespace Tsjy.Application.System.IService
         Task DeactivateTree([Required] string category, [Required] long treeId);
         Task ToggleTreeStatus([Required] string category, [Required] long treeId);
         Task DeleteNode([Required] string category, [Required] long nodeId);
+        Task<List<EvalNodeTreeDto>> GetFlatListAsync(string category, long treeId);
     }
 }

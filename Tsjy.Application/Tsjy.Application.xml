@@ -4,6 +4,39 @@
         <name>Tsjy.Application</name>
     </assembly>
     <members>
+        <member name="T:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto">
+            <summary>
+            任务分发提交对象
+            </summary>
+            <summary>
+            任务分发提交对象
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto.BatchId">
+            <summary>
+            批次ID
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto.SelectedOrgIds">
+            <summary>
+            步骤1：选中的机构ID集合 (受评单位)
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto.InspectionGroupUserIds">
+            <summary>
+            步骤2：视导组成员ID集合
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto.ReviewExpertIds">
+            <summary>
+            步骤3：评审专家ID集合 (新：只选人，后台自动分)
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.BatchDtos.NodeExpertRelationDto">
+            <summary>
+            节点与专家分配关系
+            </summary>
+        </member>
         <member name="T:Tsjy.Application.System.Dtos.CreateNodeDto">
             <summary>
             新建评价指标节点 DTO
@@ -67,16 +100,6 @@
         <member name="T:Tsjy.Application.System.Dtos.ScoringModelItemDto">
             <summary>
             评分项明细 DTO
-            </summary>
-        </member>
-        <member name="T:Tsjy.Application.System.Dtos.SysUserTargetDto">
-            <summary>
-            单位/用户 简要信息 DTO (用于选择列表)
-            </summary>
-        </member>
-        <member name="T:Tsjy.Application.System.Dtos.DistributeTaskDto">
-            <summary>
-            管理员分发任务的表单模型
             </summary>
         </member>
         <member name="T:Tsjy.Application.System.Dtos.SchoolTaskListDto">
@@ -238,6 +261,15 @@
             通用的级联软删除逻辑
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.ReorganizeRecursively``1(System.Collections.Generic.List{``0},System.Nullable{System.Int64},System.String)">
+            <summary>
+            递归重排序号
+            </summary>
+            <param name="allNodes">所有有效节点池</param>
+            <param name="parentId">当前父级ID</param>
+            <param name="parentCodePrefix">父级Code前缀（如 "1.2"）</param>
+            <returns>是否有数据变动</returns>
+        </member>
         <member name="T:Tsjy.Application.System.Service.ScoringModelService">
             <summary>
             评分模板管理服务
@@ -266,16 +298,6 @@
         <member name="M:Tsjy.Application.System.Service.ScoringModelService.Delete(System.Int64)">
             <summary>
             删除模板 (软删除)
-            </summary>
-        </member>
-        <member name="M:Tsjy.Application.System.Service.TaskService.GetTargetsByType(Tsjy.Core.Enums.OrgType)">
-            <summary>
-            获取待选单位列表 (根据类型)
-            </summary>
-        </member>
-        <member name="M:Tsjy.Application.System.Service.TaskService.PublishTask(Tsjy.Application.System.Dtos.DistributeTaskDto)">
-            <summary>
-            发布任务
             </summary>
         </member>
         <member name="M:Tsjy.Application.System.Service.TaskService.GetMyTasks(System.String)">
