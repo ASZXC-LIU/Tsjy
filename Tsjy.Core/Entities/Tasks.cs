@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using Furion.DatabaseAccessor;
 using Tsjy.Core.Enums;
-
+using Microsoft.EntityFrameworkCore;
 namespace Tsjy.Core.Entities;
 
 /// <summary>
@@ -44,7 +44,10 @@ public class DistributionBatch : IEntity
 /// <summary>
 /// 批次涉及的评价对象名单
 /// </summary>
+/// [Table("batch_targets")]
+[Index(nameof(BatchId))]
 [Table("batch_targets")]
+
 public class BatchTarget : IEntity
 {
     [Key]

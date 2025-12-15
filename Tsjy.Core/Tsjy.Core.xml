@@ -104,6 +104,7 @@
             <summary>
             批次涉及的评价对象名单
             </summary>
+            [Table("batch_targets")]
         </member>
         <member name="T:Tsjy.Core.Entities.Tasks">
             <summary>

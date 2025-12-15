@@ -264,7 +264,7 @@ namespace Tsjy.Application.System.Service
         public async Task<AuthResult> LoginHttpContextAsync(LoginInput loginInput)
         {
             loginInput.Password = DataEncryption.SHA1Encrypt(loginInput.Password.Trim());
-            var user = await _usersRepo.FirstOrDefaultAsync(u => u.UserName == loginInput.UserName && u.Password == loginInput.Password && u.Role == loginInput.Role&& u.IsDeleted ==true);
+            var user = await _usersRepo.FirstOrDefaultAsync(u => u.UserName == loginInput.UserName && u.Password == loginInput.Password && u.Role == loginInput.Role&& u.IsDeleted ==false);
             if (user is null)
             {
                 return new AuthResult().Failed("登录错误");
