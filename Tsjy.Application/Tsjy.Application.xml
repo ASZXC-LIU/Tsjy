@@ -238,6 +238,15 @@
             通用的级联软删除逻辑
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.ReorganizeRecursively``1(System.Collections.Generic.List{``0},System.Nullable{System.Int64},System.String)">
+            <summary>
+            递归重排序号
+            </summary>
+            <param name="allNodes">所有有效节点池</param>
+            <param name="parentId">当前父级ID</param>
+            <param name="parentCodePrefix">父级Code前缀（如 "1.2"）</param>
+            <returns>是否有数据变动</returns>
+        </member>
         <member name="T:Tsjy.Application.System.Service.ScoringModelService">
             <summary>
             评分模板管理服务

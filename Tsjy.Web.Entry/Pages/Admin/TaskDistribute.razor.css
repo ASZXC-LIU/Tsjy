@@ -1,0 +1,124 @@
+﻿/* 页面容器 */
+.page-wrapper {
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+}
+
+/* 现代卡片 */
+.modern-card {
+    background: #fff;
+    border: none;
+    border-radius: 1.25rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    position: relative;
+}
+
+/* 顶部装饰条 */
+.card-accent {
+    height: 6px;
+    background: linear-gradient(90deg, var(--bs-primary) 0%, #a29bfe 100%);
+    width: 100%;
+}
+
+/* 1. 标题区域：加大留白，远离边缘 */
+.form-header {
+    padding: 3.5rem 4rem 2rem 4rem; /* ★ 增加顶部和左右留白 */
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.header-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #2d3436;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+    color: #b2bec3;
+    font-size: 0.95rem;
+}
+
+/* 2. 表单主体：宽松布局 */
+.form-body {
+    padding: 3rem 4rem 4rem 4rem; /* ★ 内容区大留白 */
+}
+
+/* 3. 输入框修复 (核心修复点) */
+::deep .form-control {
+    border-radius: 0.75rem;
+    padding: 0.8rem 1.2rem; /* 增加整体高度 */
+    /* ★★★ 关键修复：右侧预留 3.5rem (约56px) 空间，防止图标挡字 ★★★ */
+    padding-right: 3.5rem !important;
+    background-color: #f8f9fa;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+    color: #495057;
+}
+
+    ::deep .form-control:focus {
+        background-color: #fff;
+        border-color: var(--bs-primary);
+        box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.1);
+    }
+
+/* 自定义标签 */
+.custom-label {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #636e72;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+    .custom-label i {
+        font-size: 1.1rem;
+        margin-right: 0.6rem;
+        color: var(--bs-primary);
+        opacity: 0.8;
+    }
+
+/* 分割线 */
+.section-divider {
+    height: 1px;
+    background: #f1f2f6;
+    margin: 3.5rem 0; /* 拉开上下间距 */
+    position: relative;
+}
+
+.section-tag {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 0 1.5rem;
+    color: #cbd5e0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* 底部按钮 */
+.form-footer {
+    background: #fafafa; /* 区分底色 */
+    padding: 2.5rem 4rem;
+    border-top: 1px solid #f1f2f6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.5rem;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .form-header, .form-body, .form-footer {
+        padding: 2rem;
+    }
+}

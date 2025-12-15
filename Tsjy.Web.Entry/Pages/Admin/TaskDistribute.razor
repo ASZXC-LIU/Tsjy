@@ -1,48 +1,124 @@
-﻿@using Tsjy.Application.System.Dtos.BatchDtos
+﻿@page "/Admin/TaskDistribute"
+@using Tsjy.Application.System.Dtos.BatchDtos
 @using Tsjy.Core.Enums
 @inherits BootstrapComponentBase
 @attribute [Authorize(Roles = "Admin")]
-@page "/Admin/TaskDistribute"
-<div class="container-fluid">
-    @* 使用传入的 Model *@
-    <ValidateForm Model="@Model" OnValidSubmit="@OnValidSubmit">
-        <div class="row g-3">
-            <div class="col-12">
-                <BootstrapInput @bind-Value="@Model.Name" Label="批次名称" ShowLabel="true" />
+@namespace Tsjy.Web.Entry.Pages.Admin
+
+<div class="container-fluid page-wrapper animate__animated animate__fadeInUp">
+    <div class="card modern-card">
+        <div class="card-accent"></div>
+
+        <ValidateForm Model="@Model" OnValidSubmit="@OnValidSubmit">
+
+            <div class="form-header">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h1 class="header-title">
+                            @(Model.Id > 0 ? "编辑任务" : "创建新任务")
+                        </h1>
+                        <div class="header-subtitle">
+                            请配置下方的考评任务详情及时间节点。
+                        </div>
+                    </div>
+                    @* 装饰性大图标 *@
+                    <div class="d-none d-md-block text-primary opacity-10">
+                        <i class="fa-solid fa-paper-plane fa-3x"></i>
+                    </div>
+                </div>
             </div>
 
-            <div class="col-12 col-md-6">
-                <DateTimePicker @bind-Value="@Model.StartAt" Label="开始时间" ShowLabel="true" />
+            <div class="form-body">
+                <div class="row g-5">
+                    @* 任务名称 *@
+                    <div class="col-12">
+                        <label class="custom-label">
+                            <i class="fa-solid fa-heading"></i> 任务名称
+                        </label>
+                        <BootstrapInput @bind-Value="@Model.Name"
+                                        ShowLabel="false"
+                                        Placeholder="请输入任务名称，例如：2025年度特殊教育学校春季考评"
+                                        class="form-control-lg shadow-none" />
+                    </div>
+
+                    @* 时间选择器：CSS 已修复 padding-right，文字不会被挡住 *@
+                    <div class="col-12 col-md-6">
+                        <label class="custom-label">
+                            <i class="fa-regular fa-calendar-plus"></i> 开始时间
+                        </label>
+                        <DateTimePicker @bind-Value="@Model.StartAt"
+                                        ShowLabel="false"
+                                        class="shadow-none" />
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="custom-label">
+                            <i class="fa-regular fa-calendar-check"></i> 截止时间
+                        </label>
+                        <DateTimePicker @bind-Value="@Model.DueAt"
+                                        ShowLabel="false"
+                                        class="shadow-none" />
+                    </div>
+                </div>
+
+                <div class="section-divider">
+                    <span class="section-tag">关联配置</span>
+                </div>
+
+                <div class="row g-5">
+                    @* 机构类型 *@
+                    <div class="col-12 col-md-6">
+                        <label class="custom-label">
+                            <i class="fa-solid fa-school"></i> 适用机构
+                        </label>
+                        <Select TValue="OrgType?"
+                                Value="@Model.TargetType"
+                                ValueChanged="@OnOrgTypeChanged"
+                                Items="@OrgTypeItems"
+                                ShowLabel="false"
+                                PlaceHolder="请选择..."
+                                class="shadow-none" />
+                        <div class="small text-muted mt-2 ps-1">
+                            <i class="fa-solid fa-arrow-turn-up me-1"></i> 选择后自动加载右侧体系
+                        </div>
+                    </div>
+
+                    @* 评价体系 *@
+                    <div class="col-12 col-md-6">
+                        <label class="custom-label @(Model.TargetType.HasValue ? "text-primary" : "")">
+                            <i class="fa-solid fa-tree"></i> 评价体系
+                        </label>
+                        <Select @bind-Value="@Model.TreeId"
+                                Items="@TreeItems"
+                                ShowLabel="false"
+                                PlaceHolder="@(Model.TargetType.HasValue ? "请选择体系..." : "🚫 请先选择左侧机构类型")"
+                                IsDisabled="@(!Model.TargetType.HasValue)"
+                                class="shadow-none" />
+
+                        @if (Model.TreeId > 0)
+                        {
+                            <div class="small text-success mt-2 ps-1 animate__animated animate__fadeIn">
+                                <i class="fa-solid fa-check-circle me-1"></i> 已关联有效体系
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
 
-            <div class="col-12 col-md-6">
-                <DateTimePicker @bind-Value="@Model.DueAt" Label="结束时间" ShowLabel="true" />
-            </div>
-            @* 2. 核心选项：类型 -> 体系 *@
-            <div class="col-12 col-md-6">
-                @* 使用 TValue="OrgType?" 确保类型匹配 *@
-                <Select TValue="OrgType?"
-                        Value="@Model.TargetType"
-                        ValueChanged="@OnOrgTypeChanged"
-                        Items="@OrgTypeItems"
-                        Label="适用机构"
-                        ShowLabel="true"
-                        PlaceHolder="请选择..." />
+            <div class="form-footer">
+                @if (OnClose != null)
+                {
+                    <Button Color="Color.None" class="text-secondary fw-bold px-4" OnClick="() => OnClose.Invoke()">
+                        取消
+                    </Button>
+                }
+                <Button ButtonType="ButtonType.Submit"
+                        Color="Color.Primary"
+                        class="px-5 py-2 rounded-pill shadow-sm fw-bold">
+                    <i class="fa-solid fa-floppy-disk me-2"></i> 保存并发布
+                </Button>
             </div>
 
-            <div class="col-12 col-md-6">
-                @* 绑定 TreeId，数据源来自 TreeItems *@
-                <Select @bind-Value="@Model.TreeId"
-                        Items="@TreeItems"
-                        Label="评价体系"
-                        ShowLabel="true"
-                        PlaceHolder="请先选择机构类型..."
-                        IsDisabled="@(!Model.TargetType.HasValue)" />
-            </div>
-            @* 如果是弹窗模式，按钮通常由弹窗 footer 提供，或者在这里自定义 *@
-            <div class="col-12 text-end">
-                <Button ButtonType="ButtonType.Submit" Icon="fa fa-save" Text="保存" Color="Color.Primary" />
-            </div>
-        </div>
-    </ValidateForm>
+        </ValidateForm>
+    </div>
 </div>
