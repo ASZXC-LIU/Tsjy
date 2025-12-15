@@ -123,7 +123,16 @@
                                 OnClick="@(() => ShowScheduleInfo(value.Row))" />
                     </Template>
                 </TableColumn>
-
+                <TableColumn @bind-Field="@context.Id" Text="进度监控" Align="Alignment.Center" Width="110">
+                    <Template Context="value">
+                        <Button Color="Color.Warning"
+                                IsOutline="true"
+                                Size="Size.ExtraSmall"
+                                Icon="fa-solid fa-chart-pie"
+                                Text="进度面板"
+                                OnClick="@(() => ShowMonitor(value.Row))" />
+                    </Template>
+                </TableColumn>
                 @* ★★★ 修改 3: 操作列 (根据状态显示分发按钮) ★★★ *@
                 <TableColumn @bind-Field="@context.Id" Text="操作" Align="Alignment.Center" Width="180">
                     <Template Context="value">

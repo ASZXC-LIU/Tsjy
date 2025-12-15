@@ -29,7 +29,7 @@ public class ExpertReview : IEntity
 
     public long TaskId { get; set; }
     public long NodeId { get; set; }
-    public long ReviewerId { get; set; }
+    public string ReviewerId { get; set; }
 
     [DisplayName("所选系数")]
     public decimal? ScoreRatio { get; set; }

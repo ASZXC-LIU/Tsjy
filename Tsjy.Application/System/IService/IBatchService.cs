@@ -14,4 +14,5 @@ public interface IBatchService
     Task CreateAsync(BatchInputDto input);
     Task<BatchInputDto> GetDetailAsync(long id); // 新增
     Task DistributeAsync(BatchDistributeDto input);
+    Task<BatchProgressDetailDto> GetProgressDetailAsync(long batchId);
 }

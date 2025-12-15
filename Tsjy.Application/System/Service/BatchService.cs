@@ -1,4 +1,5 @@
-﻿using BootstrapBlazor.Components;
+﻿using System.Linq;
+using BootstrapBlazor.Components;
 using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,8 @@ public class BatchService : IBatchService, ITransient,IScoped
 {
     private readonly IRepository<DistributionBatch> _batchRepo;
     private readonly IRepository<Tasks> _taskRepo;
+    private readonly IRepository<SysUsers> _userRepo;
+    private readonly IRepository<Departments> _deptRepo;
     // ★★★ 新增注入：用于查询体系名称 ★★★
     private readonly IRepository<SpeEvalNode> _speRepo;
     private readonly IRepository<IncEvalNode> _incRepo;
@@ -22,6 +25,8 @@ public class BatchService : IBatchService, ITransient,IScoped
     private readonly IRepository<ExpertReview> _expertReviewRepo;
     public BatchService(
         IRepository<DistributionBatch> batchRepo,
+        IRepository<SysUsers> userRepo,
+        IRepository<Departments> deptRepo,
         IRepository<Tasks> taskRepo,
         IRepository<InspectionTeam> inspectionTeamRepo,
         IRepository<InspectionTeamMember> teamMemberRepo,
@@ -32,6 +37,8 @@ public class BatchService : IBatchService, ITransient,IScoped
         )
     {
         _batchRepo = batchRepo;
+        _userRepo = userRepo;
+        _deptRepo = deptRepo;
         _taskRepo = taskRepo;
         _speRepo = speRepo;
         _incRepo = incRepo;
@@ -174,7 +181,7 @@ public class BatchService : IBatchService, ITransient,IScoped
                 if (!input.ReviewExpertIds.Any()) throw new Exception("未选择评审专家！");
 
                 // 3. 核心算法：洗牌并平均分配 (Shuffle & Deal)
-                var expertIds = input.ReviewExpertIds.Select(long.Parse).ToList();
+                var expertIds = input.ReviewExpertIds;
                 int expertCount = expertIds.Count;
 
                 // 打乱指标顺序
@@ -182,7 +189,7 @@ public class BatchService : IBatchService, ITransient,IScoped
                 var shuffledNodes = pointNodeIds.OrderBy(a => rng.Next()).ToList();
 
                 // 建立映射: ExpertId -> List<NodeId>
-                var expertWorkloadMap = new Dictionary<long, List<long>>();
+                var expertWorkloadMap = new Dictionary<string, List<long>>();
                 foreach (var eid in expertIds)
                 {
                     expertWorkloadMap[eid] = new List<long>();
@@ -226,7 +233,7 @@ public class BatchService : IBatchService, ITransient,IScoped
                     // 对于每个学校，应用刚才计算的分配规则
                     foreach (var kvp in expertWorkloadMap)
                     {
-                        long expertId = kvp.Key;
+                        string expertId = kvp.Key;
                         List<long> assignedNodes = kvp.Value;
 
                         foreach (var nodeId in assignedNodes)
@@ -280,7 +287,7 @@ public class BatchService : IBatchService, ITransient,IScoped
                     var members = input.InspectionGroupUserIds.Select(uid => new InspectionTeamMember
                     {
                         TeamId = teamEntity.Entity.Id,
-                        UserId = long.Parse(uid)
+                        UserId = uid
                     });
                     await _teamMemberRepo.InsertAsync(members);
                 }
@@ -394,4 +401,95 @@ public class BatchService : IBatchService, ITransient,IScoped
         };
         await _batchRepo.InsertNowAsync(entity);
     }
+
+    public async Task<BatchProgressDetailDto> GetProgressDetailAsync(long batchId)
+    {
+        var result = new BatchProgressDetailDto { BatchId = batchId };
+
+        // 1. 获取单位填报进度 (查 Tasks 表 + 关联部门表)
+        // 假设 _orgRepo 是 Departments 仓储
+        // 注意：这里需要根据 TargetId 关联部门名称，为了性能建议先查出 Tasks 再批量查部门
+        var tasks = await _taskRepo.Where(t => t.BatchId == batchId && !t.IsDeleted).ToListAsync();
+        var orgCodes = tasks.Select(t => t.TargetId).Distinct().ToList();
+
+        // 假设您有 _deptRepo，如果没有请注入 IRepository<Departments>
+        // var orgNames = await _deptRepo.Where(d => orgCodes.Contains(d.Code)).ToDictionaryAsync(d => d.Code, d => d.Name);
+        // 这里为了演示，假设 OrgType 不变，您需要根据实际情况注入仓储
+        // 临时模拟：实际请务必查库
+        
+
+        // ★★★ 核心修复：根据 TargetId (Code) 查询单位名称 ★★★
+        var orgNames = await _deptRepo.Where(d => orgCodes.Contains(d.Code))
+                                      .Select(d => new { d.Code, d.Name })
+                                      .ToDictionaryAsync(d => d.Code, d => d.Name);
+
+        result.OrgProgresses = tasks.Select(t => new OrgProgressDto
+        {
+            TargetId = t.TargetId,
+            OrgName = orgNames.ContainsKey(t.TargetId) ? orgNames[t.TargetId] : $"未命名单位 ({t.TargetId})",
+            Status = t.Status,
+            SubmittedAt = t.SubmittedAt
+        }).ToList();
+
+        // 2. 获取专家评审进度 (查 ExpertReview 表)
+        // 统计逻辑：按 ReviewerId 分组，计算 Status == Completed 的比例
+        // 需要联表 Task 确保是当前 Batch 的
+        var expertStats = await _expertReviewRepo.AsQueryable()
+            .Join(_taskRepo.AsQueryable(), r => r.TaskId, t => t.Id, (r, t) => new { r, t })
+            .Where(x => x.t.BatchId == batchId && !x.r.IsDeleted)
+            .GroupBy(x => x.r.ReviewerId)
+            .Select(g => new
+            {
+                ExpertId = g.Key,
+                Total = g.Count(),
+                Finished = g.Sum(x => x.r.Status == ReviewStatus.Submitted ? 1 : 0) // 假设枚举是 Submitted 代表完成
+            })
+            .ToListAsync();
+
+        var expertIds = expertStats.Select(x => x.ExpertId).ToList();
+        // 查专家姓名
+        var expertNames = await _userRepo.Where(u => expertIds.Contains(u.IDNumber))
+                                     .ToDictionaryAsync(u => u.IDNumber, u => u.RealName);// 假设是 RealName
+
+        result.ExpertProgresses = expertStats.Select(x => new ExpertProgressDto
+        {
+            ExpertId = x.ExpertId,
+            ExpertName = expertNames.ContainsKey(x.ExpertId) ? expertNames[x.ExpertId] : "未知专家",
+            TotalTasks = x.Total,
+            CompletedTasks = x.Finished,
+            ProgressRate = x.Total == 0 ? 0 : (double)x.Finished / x.Total * 100
+        }).ToList();
+
+        // 3. 获取视导组进度
+        // 查 InspectionTeam + InspectionTeamMember
+        var teams = await _inspectionTeamRepo.Where(t => t.BatchId == batchId && !t.IsDeleted).ToListAsync();
+        var teamIds = teams.Select(t => t.Id).ToList();
+
+        var members = await _teamMemberRepo.Where(m => teamIds.Contains(m.TeamId) && !m.IsDeleted).ToListAsync();
+        var memberUserIds = members.Select(m => m.UserId).Distinct().ToList();
+        var memberNames = await _userRepo.Where(u => memberUserIds.Contains(u.IDNumber))
+                                         .ToDictionaryAsync(u => u.IDNumber, u => u.RealName);
+
+        foreach (var team in teams)
+        {
+            var teamMembers = members.Where(m => m.TeamId == team.Id)
+                                     .Select(m => memberNames.ContainsKey(m.UserId) ? memberNames[m.UserId] : m.UserId.ToString())
+                                     .ToList();
+
+            result.InspectionGroups.Add(new InspectionGroupDto
+            {
+                TeamId = team.Id,
+                TeamName = team.Name,
+                MemberNames = teamMembers,
+                // 这里暂时没查 Schedule 表，如果需要可以补充查询 InspectionSchedule
+                ScheduledCount = 0,
+                FinishedCount = 0
+            });
+        }
+
+        return result;
+    }
+
+
+
 }

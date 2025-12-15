@@ -57,7 +57,7 @@ namespace Tsjy.Core.Seed
         {
             return new List<ExpertReview>
             {
-                new ExpertReview { Id = 1, TaskId = 1, NodeId = 3, ReviewerId = 100, ScoreRatio = 0.8m, StandardScore = 5, FinalScore = 4.0m, CreatedAt = DateTime.UtcNow }
+                new ExpertReview { Id = 1, TaskId = 1, NodeId = 3, ReviewerId = "100", ScoreRatio = 0.8m, StandardScore = 5, FinalScore = 4.0m, CreatedAt = DateTime.UtcNow }
             };
         }
     }
