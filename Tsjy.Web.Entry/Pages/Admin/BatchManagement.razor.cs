@@ -98,6 +98,8 @@ public partial class BatchManagement
 
     private Task OnReset()
     {
+        SearchModel.Name = null;
+        SearchModel.TargetType = null;
         return Table!.QueryAsync();
     }
 

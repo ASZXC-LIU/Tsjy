@@ -45,7 +45,6 @@ public class BatchService : IBatchService, ITransient,IScoped
         {
             query = query.Where(b => !b.IsDeleted);
         }
-        // 否则（includeDeleted=true），就查询所有，不加过滤条件
 
         // 3. 机构类型过滤
         if (orgType.HasValue)
@@ -53,6 +52,7 @@ public class BatchService : IBatchService, ITransient,IScoped
             query = query.Where(b => b.TargetType == orgType.Value);
         }
 
+        // ★★★ 修复步骤 1：移除 Select 中的子查询 OrgCount ★★★
         var list = await query.OrderByDescending(b => b.CreatedAt)
             .Select(b => new BatchListDto
             {
@@ -61,24 +61,33 @@ public class BatchService : IBatchService, ITransient,IScoped
                 Status = b.Status,
                 CreatedAt = b.CreatedAt,
                 IsDeleted = b.IsDeleted,
-                TargetType = b.TargetType, // 获取类型
-                TreeId = b.TreeId,         // 获取TreeId以便后续查名
+                TargetType = b.TargetType,
+                TreeId = b.TreeId,
                 StartAt = b.StartAt,
                 DueAt = b.DueAt,
-                // 计算机构数
-                OrgCount = _targetRepo.AsQueryable(false).Count(t => t.BatchId == b.Id && !t.IsDeleted),
+                // OrgCount = 0 // 先不计算，防止并发冲突
             })
-            .ToListAsync();
+            .ToListAsync(); // 此时 Context 操作已完成，释放控制权
 
-        // 4. 填充 TreeName (因为体系分布在三张表，无法简单 Join，我们在内存中填充)
+        // 4. 填充 TreeName 和 OrgCount (内存处理)
         if (list.Any())
         {
-            // 获取所有涉及的 TreeId
+            var batchIds = list.Select(x => x.Id).ToList();
+
+            // ★★★ 修复步骤 2：单独批量查询 OrgCount ★★★
+            // 使用 GroupBy 一次性查出所有相关批次的数量，避免 N+1 问题，且不在循环中使用 Context
+            var counts = await _targetRepo.AsQueryable(false)
+                .Where(t => batchIds.Contains(t.BatchId) && !t.IsDeleted)
+                .GroupBy(t => t.BatchId)
+                .Select(g => new { BatchId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.BatchId, x => x.Count);
+
+            // 获取所有涉及的 TreeId (原有逻辑)
             var specialTreeIds = list.Where(x => x.TargetType == OrgType.SpecialSchool).Select(x => x.TreeId).Distinct().ToList();
             var inclusiveTreeIds = list.Where(x => x.TargetType == OrgType.InclusiveSchool).Select(x => x.TreeId).Distinct().ToList();
             var eduTreeIds = list.Where(x => x.TargetType == OrgType.EducationBureau).Select(x => x.TreeId).Distinct().ToList();
 
-            // 批量查询名称
+            // 批量查询名称 (原有逻辑)
             var speNames = await _speRepo.Where(x => specialTreeIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToDictionaryAsync(x => x.Id, x => x.Name);
             var incNames = await _incRepo.Where(x => inclusiveTreeIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToDictionaryAsync(x => x.Id, x => x.Name);
             var eduNames = await _eduRepo.Where(x => eduTreeIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToDictionaryAsync(x => x.Id, x => x.Name);
@@ -86,6 +95,17 @@ public class BatchService : IBatchService, ITransient,IScoped
             // 填回 DTO
             foreach (var item in list)
             {
+                // ★★★ 填充统计数据 ★★★
+                if (counts.ContainsKey(item.Id))
+                {
+                    item.OrgCount = counts[item.Id];
+                }
+                else
+                {
+                    item.OrgCount = 0;
+                }
+
+                // 填充体系名称
                 if (item.TargetType == OrgType.SpecialSchool && speNames.ContainsKey(item.TreeId))
                     item.TreeName = speNames[item.TreeId];
                 else if (item.TargetType == OrgType.InclusiveSchool && incNames.ContainsKey(item.TreeId))

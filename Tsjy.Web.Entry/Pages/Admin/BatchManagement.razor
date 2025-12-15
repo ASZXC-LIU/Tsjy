@@ -11,7 +11,7 @@
         @* 顶部装饰 *@
         <div class="card-accent"></div>
 
-        @* 1. 头部标题与新建按钮 *@
+        @* 1. 头部标题 *@
         <div class="page-header">
             <div>
                 <h1 class="header-title">批次任务管理</h1>
@@ -26,7 +26,43 @@
             </div>
         </div>
 
-        @* 2. 表格组件 *@
+        @* 2. 自定义搜索区 (移出 Table，直接展示) *@
+        <div class="search-section">
+            <div class="row g-4">
+                @* 批次名称搜索 *@
+                <div class="col-12 col-md-4">
+                    <label class="custom-label">
+                        <i class="fa-solid fa-magnifying-glass"></i> 批次名称
+                    </label>
+                    <BootstrapInput @bind-Value="@SearchModel.Name"
+                                    ShowLabel="false"
+                                    Placeholder="输入名称模糊查询..."
+                                    class="search-input shadow-none"
+                                    OnEnterAsync="@(val => OnSearch())" />
+                </div>
+
+                @* 批次类型搜索 (功能接入点) *@
+                <div class="col-12 col-md-4">
+                    <label class="custom-label">
+                        <i class="fa-solid fa-filter"></i> 批次类型
+                    </label>
+                    <Select TValue="OrgType?"
+                            @bind-Value="@SearchModel.TargetType"
+                            Items="@OrgTypeItems"
+                            ShowLabel="false"
+                            PlaceHolder="全部类型"
+                            class="search-input shadow-none" />
+                </div>
+
+                @* 按钮组 *@
+                <div class="col-12 col-md-4 d-flex align-items-end">
+                    <Button Color="Color.Primary" Icon="fa-solid fa-magnifying-glass" class="me-2 rounded-3 px-3 shadow-sm" OnClick="@OnSearch">查询</Button>
+                    <Button Color="Color.Light" Icon="fa-solid fa-rotate-right" class="rounded-3 px-3 text-secondary" OnClick="@OnReset">重置</Button>
+                </div>
+            </div>
+        </div>
+
+        @* 3. 表格组件 *@
         <Table TItem="BatchListDto"
                @ref="Table"
                IsPagination="true"
@@ -34,50 +70,11 @@
                IsBordered="false"
                IsHover="true"
                ShowToolbar="false"
-               ShowSearch="true"
-               ShowExtendButtons="true"
+               ShowSearch="false"
+               ShowExtendButtons="false"
                ShowSkeleton="true"
                OnQueryAsync="@OnQueryAsync">
 
-            @* 3. 自定义搜索区 *@
-            <SearchTemplate>
-                <div class="search-section">
-                    <div class="row g-4">
-                        @* 批次名称搜索 *@
-                        <div class="col-12 col-md-4">
-                            <label class="custom-label">
-                                <i class="fa-solid fa-magnifying-glass"></i> 批次名称
-                            </label>
-                            <BootstrapInput @bind-Value="@context.Name"
-                                            ShowLabel="false"
-                                            Placeholder="输入名称模糊查询..."
-                                            class="search-input shadow-none" />
-                        </div>
-
-                        @* 批次类型搜索 *@
-                        <div class="col-12 col-md-4">
-                            <label class="custom-label">
-                                <i class="fa-solid fa-filter"></i> 批次类型
-                            </label>
-                            @* ★★★ 修复 CS1662：TValue 必须与 BatchListDto.TargetType (OrgType) 类型完全一致 ★★★ *@
-                            <Select TValue="OrgType"
-                                    @bind-Value="@context.TargetType"
-                                    Items="@OrgTypeItems"
-                                    ShowLabel="false"
-                                    PlaceHolder="全部类型"
-                                    class="search-input shadow-none" />
-                        </div>
-
-                        @* 按钮组 *@
-                        <div class="col-12 col-md-4 d-flex align-items-end">
-                            <Button Color="Color.Primary" Icon="fa-solid fa-magnifying-glass" class="me-2 rounded-3 px-3" OnClick="@OnSearch">查询</Button>
-                            <Button Color="Color.Light" Icon="fa-solid fa-rotate-right" class="rounded-3 px-3 text-secondary" OnClick="@OnReset">重置</Button>
-                        </div>
-                    </div>
-                </div>
-            </SearchTemplate>
-
-            @* 4. 表格列定义 *@
             <TableColumns>
                 <TableColumn @bind-Field="@context.Name" Text="任务名称" Width="250">
                     <Template Context="value">
@@ -95,9 +92,9 @@
 
                 <TableColumn @bind-Field="@context.TargetType" Text="适用机构" Width="150" />
 
-                <TableColumn @bind-Field="@context.StartAt" Text="开始时间" FormatString="yyyy-MM-dd" Width="120" />
+                <TableColumn @bind-Field="@context.StartAt" Text="开始时间" FormatString="yyyy-MM-dd" Sortable="true" Width="120" />
 
-                <TableColumn @bind-Field="@context.DueAt" Text="截止时间" FormatString="yyyy-MM-dd" Width="120">
+                <TableColumn @bind-Field="@context.DueAt" Text="截止时间" Sortable="true" Width="120">
                     <Template Context="value">
                         @if (value.Row.DueAt < DateTime.Now)
                         {
@@ -115,7 +112,7 @@
                     </Template>
                 </TableColumn>
 
-                @* ★★★ 修复 CS0411：添加 @bind-Field="@context.Id" 让编译器能推断类型 ★★★ *@
+                @* 操作列 *@
                 <TableColumn @bind-Field="@context.Id" Text="操作" Align="Alignment.Center" Width="180">
                     <Template Context="value">
                         <div class="btn-icon-group">
