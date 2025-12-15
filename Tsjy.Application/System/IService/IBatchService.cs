@@ -1,7 +1,6 @@
 ﻿using Furion.DatabaseAccessor;
 using Tsjy.Application.System.Dtos.BatchDtos;
 using Tsjy.Core.Enums;
-
 namespace Tsjy.Application.System.IService;
 
 public interface IBatchService
@@ -14,4 +13,5 @@ public interface IBatchService
     Task UpdateAsync(BatchInputDto input);
     Task CreateAsync(BatchInputDto input);
     Task<BatchInputDto> GetDetailAsync(long id); // 新增
+    Task DistributeAsync(BatchDistributeDto input);
 }

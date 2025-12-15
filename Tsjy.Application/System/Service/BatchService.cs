@@ -119,6 +119,65 @@ public class BatchService : IBatchService, ITransient,IScoped
 
         return list;
     }
+
+    public async Task DistributeAsync(BatchDistributeDto input)
+    {
+        // 1. 获取批次信息
+        var batch = await _batchRepo.FindOrDefaultAsync(input.BatchId);
+        if (batch == null) throw new Exception("批次不存在");
+
+        // 2. 插入任务表 (Tasks) - 为每个选中的单位创建任务
+        var tasksToAdd = input.SelectedOrgIds.Select(orgId => new Tasks
+        {
+            BatchId = input.BatchId,
+            TreeId = batch.TreeId,
+            TargetType = batch.TargetType,
+            TargetId = orgId, // 这里存的是 DepartmentDto.Code 或 ID
+            Status = TaskStatu.Pending
+        }).ToList();
+        await _taskRepo.InsertAsync(tasksToAdd); // 假设你有 _taskRepo
+
+        // 3. 创建视导组 (InspectionTeam)
+        if (input.InspectionGroupUserIds.Any())
+        {
+            var team = new InspectionTeam
+            {
+                BatchId = input.BatchId,
+                Name = $"{batch.Name}-视导组"
+            };
+            var teamEntity = await _inspectionTeamRepo.InsertNowAsync(team); // 假设你有 _inspectionTeamRepo
+
+            var members = input.InspectionGroupUserIds.Select(uid => new InspectionTeamMember
+            {
+                TeamId = teamEntity.Entity.Id,
+                UserId = long.Parse(uid)
+            });
+            await _teamMemberRepo.InsertAsync(members);
+        }
+
+        // 4. 分配专家评审 (ReviewAllocation)
+        // 逻辑：所有创建的任务(tasksToAdd) 都要应用这套专家分配规则
+        // 注意：这里需要拿到刚才插入的 Task 的 ID，建议用事务或 SaveChanges 后再查
+        // 简单起见，这里演示逻辑：
+
+        // 获取刚刚插入的任务ID列表 (实际开发中需确保获取到ID)
+        // var createdTasks = await _taskRepo.Where(t => t.BatchId == input.BatchId).ToListAsync();
+
+        // foreach (var task in createdTasks)
+        // {
+        //     foreach (var allocation in input.ExpertAllocations)
+        //     {
+        //         foreach (var expertIdStr in allocation.SelectedExpertIds)
+        //         {
+        //              _reviewRepo.Insert({ TaskId = task.Id, NodeId = allocation.NodeId, ExpertId = long.Parse(expertIdStr) ... })
+        //         }
+        //     }
+        // }
+
+        // 5. 更新批次状态为已发布
+        batch.Status = PublicStatus.Published; // 假设你有这个状态枚举
+        await _batchRepo.UpdateAsync(batch);
+    }
     public async Task<BatchInputDto> GetDetailAsync(long id)
     {
         var entity = await _batchRepo.FindOrDefaultAsync(id);

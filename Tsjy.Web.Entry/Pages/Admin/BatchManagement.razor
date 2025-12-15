@@ -116,6 +116,10 @@
                 <TableColumn @bind-Field="@context.Id" Text="操作" Align="Alignment.Center" Width="180">
                     <Template Context="value">
                         <div class="btn-icon-group">
+                            <Button Color="Color.None"
+                                    Icon="fa-solid fa-paper-plane text-success"
+                                    TooltipText="任务分发"
+                                    OnClick="@(() => OnDistribute(value.Row))" />
                             <Button Color="Color.None" Icon="fa-solid fa-pen-to-square text-primary" TooltipText="编辑" OnClick="@(() => OnEdit(value.Row))" />
                             <Button Color="Color.None" Icon="fa-solid fa-trash-can text-danger" TooltipText="删除" OnClick="@(() => OnDelete(value.Row))" />
                         </div>

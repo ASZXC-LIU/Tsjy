@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Tsjy.Application.System.Dtos.BatchDtos;
 using Tsjy.Application.System.IService;
 using Tsjy.Core.Enums;
+using Tsjy.Web.Entry.Shared;
 
 namespace Tsjy.Web.Entry.Pages.Admin;
 
@@ -158,7 +159,24 @@ public partial class BatchManagement
             await Table!.QueryAsync();
         }
     }
-
+    private async Task OnDistribute(BatchListDto item)
+    {
+        await DialogService.Show(new DialogOption
+        {
+            Title = $"任务发布向导 - {item.Name}",
+            Size = Size.ExtraLarge, // 推荐使用特大号弹窗
+            Component = BootstrapDynamicComponent.CreateComponent<BatchDistributeWidget>(new Dictionary<string, object?>
+        {
+            { nameof(BatchDistributeWidget.BatchInfo), item },
+            { nameof(BatchDistributeWidget.OnClose), new Func<Task>(async () =>
+              {
+                  // 刷新列表
+                  await Table!.QueryAsync();
+              })
+            }
+        })
+        });
+    }
     public class BatchSearchModel
     {
         public string? Name { get; set; }
