@@ -49,7 +49,8 @@ namespace Tsjy.Application.System.Dtos
         public long TaskId { get; set; }
         public string BatchName { get; set; } // 任务名称
         public TaskStatu Status { get; set; }
-        public DateTime DueAt { get; set; }
+        public DateTime? UploadStart { get; set; }
+        public DateTime? UploadEnd { get; set; }
         public decimal? FinalScore { get; set; }
     }
 
