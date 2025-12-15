@@ -1,0 +1,47 @@
+﻿/* 顶部指引 */
+.alert-light-primary {
+    background-color: #eef4ff;
+    color: #495057;
+}
+
+/* 分数徽章 */
+.score-badge {
+    background-color: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    padding: 4px 12px;
+    min-width: 80px;
+}
+
+/* 附件小标签 */
+.file-chip {
+    transition: all 0.2s;
+}
+
+    .file-chip:hover {
+        background-color: #f8f9fa !important;
+        border-color: #dee2e6 !important;
+    }
+
+/* 边框样式 */
+.border-dashed {
+    border-style: dashed !important;
+    border-width: 2px !important;
+}
+
+/* 树形列表优化 - 强制背景色，防止透明变黑 */
+::deep .tree-node {
+    padding: 8px 4px;
+    border-radius: 4px;
+    background-color: #fff; /* 确保背景是白色 */
+}
+
+    ::deep .tree-node:hover {
+        background-color: #e9ecef;
+    }
+
+    ::deep .tree-node.active {
+        background-color: #e7f1ff !important;
+        color: #0d6efd !important;
+        font-weight: bold;
+    }

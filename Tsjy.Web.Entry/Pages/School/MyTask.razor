@@ -3,43 +3,145 @@
 @using Tsjy.Core.Enums
 @attribute [Authorize(Roles = "SchoolUser")]
 @inherits BootstrapComponentBase
+@namespace Tsjy.Web.Entry.Pages.School
 
-<PageTitle>我的任务</PageTitle>
+<div class="container-fluid page-wrapper animate__animated animate__fadeIn">
 
-<div class="container-fluid p-3">
-    <Card>
-        <BodyTemplate>
-            @* TItem="SchoolTaskListDto" 已经正确指定 *@
-            <Table TItem="SchoolTaskListDto" Items="Tasks" IsStriped="true" ShowEmpty="true">
+    @* 1. 顶部欢迎与指引区 *@
+    <div class="welcome-section mb-4">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <h2 class="page-title fw-bold text-dark mb-1">我的评价任务</h2>
+                <p class="text-muted mb-0">这里列出了所有分配给贵单位的考评任务，请关注截止时间。</p>
+            </div>
+            <div class="d-none d-md-block">
+                <img src="/images/Argo.png" alt="Task" class="header-illustration opacity-25" style="height: 60px;" />
+            </div>
+        </div>
+
+        @* 操作提示条 *@
+        <div class="alert alert-light-primary border-0 rounded-3 mt-3 d-flex align-items-center shadow-sm">
+            <div class="icon-circle bg-primary text-white me-3">
+                <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold text-primary mb-0">操作指引</h6>
+                <div class="small text-secondary">
+                    状态为 <span class="badge bg-warning text-dark mx-1">待填报</span> 或 <span class="badge bg-danger text-white mx-1">被退回</span> 的任务需要您点击右侧的 <strong>“去填报”</strong> 按钮上传资料。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* 2. 任务列表卡片 *@
+    @* ★★★ 修改 1: 移除 overflow-hidden，防止下拉框被遮挡 ★★★ *@
+    <div class="task-card card border-0 shadow-sm rounded-4">
+        @* ★★★ 修改 2: p-0 改为 p-4 增加间距; 增加 min-height 确保空数据时也有高度 ★★★ *@
+        <div class="card-body p-4" style="min-height: 60vh;">
+            <Table TItem="SchoolTaskListDto"
+                   @ref="TaskTable"
+                   IsPagination="true"
+                   PageItems="10"
+                   IsStriped="false"
+                   IsBordered="false"
+                   IsHover="true"
+                   ShowToolbar="false"
+                   ShowSearch="false"
+                   ShowDefaultButtons="false"
+                   ShowRefresh="false"
+                   OnQueryAsync="@OnQueryAsync"
+                   class="table-modern">
+
                 <TableColumns>
-                    <TableColumn @bind-Field="@context.BatchName" Text="任务名称" />
-
-                    @* 修复 1: 改回 @bind-Field。
-                       之前的报错是因为下方"操作"列缺失类型导致推断崩溃，
-                       现在下方修复了，这里用标准写法即可。
-                    *@
-                    <TableColumn @bind-Field="@context.Status" Text="状态">
-                        <Template Context="v">
-                            <Tag Color="@GetStatusColor(v.Value)">@GetDescription(v.Value)</Tag>
+                    @* 任务名称：强调显示 *@
+                    <TableColumn @bind-Field="@context.BatchName" Text="任务信息" Width="300">
+                        <Template Context="value">
+                            <div class="d-flex align-items-center py-2">
+                                <div class="task-icon-box rounded-3 me-3 text-white shadow-sm @GetIconClass(value.Row.Status)">
+                                    <i class="fa-solid fa-clipboard-list fa-lg"></i>
+                                </div>
+                                <div>
+                                    <div class="task-title fw-bold text-dark mb-1" style="font-size: 1rem;">@value.Row.BatchName</div>
+                                    <div class="small text-muted">
+                                        <i class="fa-solid fa-hashtag me-1"></i>ID: @value.Row.TaskId
+                                    </div>
+                                </div>
+                            </div>
                         </Template>
                     </TableColumn>
 
-                    <TableColumn @bind-Field="@context.DueAt" Text="截止日期" FormatString="yyyy-MM-dd" />
-                    <TableColumn @bind-Field="@context.FinalScore" Text="最终得分" />
+                    @* 时间轴：直观显示起止 *@
+                    <TableColumn @bind-Field="@context.UploadStart" Text="填报周期" Width="220" Align="Alignment.Center">
+                        <Template Context="value">
+                            <div class="time-line-cell text-start d-inline-block">
+                                <div class="time-node start mb-1">
+                                    <span class="badge-dot bg-success me-2"></span>
+                                    <span class="text-secondary small">始：@Fmt(value.Row.UploadStart)</span>
+                                </div>
+                                <div class="time-node end">
+                                    <span class="badge-dot bg-danger me-2"></span>
+                                    <span class="text-secondary small">止：@Fmt(value.Row.UploadEnd)</span>
+                                </div>
+                            </div>
+                            @* 剩余天数提示 *@
+                            @if (IsUrgent(value.Row))
+                            {
+                                <span class="badge bg-danger-subtle text-danger ms-2 small rounded-pill">即将截止</span>
+                            }
+                        </Template>
+                    </TableColumn>
 
-                    @* ★ 关键修复 (解决 CS0411): 
-                       必须绑定一个字段（如 TaskId），否则编译器不知道这一列的泛型 TType 是什么。
-                    *@
-                    <TableColumn @bind-Field="@context.TaskId" Text="操作">
-                        <Template Context="v">
-                            @* 这里 v.Value 就是上面绑定的 TaskId。
-                               注意：直接用 v.Value，不要用 v.Value.TaskId 
-                            *@
-                            <a href="/School/DoTask/@v.Value" class="btn btn-primary btn-sm">进入填报</a>
+                    @* 状态列 *@
+                    <TableColumn @bind-Field="@context.Status" Text="当前状态" Width="130" Align="Alignment.Center">
+                        <Template Context="value">
+                            <div class="status-pill @GetStatusClass(value.Value)">
+                                <i class="@GetStatusIcon(value.Value) me-1"></i>
+                                @value.Value.ToDescriptionString()
+                            </div>
+                        </Template>
+                    </TableColumn>
+
+                    @* 操作列：包含筛选 *@
+                    <TableColumn @bind-Field="@context.TaskId" Text="操作" Width="160" Align="Alignment.Center">
+                        <HeaderTemplate Context="headerContext">
+                            <div class="filter-header d-flex align-items-center justify-content-center gap-2">
+                                <span>操作</span>
+                                <Select TValue="string"
+                                        Items="@FilterItems"
+                                        @bind-Value="@CurrentFilter"
+                                        OnValueChanged="@OnFilterChanged"
+                                        ShowLabel="false"
+                                        class="table-filter-select shadow-none"
+                                        Color="Color.None" />
+                            </div>
+                        </HeaderTemplate>
+                        <Template Context="value">
+                            @if (CanFill(value.Row.Status))
+                            {
+                                <Button Color="Color.Primary" Size="Size.Small" class="rounded-pill px-3 shadow-sm action-btn" OnClick="@(() => OnFill(value.Row))">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i> 去填报
+                                </Button>
+                            }
+                            else
+                            {
+                                <Button Color="Color.Light" Size="Size.Small" class="rounded-pill px-3 text-secondary action-btn" OnClick="@(() => OnView(value.Row))">
+                                    <i class="fa-regular fa-eye me-1"></i> 详情
+                                </Button>
+                            }
                         </Template>
                     </TableColumn>
                 </TableColumns>
+
+                <EmptyTemplate>
+                    <div class="text-center py-5">
+                        <div class="text-muted mb-3 opacity-50">
+                            <i class="fa-solid fa-box-open fa-4x"></i>
+                        </div>
+                        <h5 class="text-secondary">暂无评价任务</h5>
+                        <p class="small text-muted">当前没有分配给您的考评任务，请稍候再来。</p>
+                    </div>
+                </EmptyTemplate>
             </Table>
-        </BodyTemplate>
-    </Card>
+        </div>
+    </div>
 </div>

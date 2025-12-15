@@ -62,17 +62,31 @@ namespace Tsjy.Application.System.Service
 
             if (!tasks.Any()) return new List<SchoolTaskListDto>();
 
+            // 2. 获取相关的批次信息 (不仅获取Name，还要获取时间)
             var batchIds = tasks.Select(t => t.BatchId).Distinct().ToList();
-            var batches = await _batchRepo.Where(b => batchIds.Contains(b.Id))
-                                          .ToDictionaryAsync(b => b.Id, b => b.Name);
 
-            return tasks.Select(t => new SchoolTaskListDto
+            // ★★★ 修改：查询 Batch 对象以便获取时间 ★★★
+            var batches = await _batchRepo.Where(b => batchIds.Contains(b.Id))
+                                          .ToDictionaryAsync(b => b.Id, b => b); // Value 存整个实体
+
+            // 3. 组装 DTO
+            return tasks.Select(t =>
             {
-                TaskId = t.Id,
-                BatchName = batches.ContainsKey(t.BatchId) ? batches[t.BatchId] : "未知任务",
-                Status = t.Status,
-                //DueAt = t.DueAt,
-                FinalScore = t.FinalScore
+                // 尝试获取对应的 Batch
+                var batch = batches.ContainsKey(t.BatchId) ? batches[t.BatchId] : null;
+
+                return new SchoolTaskListDto
+                {
+                    TaskId = t.Id,
+                    BatchName = batch?.Name ?? "未知任务", // 如果 batch 不为空则取 Name
+                    Status = t.Status,
+
+                    // ★★★ 核心修复：赋值时间 ★★★
+                    UploadStart = batch?.UploadStart,
+                    UploadEnd = batch?.UploadEnd,
+
+                    FinalScore = t.FinalScore
+                };
             }).ToList();
         }
 

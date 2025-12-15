@@ -1,0 +1,156 @@
+﻿/* 1. 顶部区域 */
+.welcome-section {
+    padding: 0 0.5rem;
+}
+
+.alert-light-primary {
+    background-color: #eef4ff;
+    color: #495057;
+}
+
+.icon-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
+}
+
+/* 2. 表格整体风格 */
+::deep .table-modern {
+    /* 移除背景透明，保持默认白色或跟随父级 */
+}
+
+    ::deep .table-modern thead th {
+        background-color: #f8f9fa !important;
+        border-bottom: 1px solid #edf2f7;
+        color: #6c757d;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+        /* ★★★ 新增：让表头第一列和最后一列有圆角，配合卡片内边距更美观 ★★★ */
+        ::deep .table-modern thead th:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        ::deep .table-modern thead th:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+    ::deep .table-modern tbody tr {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+        ::deep .table-modern tbody tr:hover {
+            background-color: #f8faff !important;
+            transform: translateY(-1px);
+            /* 悬浮时给行加个淡阴影 */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            position: relative;
+            z-index: 1;
+        }
+
+    ::deep .table-modern td {
+        vertical-align: middle;
+        padding: 1.2rem 0.75rem; /* 增加行高，更宽松 */
+    }
+
+/* 3. 任务图标框 */
+.task-icon-box {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+    .task-icon-box.pending {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #555 !important;
+    }
+
+    .task-icon-box.active {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .task-icon-box.finished {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+/* 4. 时间轴样式 */
+.badge-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* 5. 状态 Pill 样式 */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.8rem;
+    border-radius: 50rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+    .status-pill.status-pending {
+        background-color: #f1f3f5;
+        color: #adb5bd;
+    }
+
+    .status-pill.status-active {
+        background-color: #e7f5ff;
+        color: #007bff;
+    }
+
+    .status-pill.status-warning {
+        background-color: #fff9db;
+        color: #f59f00;
+    }
+
+    .status-pill.status-success {
+        background-color: #ebfbee;
+        color: #40c057;
+    }
+
+    .status-pill.status-danger {
+        background-color: #fff5f5;
+        color: #fa5252;
+    }
+
+/* 6. 筛选器美化 */
+::deep .table-filter-select .dropdown-toggle {
+    border: none !important;
+    background-color: transparent !important;
+    padding: 0 1.5rem 0 0.5rem !important;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+    ::deep .table-filter-select .dropdown-toggle:hover {
+        color: #0d6efd;
+    }
+
+/* 7. 按钮微调 */
+.action-btn {
+    transition: all 0.2s;
+}
+
+    .action-btn:hover {
+        transform: scale(1.05);
+    }
