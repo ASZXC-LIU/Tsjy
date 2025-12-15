@@ -11,7 +11,10 @@
        2. 增加 OnAddAsync 和 OnEditAsync 用于初始化级联数据 
     *@
     <Table TItem="DepartmentDto"
-           IsPagination="true" IsStriped="true" IsBordered="false"
+           IsPagination="true"
+           PageItemsSource="@(new[] {  10,20,30 })"
+           ShowPageInfo="true"
+           ShowGotoNavigator="true" IsStriped="true" IsBordered="false"
            ShowToolbar="true" ShowSearch="true" ShowDefaultButtons="true"
            ShowExtendButtons="true"
            ItemsPerRow="3"

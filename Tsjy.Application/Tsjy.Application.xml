@@ -201,6 +201,11 @@
             4. 停用（软删除）整个评价体系及其所有子节点
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.DeleteNode(System.String,System.Int64)">
+            <summary>
+            5. 删除节点（软删除，并级联删除子节点）
+            </summary>
+        </member>
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.CreateTreeInternal``1(Furion.DatabaseAccessor.IRepository{``0},System.String)">
             <summary>
             通用的创建树根逻辑
@@ -226,6 +231,11 @@
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.DeactivateTreeInternal``1(Furion.DatabaseAccessor.IRepository{``0},System.Int64)">
             <summary>
             通用的递归停用逻辑
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.DeleteNodeInternal``1(Furion.DatabaseAccessor.IRepository{``0},System.Int64)">
+            <summary>
+            通用的级联软删除逻辑
             </summary>
         </member>
         <member name="T:Tsjy.Application.System.Service.ScoringModelService">

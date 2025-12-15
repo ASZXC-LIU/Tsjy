@@ -20,6 +20,6 @@ namespace Tsjy.Application.System.IService
         Task UpdateNode([FromBody] UpdateNodeDto input);
         Task DeactivateTree([Required] string category, [Required] long treeId);
         Task ToggleTreeStatus([Required] string category, [Required] long treeId);
-
+        Task DeleteNode([Required] string category, [Required] long nodeId);
     }
 }
