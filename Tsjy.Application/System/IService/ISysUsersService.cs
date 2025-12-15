@@ -17,6 +17,7 @@ namespace Tsjy.Application.System.IService
         Task DeleteUsersAsync(IEnumerable<SysUserDto> users);
 
         Task InsertUserAsync(SysUserDto userDto);
+        Task<List<SysUsers>> GetListAsync();
 
         Task UpdateUserAsync(SysUserDto userDto);
 

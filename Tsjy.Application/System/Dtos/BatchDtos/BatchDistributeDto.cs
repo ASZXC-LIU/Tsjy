@@ -6,6 +6,9 @@ namespace Tsjy.Application.System.Dtos.BatchDtos;
 /// <summary>
 /// 任务分发提交对象
 /// </summary>
+/// <summary>
+/// 任务分发提交对象
+/// </summary>
 public class BatchDistributeDto
 {
     /// <summary>
@@ -19,14 +22,14 @@ public class BatchDistributeDto
     public List<string> SelectedOrgIds { get; set; } = new();
 
     /// <summary>
-    /// 步骤2：视导组成员ID集合 (用户ID)
+    /// 步骤2：视导组成员ID集合
     /// </summary>
     public List<string> InspectionGroupUserIds { get; set; } = new();
 
     /// <summary>
-    /// 步骤3：指标与专家的对应关系
+    /// 步骤3：评审专家ID集合 (新：只选人，后台自动分)
     /// </summary>
-    public List<NodeExpertRelationDto> ExpertAllocations { get; set; } = new();
+    public List<string> ReviewExpertIds { get; set; } = new();
 }
 
 /// <summary>

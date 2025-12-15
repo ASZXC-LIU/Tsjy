@@ -4,6 +4,39 @@
         <name>Tsjy.Application</name>
     </assembly>
     <members>
+        <member name="T:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto">
+            <summary>
+            任务分发提交对象
+            </summary>
+            <summary>
+            任务分发提交对象
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto.BatchId">
+            <summary>
+            批次ID
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto.SelectedOrgIds">
+            <summary>
+            步骤1：选中的机构ID集合 (受评单位)
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto.InspectionGroupUserIds">
+            <summary>
+            步骤2：视导组成员ID集合
+            </summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto.ReviewExpertIds">
+            <summary>
+            步骤3：评审专家ID集合 (新：只选人，后台自动分)
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.BatchDtos.NodeExpertRelationDto">
+            <summary>
+            节点与专家分配关系
+            </summary>
+        </member>
         <member name="T:Tsjy.Application.System.Dtos.CreateNodeDto">
             <summary>
             新建评价指标节点 DTO

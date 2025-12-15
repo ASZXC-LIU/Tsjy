@@ -17,12 +17,18 @@ public class BatchService : IBatchService, ITransient,IScoped
     private readonly IRepository<SpeEvalNode> _speRepo;
     private readonly IRepository<IncEvalNode> _incRepo;
     private readonly IRepository<EduEvalNode> _eduRepo;
+    private readonly IRepository<InspectionTeam> _inspectionTeamRepo;
+    private readonly IRepository<InspectionTeamMember> _teamMemberRepo;
+    private readonly IRepository<ExpertReview> _expertReviewRepo;
     public BatchService(
         IRepository<DistributionBatch> batchRepo,
         IRepository<BatchTarget> targetRepo,
         IRepository<Tasks> taskRepo,
+        IRepository<InspectionTeam> inspectionTeamRepo,
+        IRepository<InspectionTeamMember> teamMemberRepo,
         IRepository<SpeEvalNode> speRepo,
         IRepository<IncEvalNode> incRepo,
+        IRepository<ExpertReview> expertReviewRepo,
         IRepository<EduEvalNode> eduRepo
         )
     {
@@ -32,6 +38,9 @@ public class BatchService : IBatchService, ITransient,IScoped
         _speRepo = speRepo;
         _incRepo = incRepo;
         _eduRepo = eduRepo;
+        _inspectionTeamRepo = inspectionTeamRepo; // 赋值
+        _teamMemberRepo = teamMemberRepo;         // 赋值
+        _expertReviewRepo = expertReviewRepo;
     }
 
     // 修改：支持 includeDeleted 参数
@@ -119,25 +128,113 @@ public class BatchService : IBatchService, ITransient,IScoped
 
         return list;
     }
-
     public async Task DistributeAsync(BatchDistributeDto input)
     {
-        // 1. 获取批次信息
+        // 1. 获取批次
         var batch = await _batchRepo.FindOrDefaultAsync(input.BatchId);
         if (batch == null) throw new Exception("批次不存在");
 
-        // 2. 插入任务表 (Tasks) - 为每个选中的单位创建任务
+        // 2. 获取该体系所有“评估要点(Points)”
+        List<long> pointNodeIds = new();
+
+        if (batch.TargetType == OrgType.SpecialSchool)
+        {
+            pointNodeIds = await _speRepo.Where(x => x.TreeId == batch.TreeId && x.Type == EvalNodeType.Points && !x.IsDeleted)
+                                         .Select(x => x.Id).ToListAsync();
+        }
+        else if (batch.TargetType == OrgType.InclusiveSchool)
+        {
+            pointNodeIds = await _incRepo.Where(x => x.TreeId == batch.TreeId && x.Type == EvalNodeType.Points && !x.IsDeleted)
+                                         .Select(x => x.Id).ToListAsync();
+        }
+        else if (batch.TargetType == OrgType.EducationBureau)
+        {
+            pointNodeIds = await _eduRepo.Where(x => x.TreeId == batch.TreeId && x.Type == EvalNodeType.Points && !x.IsDeleted)
+                                         .Select(x => x.Id).ToListAsync();
+        }
+
+        if (!pointNodeIds.Any()) throw new Exception("该评价体系未找到“评估要点”数据，无法分配！");
+        if (!input.ReviewExpertIds.Any()) throw new Exception("未选择评审专家！");
+
+        // 3. 核心算法：洗牌并平均分配 (Shuffle & Deal)
+        var expertIds = input.ReviewExpertIds.Select(long.Parse).ToList();
+        int expertCount = expertIds.Count;
+
+        // 打乱指标顺序
+        var rng = new Random();
+        var shuffledNodes = pointNodeIds.OrderBy(a => rng.Next()).ToList();
+
+        // 建立映射: ExpertId -> List<NodeId>
+        var expertWorkloadMap = new Dictionary<long, List<long>>();
+        foreach (var eid in expertIds)
+        {
+            expertWorkloadMap[eid] = new List<long>();
+        }
+
+        // 发牌
+        for (int i = 0; i < shuffledNodes.Count; i++)
+        {
+            var expertIndex = i % expertCount;
+            var targetExpertId = expertIds[expertIndex];
+            expertWorkloadMap[targetExpertId].Add(shuffledNodes[i]);
+        }
+
+        // 4. 创建学校任务 (Tasks)
         var tasksToAdd = input.SelectedOrgIds.Select(orgId => new Tasks
         {
             BatchId = input.BatchId,
             TreeId = batch.TreeId,
             TargetType = batch.TargetType,
-            TargetId = orgId, // 这里存的是 DepartmentDto.Code 或 ID
-            Status = TaskStatu.Pending
+            TargetId = orgId,
+            Status = TaskStatu.Pending,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now
         }).ToList();
-        await _taskRepo.InsertAsync(tasksToAdd); // 假设你有 _taskRepo
 
-        // 3. 创建视导组 (InspectionTeam)
+        // 插入数据库并获取 TaskId
+        var createdTasks = new List<Tasks>();
+        foreach (var task in tasksToAdd)
+        {
+            var entry = await _taskRepo.InsertNowAsync(task);
+            createdTasks.Add(entry.Entity);
+        }
+
+        // 5. 预生成专家评分表 (ExpertReview)
+        var expertReviewsToAdd = new List<ExpertReview>();
+
+        foreach (var task in createdTasks)
+        {
+            // 对于每个学校，应用刚才计算的分配规则
+            foreach (var kvp in expertWorkloadMap)
+            {
+                long expertId = kvp.Key;
+                List<long> assignedNodes = kvp.Value;
+
+                foreach (var nodeId in assignedNodes)
+                {
+                    expertReviewsToAdd.Add(new ExpertReview
+                    {
+                        TaskId = task.Id,
+                        NodeId = nodeId,
+                        ReviewerId = expertId,
+                        Status = ReviewStatus.Pending, // 待评审
+                        // 分数留空
+                        ScoreRatio = null,
+                        FinalScore = null,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    });
+                }
+            }
+        }
+
+        if (expertReviewsToAdd.Any())
+        {
+            // 批量插入
+            await _expertReviewRepo.InsertAsync(expertReviewsToAdd);
+        }
+
+        // 6. 创建视导组
         if (input.InspectionGroupUserIds.Any())
         {
             var team = new InspectionTeam
@@ -145,7 +242,7 @@ public class BatchService : IBatchService, ITransient,IScoped
                 BatchId = input.BatchId,
                 Name = $"{batch.Name}-视导组"
             };
-            var teamEntity = await _inspectionTeamRepo.InsertNowAsync(team); // 假设你有 _inspectionTeamRepo
+            var teamEntity = await _inspectionTeamRepo.InsertNowAsync(team);
 
             var members = input.InspectionGroupUserIds.Select(uid => new InspectionTeamMember
             {
@@ -155,29 +252,11 @@ public class BatchService : IBatchService, ITransient,IScoped
             await _teamMemberRepo.InsertAsync(members);
         }
 
-        // 4. 分配专家评审 (ReviewAllocation)
-        // 逻辑：所有创建的任务(tasksToAdd) 都要应用这套专家分配规则
-        // 注意：这里需要拿到刚才插入的 Task 的 ID，建议用事务或 SaveChanges 后再查
-        // 简单起见，这里演示逻辑：
-
-        // 获取刚刚插入的任务ID列表 (实际开发中需确保获取到ID)
-        // var createdTasks = await _taskRepo.Where(t => t.BatchId == input.BatchId).ToListAsync();
-
-        // foreach (var task in createdTasks)
-        // {
-        //     foreach (var allocation in input.ExpertAllocations)
-        //     {
-        //         foreach (var expertIdStr in allocation.SelectedExpertIds)
-        //         {
-        //              _reviewRepo.Insert({ TaskId = task.Id, NodeId = allocation.NodeId, ExpertId = long.Parse(expertIdStr) ... })
-        //         }
-        //     }
-        // }
-
-        // 5. 更新批次状态为已发布
-        batch.Status = PublicStatus.Published; // 假设你有这个状态枚举
+        // 7. 更新批次状态
+        batch.Status = PublicStatus.Published;
         await _batchRepo.UpdateAsync(batch);
     }
+
     public async Task<BatchInputDto> GetDetailAsync(long id)
     {
         var entity = await _batchRepo.FindOrDefaultAsync(id);

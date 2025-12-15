@@ -35,7 +35,8 @@ public class ReviewAllocation : IEntity
 }
 
 /// <summary>
-/// 专家评分结果
+/// 专家评分明细表 (兼具任务分配表的功能)
+/// <para>预生成模式：任务发布时即插入数据，Score 为 NULL</para>
 /// </summary>
 [Table("expert_reviews")]
 public class ExpertReview : IEntity
@@ -48,14 +49,15 @@ public class ExpertReview : IEntity
     public long ReviewerId { get; set; }
 
     [DisplayName("所选系数")]
-    public decimal ScoreRatio { get; set; }
+    public decimal? ScoreRatio { get; set; }
 
     [DisplayName("标准分")]
     public decimal StandardScore { get; set; }
 
     [DisplayName("最终得分")]
-    public decimal FinalScore { get; set; }
-
+    public decimal? FinalScore { get; set; }
+    [DisplayName("评审状态")]
+    public ReviewStatus Status { get; set; } = ReviewStatus.Pending;
 
     public bool IsDeleted { get; set; } = false;
 

@@ -56,7 +56,8 @@
         </member>
         <member name="T:Tsjy.Core.Entities.ExpertReview">
             <summary>
-            专家评分结果
+            专家评分明细表 (兼具任务分配表的功能)
+            <para>预生成模式：任务发布时即插入数据，Score 为 NULL</para>
             </summary>
         </member>
         <member name="T:Tsjy.Core.Entities.InspectionTeam">

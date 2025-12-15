@@ -98,6 +98,7 @@ public enum ReviewStatus
 public enum PublicStatus
 {
     [Description("未开始")]  NotStarted,
+    [Description("已发布")] Published,
     [Description("正在进行")] InProgress,
     [Description("已经结束")] Finished
 }

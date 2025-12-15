@@ -6,92 +6,67 @@ using Tsjy.Application.System.IService;
 using Tsjy.Core.Enums;
 using Tsjy.Core.Entities;
 
-namespace Tsjy.Web.Entry.Pages.Admin.Components;
+namespace Tsjy.Web.Entry.Shared;
 
 public partial class BatchDistributeWidget
 {
-    // ---------------- 参数 ----------------
-    [Parameter]
-    [NotNull]
-    public BatchListDto? BatchInfo { get; set; }
+    [Parameter][NotNull] public BatchListDto? BatchInfo { get; set; }
+    [Parameter] public Func<Task>? OnClose { get; set; }
 
-    [Parameter]
-    public Func<Task>? OnClose { get; set; }
+    [Inject][NotNull] private IBasicDataService? BasicDataService { get; set; }
+    [Inject][NotNull] private ISysUsersService? UsersService { get; set; }
+    [Inject][NotNull] private IBatchService? BatchService { get; set; }
+    [Inject][NotNull] private ToastService? ToastService { get; set; }
 
-    // ---------------- 注入服务 ----------------
-    [Inject]
-    [NotNull]
-    private IBasicDataService? BasicDataService { get; set; }
-
-    [Inject]
-    [NotNull]
-    private ISysUsersService? UsersService { get; set; }
-
-    [Inject]
-    [NotNull]
-    private IEvalNodeService? NodeService { get; set; }
-
-    [Inject]
-    [NotNull]
-    private IBatchService? BatchService { get; set; }
-
-    [Inject]
-    [NotNull]
-    private ToastService? ToastService { get; set; }
-
-    // ---------------- 内部状态 ----------------
     private BatchDistributeDto Model { get; set; } = new();
     private int CurrentStepIndex { get; set; } = 0;
 
-    // 步骤定义
-    private List<StepItem> StepItems { get; set; } = new List<StepItem>
+    private List<StepOption> StepItems { get; set; } = new List<StepOption>
     {
-        new StepItem { Title = "选择单位", Icon = "fa-solid fa-school" },
-        new StepItem { Title = "组建视导组", Icon = "fa-solid fa-users-viewfinder" },
-        new StepItem { Title = "专家指标分工", Icon = "fa-solid fa-list-check" }
+        new StepOption { Title = "选择单位", Icon = "fa-solid fa-school" },
+        new StepOption { Title = "组建视导组", Icon = "fa-solid fa-users-viewfinder" },
+        new StepOption { Title = "评审专家", Icon = "fa-solid fa-gavel" }
     };
 
-    // 数据源
     private List<SelectedItem> OrgItems { get; set; } = new();
     private List<SelectedItem> ExpertItems { get; set; } = new();
-    private List<SelectedItem> ExpertSelectItems { get; set; } = new();
+    private List<SelectedItem> ReviewExpertItems { get; set; } = new(); // 步骤3用的源数据
 
-    // Transfer组件绑定的是字符串List
     private List<string> SelectedOrgIdsStr { get; set; } = new();
     private List<string> SelectedInspectionGroupStr { get; set; } = new();
+    private List<string> SelectedReviewExpertsStr { get; set; } = new(); // 步骤3选中的人
 
-    // ---------------- 生命周期 ----------------
     protected override async Task OnInitializedAsync()
     {
         if (BatchInfo == null) return;
         Model.BatchId = BatchInfo.Id;
-
         await LoadDataAsync();
     }
 
     private async Task LoadDataAsync()
     {
-        // 1. 加载机构列表 - 修复：使用 BasicDataService.GetDepartmentsAsync
+        // 1. 加载机构
         var allDepts = await BasicDataService.GetDepartmentsAsync();
-
-        // 过滤：只显示符合当前批次 OrgType 的单位
         OrgItems = allDepts.Where(o => o.OrgType == BatchInfo.TargetType)
-                           // Transfer 的 Value 绑定 Code 或 Id，这里假设用 Code 作为唯一标识
-                           .Select(o => new SelectedItem(o.Code, o.Name))
-                           .ToList();
+                           .Select(o => new SelectedItem(o.Code, o.Name)).ToList();
 
-        // 2. 加载专家列表
+        // 2. 加载专家
         var allUsers = await UsersService.GetListAsync();
-        // 假设 User_type 为字符串 "Expert"
-        var experts = allUsers.Where(u => u.User_type == "Expert").ToList();
+        // 确保 SysUser 实体中 User_type 属性与 UserRole 枚举匹配
+        // 如果您的 User_type 是 string，请用 u.User_type == "Expert"
+        var experts = allUsers.Where(u => u.Role == UserRole.Expert).ToList();
 
-        ExpertItems = experts.Select(u => new SelectedItem(u.Id.ToString(), u.Name)).ToList();
+        if (!experts.Any())
+        {
+            await ToastService.Warning("警告", "未查询到专家数据！");
+        }
 
-        // 复制一份给 Step 3 的下拉框使用
-        ExpertSelectItems = ExpertItems.ToList();
+        ExpertItems = experts.Select(u => new SelectedItem(u.IDNumber.ToString(), u.RealName)).ToList();
+
+        // 复制一份给步骤3使用，因为Transfer操作会改变Items的状态，最好隔离
+        ReviewExpertItems = experts.Select(u => new SelectedItem(u.IDNumber.ToString(), u.RealName)).ToList();
     }
 
-    // ---------------- 步骤导航逻辑 ----------------
     private void OnPrev()
     {
         if (CurrentStepIndex > 0) CurrentStepIndex--;
@@ -99,70 +74,32 @@ public partial class BatchDistributeWidget
 
     private async Task OnNext()
     {
-        // 校验步骤 1
-        if (CurrentStepIndex == 0)
+        if (CurrentStepIndex == 0 && !SelectedOrgIdsStr.Any())
         {
-            if (!SelectedOrgIdsStr.Any())
-            {
-                await ToastService.Error("提示", "请至少选择一个受评单位");
-                return;
-            }
+            await ToastService.Error("提示", "请至少选择一个受评单位");
+            return;
         }
-
-        // 校验步骤 2
-        if (CurrentStepIndex == 1)
-        {
-            // 进入步骤 3 前，预加载指标数据
-            await LoadSecondIndicators();
-        }
-
-        if (CurrentStepIndex < StepItems.Count - 1)
-        {
-            CurrentStepIndex++;
-        }
+        if (CurrentStepIndex < StepItems.Count - 1) CurrentStepIndex++;
     }
 
-    // ---------------- 核心逻辑：加载二级指标 ----------------
-    private async Task LoadSecondIndicators()
-    {
-        if (Model.ExpertAllocations.Any()) return;
-
-        // 获取该体系下的所有节点
-        var nodes = await NodeService.GetListAsync(BatchInfo.TreeId);
-
-        // 筛选二级指标 (根据业务逻辑可能是 Depth=2 或 Type=SecondIndicator)
-        var secondNodes = nodes.Where(x => x.Type == EvalNodeType.SecondIndicator)
-                               .OrderBy(x => x.Code)
-                               .ToList();
-
-        Model.ExpertAllocations = secondNodes.Select(n => new NodeExpertRelationDto
-        {
-            NodeId = n.Id,
-            NodeName = n.Name,
-            Code = n.Code,
-            SelectedExpertIds = new List<string>()
-        }).ToList();
-    }
-
-    // ---------------- 提交逻辑 ----------------
     private async Task OnSubmit()
     {
-        // 1. 填充 DTO
+        // 校验步骤3
+        if (!SelectedReviewExpertsStr.Any())
+        {
+            await ToastService.Error("提示", "请至少选择一位评审专家来分配任务");
+            return;
+        }
+
         Model.SelectedOrgIds = SelectedOrgIdsStr;
         Model.InspectionGroupUserIds = SelectedInspectionGroupStr;
+        Model.ReviewExpertIds = SelectedReviewExpertsStr;
 
         try
         {
-            // 2. 调用 Service 提交 
-            // 注意：请确保 IBatchService 中已添加 DistributeAsync 方法
             await BatchService.DistributeAsync(Model);
-
-            await ToastService.Success("发布成功", "任务已成功下发！");
-
-            if (OnClose != null)
-            {
-                await OnClose.Invoke();
-            }
+            await ToastService.Success("发布成功", "任务已自动平均分配并下发！");
+            if (OnClose != null) await OnClose.Invoke();
         }
         catch (Exception ex)
         {

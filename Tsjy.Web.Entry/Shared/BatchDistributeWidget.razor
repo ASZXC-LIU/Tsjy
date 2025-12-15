@@ -1,121 +1,92 @@
-﻿@using Tsjy.Application.System.Dtos.BatchDtos
+﻿@using Tsjy.Web.Entry.Shared
+@using Tsjy.Application.System.Dtos.BatchDtos
 @using Tsjy.Core.Entities
 @using Tsjy.Core.Enums
 @inherits BootstrapComponentBase
 
 <div class="batch-distribute-widget">
-    @* 顶部步骤条 *@
     <div class="step-container">
         <Step Items="@StepItems" @bind-Index="@CurrentStepIndex" IsIcon="true" />
     </div>
 
-    @* 内容区域 *@
     <div class="content-body">
-
-        @* ---------------- 步骤 1: 选择受评单位 ---------------- *@
+        @* 步骤 1: 选择单位 *@
         @if (CurrentStepIndex == 0)
         {
             <div class="animate__animated animate__fadeIn h-100">
                 <div class="tip-alert">
                     <i class="fa-solid fa-school me-2"></i>
-                    当前批次类型为 <strong>@BatchInfo?.TargetType.ToDescriptionString()</strong>，请从左侧选择参与考评的单位。
+                    当前批次类型为 <strong>@BatchInfo?.TargetType.ToDescriptionString()</strong>
                 </div>
-
-                <Transfer Items="@OrgItems"
-                          @bind-Value="@SelectedOrgIdsStr"
-                          ShowSearch="true"
-                          LeftPanelText="可选单位"
-                          RightPanelText="已选单位"
-                          Height="100%" />
+                <Transfer Items="@OrgItems" @bind-Value="@SelectedOrgIdsStr" ShowSearch="true" Height="100%" LeftPanelText="可选单位" RightPanelText="已选单位" />
             </div>
         }
 
-        @* ---------------- 步骤 2: 组建视导组 ---------------- *@
+        @* 步骤 2: 视导组 *@
         @if (CurrentStepIndex == 1)
         {
             <div class="animate__animated animate__fadeIn h-100">
                 <div class="tip-alert">
-                    <i class="fa-solid fa-users-viewfinder me-2"></i>
-                    视导组负责实地考察。请从专家库中选择成员。
+                    <i class="fa-solid fa-users-viewfinder me-2"></i> 选择视导组成员 (负责实地考察)
                 </div>
-
-                <Transfer Items="@ExpertItems"
-                          @bind-Value="@SelectedInspectionGroupStr"
-                          ShowSearch="true"
-                          LeftPanelText="专家库成员"
-                          RightPanelText="视导组成员"
-                          Height="100%" />
+                @if (!ExpertItems.Any())
+                {
+                    <div class="alert alert-danger shadow-sm">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i> <strong>专家库为空！</strong> 请联系管理员添加专家。
+                    </div>
+                }
+                else
+                {
+                    <Transfer Items="@ExpertItems" @bind-Value="@SelectedInspectionGroupStr" ShowSearch="true" Height="100%" LeftPanelText="专家库" RightPanelText="视导组" />
+                }
             </div>
         }
 
-        @* ---------------- 步骤 3: 评审专家指标分工 ---------------- *@
+        @* 步骤 3: 评审专家 (新界面) *@
         @if (CurrentStepIndex == 2)
         {
             <div class="animate__animated animate__fadeIn h-100">
                 <div class="tip-alert">
-                    <i class="fa-solid fa-list-check me-2"></i>
-                    请为每个二级指标指派评审专家（支持多选）。
+                    <i class="fa-solid fa-scale-balanced me-2"></i>
+                    <strong>随机平均分配模式：</strong> 系统将自动计算该体系的“评估要点”总数，并将其平均分配给您在下方选择的专家。
                 </div>
 
-                <Table TItem="NodeExpertRelationDto"
-                       Items="@Model.ExpertAllocations"
-                       IsStriped="true"
-                       IsBordered="true"
-                       ShowToolbar="false"
-                       IsPagination="false"
-                       IsFixedHeader="true"
-                       Height="400">
-                    <TableColumns>
-                        <TableColumn @bind-Field="@context.Code" Text="编号" Width="80" Align="Alignment.Center" />
-                        <TableColumn @bind-Field="@context.NodeName" Text="二级指标内容" Width="250" />
-
-                        @* ★★★ 关键修复：Context="row" 并且绑定 row.Row.SelectedExpertIds ★★★ *@
-                        <TableColumn @bind-Field="@context.SelectedExpertIds" Text="指派打分专家" Align="Alignment.Center">
-                            <Template Context="row">
-                                <MultiSelect TValue="List<string>"
-                                             Items="@ExpertSelectItems"
-                                             @bind-Value="@row.Row.SelectedExpertIds"
-                                             ShowSearch="true"
-                                             ShowLabel="false"
-                                             ShowCloseButton="false"
-                                             PlaceHolder="点击选择专家..." />
-                            </Template>
-                        </TableColumn>
-                    </TableColumns>
-                </Table>
+                @if (!ExpertItems.Any())
+                {
+                    <div class="alert alert-danger shadow-sm">专家库为空，无法分配任务。</div>
+                }
+                else
+                {
+                    <Transfer Items="@ReviewExpertItems"
+                              @bind-Value="@SelectedReviewExpertsStr"
+                              ShowSearch="true"
+                              Height="100%"
+                              LeftPanelText="专家库"
+                              RightPanelText="参与打分的专家" />
+                }
             </div>
         }
     </div>
 
-    @* 底部按钮区 *@
     <div class="widget-footer">
         <div class="text-muted small">
-            @if (CurrentStepIndex == 0)
-            {
-                <span>已选单位: @SelectedOrgIdsStr.Count 个</span>
-            }
-            @if (CurrentStepIndex == 1)
-            {
-                <span>已选视导员: @SelectedInspectionGroupStr.Count 人</span>
-            }
             @if (CurrentStepIndex == 2)
             {
-                <span>共 @Model.ExpertAllocations.Count 个指标待分配</span>
+                <span>已选打分专家: @SelectedReviewExpertsStr.Count 人</span>
             }
         </div>
-        <div class="btn-group-action">
+        <div class="btn-group-action" style="margin-left: auto;">
             @if (CurrentStepIndex > 0)
             {
                 <Button Color="Color.Secondary" Icon="fa-solid fa-arrow-left" Text="上一步" OnClick="@OnPrev" />
             }
-
             @if (CurrentStepIndex < StepItems.Count - 1)
             {
                 <Button Color="Color.Primary" Icon="fa-solid fa-arrow-right" Text="下一步" OnClick="@OnNext" />
             }
             else
             {
-                <Button Color="Color.Success" Icon="fa-solid fa-paper-plane" Text="确认发布任务" OnClick="@OnSubmit" IsAsync="true" />
+                <Button Color="Color.Success" Icon="fa-solid fa-paper-plane" Text="确认发布" OnClick="@OnSubmit" IsAsync="true" />
             }
         </div>
     </div>

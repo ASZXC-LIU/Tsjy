@@ -319,7 +319,11 @@ namespace Tsjy.Application.System.Service
                 return result;
             }
         }
-
+        public async Task<List<SysUsers>> GetListAsync()
+        {
+            // 返回未删除的所有用户
+            return await _usersRepo.Where(u => !u.IsDeleted).ToListAsync();
+        }
         public async Task<bool> LogoutBlazorAsync()
         {
             // 重置认证状态
