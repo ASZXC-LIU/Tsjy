@@ -180,7 +180,7 @@ namespace Tsjy.Application.System.Service
 
         public Task DeleteUsersAsync(IEnumerable<SysUserDto> users)
         {
-            var items = users.Adapt<List<SysUser>>();
+            var items = users.Adapt<List<SysUsers>>();
             return _usersRepo.DeleteNowAsync(items);
         }
 

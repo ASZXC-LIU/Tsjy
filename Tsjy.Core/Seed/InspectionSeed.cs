@@ -31,7 +31,7 @@ namespace Tsjy.Core.Seed
             // 假设存在 UserId 100
             return new List<InspectionTeamMember>
             {
-                new InspectionTeamMember { Id = 1, TeamId = 1, UserId = 100, CreatedAt = DateTime.UtcNow }
+                new InspectionTeamMember { Id = 1, TeamId = 1, UserId = "100", CreatedAt = DateTime.UtcNow }
             };
         }
     }

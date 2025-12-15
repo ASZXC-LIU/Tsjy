@@ -232,37 +232,7 @@ namespace Tsjy.Application.System.Service
 
 
 
-        /// <summary>
-        /// 获取历史任务列表（状态为已完成的任务）
-        /// </summary>
-        /// <param name="myOrgId">当前登录用户的 OrgId</param>
-        public async Task<List<SchoolTaskListDto>> GetHistoryTasks(string myOrgId)
-        {
-            if (string.IsNullOrEmpty(myOrgId)) return new List<SchoolTaskListDto>();
-
-            // 筛选 TargetId 等于我的 OrgId 且 状态为 Finished 的任务
-            var tasks = await _taskRepo.AsQueryable()
-                .Where(t => t.TargetId == myOrgId && !t.IsDeleted && t.Status == TaskStatu.Finished)
-                .OrderByDescending(t => t.CreatedAt)
-                .ToListAsync();
-
-            if (!tasks.Any()) return new List<SchoolTaskListDto>();
-
-            // 获取相关的批次信息以显示任务名称
-            var batchIds = tasks.Select(t => t.BatchId).Distinct().ToList();
-            var batches = await _batchRepo.Where(b => batchIds.Contains(b.Id))
-                                          .ToDictionaryAsync(b => b.Id, b => b.Name);
-
-            // 映射为 DTO
-            return tasks.Select(t => new SchoolTaskListDto
-            {
-                TaskId = t.Id,
-                BatchName = batches.ContainsKey(t.BatchId) ? batches[t.BatchId] : "未知任务",
-                Status = t.Status,
-                //DueAt = t.DueAt,
-                FinalScore = t.FinalScore
-            }).ToList();
-        }
+        
         #endregion
     }
 }

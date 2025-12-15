@@ -83,11 +83,6 @@
             角色表
             </summary>
         </member>
-        <member name="T:Tsjy.Core.Entities.SysUser">
-            <summary>
-            用户表
-            </summary>
-        </member>
         <member name="T:Tsjy.Core.Entities.SysUsers">
             <summary>
             用户表

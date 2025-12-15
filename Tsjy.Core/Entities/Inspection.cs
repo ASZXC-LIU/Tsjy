@@ -41,7 +41,7 @@ public class InspectionTeamMember : IEntity
     public long Id { get; set; }
 
     public long TeamId { get; set; }
-    public long UserId { get; set; }
+    public string UserId { get; set; }
 
     public bool IsDeleted { get; set; } = false;
 

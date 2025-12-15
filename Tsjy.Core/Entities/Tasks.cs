@@ -30,10 +30,27 @@ public class DistributionBatch : IEntity
     public PublicStatus Status { get; set; }
 
     public bool IsDeleted { get; set; } = false;
+    // --- 原有字段作为总时间 (可选保留或计算) ---
     public DateTime StartAt { get; set; } = DateTime.UtcNow;
-
     [DisplayName("截止时间")]
     public DateTime DueAt { get; set; }
+
+    // ★★★ 新增：三个阶段的时间控制 ★★★
+
+    [DisplayName("填报开始时间")]
+    public DateTime? UploadStart { get; set; }
+    [DisplayName("填报截止时间")]
+    public DateTime? UploadEnd { get; set; }
+
+    [DisplayName("评审开始时间")]
+    public DateTime? ReviewStart { get; set; }
+    [DisplayName("评审截止时间")]
+    public DateTime? ReviewEnd { get; set; }
+
+    [DisplayName("视导开始时间")]
+    public DateTime? InspectionStart { get; set; }
+    [DisplayName("视导截止时间")]
+    public DateTime? InspectionEnd { get; set; }
     [DisplayName("日期")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
