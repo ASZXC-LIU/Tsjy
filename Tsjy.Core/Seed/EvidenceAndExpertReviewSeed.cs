@@ -46,18 +46,7 @@ namespace Tsjy.Core.Seed
     }
 
     // 专家分配种子
-    public class ReviewAllocationSeed : IEntityTypeBuilder<ReviewAllocation>, IEntitySeedData<ReviewAllocation>
-    {
-        public void Configure(EntityTypeBuilder<ReviewAllocation> entityBuilder, DbContext dbContext, Type dbContextLocator) { entityBuilder.HasKey(u => u.Id); }
-
-        public IEnumerable<ReviewAllocation> HasData(DbContext dbContext, Type dbContextLocator)
-        {
-            return new List<ReviewAllocation>
-            {
-                new ReviewAllocation { Id = 1, TaskId = 1, NodeId = 3, ExpertId = 100, Status = ReviewStatus.Pending, AssignedAt = DateTime.UtcNow }
-            };
-        }
-    }
+    
 
     // 专家评分种子
     public class ExpertReviewSeed : IEntityTypeBuilder<ExpertReview>, IEntitySeedData<ExpertReview>

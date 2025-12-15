@@ -9,8 +9,7 @@ namespace Tsjy.Application.System.IService
     public interface ITaskService : ITransient
     {
         
-        Task<List<SysUserDto>> GetTargetsByType(OrgType type);
-        Task PublishTask([FromBody] DistributeTaskDto input);
+        //Task<List<SysUserDto>> GetTargetsByType(OrgType type);
         Task<List<SchoolTaskListDto>> GetMyTasks(long myId);
         Task<List<TaskNodeTreeDto>> GetTaskTree(long taskId);
         Task<NodeFillDetailDto> GetNodeFillDetail(long taskId, long nodeId);

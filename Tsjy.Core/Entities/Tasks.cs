@@ -41,33 +41,6 @@ public class DistributionBatch : IEntity
 
 }
 
-/// <summary>
-/// 批次涉及的评价对象名单
-/// </summary>
-/// [Table("batch_targets")]
-[Index(nameof(BatchId))]
-[Table("batch_targets")]
-
-public class BatchTarget : IEntity
-{
-    [Key]
-    public long Id { get; set; }
-
-    public long BatchId { get; set; }
-
-
-
-    public string OrgId { get; set; }
-
-
-    public bool IsDeleted { get; set; } = false;
-
-    [DisplayName("日期")]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-}
 
 /// <summary>
 /// 具体的学校评价任务单

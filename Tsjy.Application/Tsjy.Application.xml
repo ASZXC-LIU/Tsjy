@@ -102,16 +102,6 @@
             评分项明细 DTO
             </summary>
         </member>
-        <member name="T:Tsjy.Application.System.Dtos.SysUserTargetDto">
-            <summary>
-            单位/用户 简要信息 DTO (用于选择列表)
-            </summary>
-        </member>
-        <member name="T:Tsjy.Application.System.Dtos.DistributeTaskDto">
-            <summary>
-            管理员分发任务的表单模型
-            </summary>
-        </member>
         <member name="T:Tsjy.Application.System.Dtos.SchoolTaskListDto">
             <summary>
             学校端：我的任务列表项
@@ -308,16 +298,6 @@
         <member name="M:Tsjy.Application.System.Service.ScoringModelService.Delete(System.Int64)">
             <summary>
             删除模板 (软删除)
-            </summary>
-        </member>
-        <member name="M:Tsjy.Application.System.Service.TaskService.GetTargetsByType(Tsjy.Core.Enums.OrgType)">
-            <summary>
-            获取待选单位列表 (根据类型)
-            </summary>
-        </member>
-        <member name="M:Tsjy.Application.System.Service.TaskService.PublishTask(Tsjy.Application.System.Dtos.DistributeTaskDto)">
-            <summary>
-            发布任务
             </summary>
         </member>
         <member name="M:Tsjy.Application.System.Service.TaskService.GetMyTasks(System.String)">

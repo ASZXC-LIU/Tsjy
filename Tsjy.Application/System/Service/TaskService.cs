@@ -12,7 +12,6 @@ namespace Tsjy.Application.System.Service
     public class TaskService : IDynamicApiController, ITransient, IScoped
     {
         private readonly IRepository<DistributionBatch> _batchRepo;
-        private readonly IRepository<BatchTarget> _batchTargetRepo;
         private readonly IRepository<Tasks> _taskRepo;
         private readonly IRepository<TaskEvidences> _evidenceRepo;
         private readonly IRepository<Departments> _orgRepo;
@@ -26,7 +25,6 @@ namespace Tsjy.Application.System.Service
         public TaskService(
             IRepository<ScoringModelItem> scoringItemRepo,
             IRepository<DistributionBatch> batchRepo,
-            IRepository<BatchTarget> batchTargetRepo,
             IRepository<Tasks> taskRepo,
             IRepository<TaskEvidences> evidenceRepo,
             IRepository<SysUsers> userRepo,
@@ -37,7 +35,6 @@ namespace Tsjy.Application.System.Service
         {
             _scoringItemRepo = scoringItemRepo;
             _batchRepo = batchRepo;
-            _batchTargetRepo = batchTargetRepo;
             _taskRepo = taskRepo;
             _evidenceRepo = evidenceRepo;
             _userRepo = userRepo;
@@ -47,82 +44,7 @@ namespace Tsjy.Application.System.Service
             _eduRepo = eduRepo;
         }
 
-        #region 管理员：分发任务
-
-        /// <summary>
-        /// 获取待选单位列表 (根据类型)
-        /// </summary>
-        public async Task<List<SysUserTargetDto>> GetTargetsByType(OrgType type)
-        {
-
-            // 直接查询 Departments 表
-            var query = _orgRepo.AsQueryable()
-                        .Where(d => d.OrgType == type && !d.IsDeleted) // 筛选类型
-                        .Select(d => new SysUserTargetDto
-                        {
-                            // ★★★ 关键：直接取 Code 作为 TargetId ★★★
-                            TargetId = d.Code,
-                            OrgName = d.Name,
-
-                            // 因为是查单位，没有具体用户，这些字段可以给默认值，或者显示单位的固定电话
-                            //RealName = d.Principal ?? "暂无联系人", // 假设机构表有负责人字段
-                            //Phone = d.Phone ?? "",
-                            UserName = "-"
-                        });
-
-            return await query.ToListAsync();
-        }
-
-        /// <summary>
-        /// 发布任务
-        /// </summary>
-        [HttpPost]
-        public async Task PublishTask([FromBody] DistributeTaskDto input)
-        {
-            // 1. 创建批次
-            var batch = new DistributionBatch
-            {
-                TreeId = input.TreeId,
-                Name = input.BatchName,
-                Status = PublicStatus.NotStarted,
-                CreatedAt = DateTime.Now
-            };
-            var batchEntity = await _batchRepo.InsertNowAsync(batch);
-
-            // 2. 创建具体任务
-            var tasks = new List<Tasks>();
-            var batchTargets = new List<BatchTarget>();
-
-            // input.SelectedTargetIds 此时存的是 OrgId
-            foreach (var orgId in input.SelectedTargetIds)
-            {
-                // 记录批次目标
-                batchTargets.Add(new BatchTarget
-                {
-                    BatchId = batchEntity.Entity.Id,
-                    OrgId = orgId, // 存 OrgId
-                    CreatedAt = DateTime.Now
-                });
-
-                // 生成任务单
-                tasks.Add(new Tasks
-                {
-                    BatchId = batchEntity.Entity.Id,
-                    TreeId = input.TreeId,
-                    TargetType = input.TargetType,
-                    TargetId = orgId, // 存 OrgId
-                    Status = TaskStatu.Pending,
-                   
-                    CreatedAt = DateTime.Now
-                });
-            }
-
-            await _batchTargetRepo.InsertAsync(batchTargets);
-            await _taskRepo.InsertAsync(tasks);
-        }
-
-        #endregion
-
+    
         #region 学校端：查看与执行
 
         /// <summary>

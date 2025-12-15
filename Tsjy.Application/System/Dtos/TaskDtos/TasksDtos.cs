@@ -7,39 +7,39 @@ namespace Tsjy.Application.System.Dtos
     /// <summary>
     /// 单位/用户 简要信息 DTO (用于选择列表)
     /// </summary>
-    public class SysUserTargetDto
-    {
-        // ★★★ 必须是 string，对应 Departments.Code ★★★
-        public string TargetId { get; set; }
+    //public class SysUserTargetDto
+    //{
+    //    // ★★★ 必须是 string，对应 Departments.Code ★★★
+    //    public string TargetId { get; set; }
 
-        public string OrgName { get; set; }  // 单位名称
+    //    public string OrgName { get; set; }  // 单位名称
 
-        // 下面这些字段对于“选单位”来说不是必须的，可以留空，或者用来显示单位负责人
-        public string RealName { get; set; } // 比如：单位联系人
-        public string UserName { get; set; }
-        public string Phone { get; set; }
-    }
+    //    // 下面这些字段对于“选单位”来说不是必须的，可以留空，或者用来显示单位负责人
+    //    public string RealName { get; set; } // 比如：单位联系人
+    //    public string UserName { get; set; }
+    //    public string Phone { get; set; }
+    //}
 
     /// <summary>
     /// 管理员分发任务的表单模型
     /// </summary>
-    public class DistributeTaskDto
-    {
-        [Required(ErrorMessage = "请选择评价体系")]
-        public long TreeId { get; set; }
+    //public class DistributeTaskDto
+    //{
+    //    [Required(ErrorMessage = "请选择评价体系")]
+    //    public long TreeId { get; set; }
 
-        [Required(ErrorMessage = "任务名称不能为空")]
-        public string BatchName { get; set; }
+    //    [Required(ErrorMessage = "任务名称不能为空")]
+    //    public string BatchName { get; set; }
 
-        [Required(ErrorMessage = "请选择单位类型")]
-        public OrgType TargetType { get; set; }
+    //    [Required(ErrorMessage = "请选择单位类型")]
+    //    public OrgType TargetType { get; set; }
 
-        // ★★★ 这里的 ID 是机构的代码 (Code)，所以必须是 string ★★★
-        public List<string> SelectedTargetIds { get; set; } = new();
+    //    // ★★★ 这里的 ID 是机构的代码 (Code)，所以必须是 string ★★★
+    //    public List<string> SelectedTargetIds { get; set; } = new();
 
-        public DateTime StartAt { get; set; } = DateTime.Now;
-        public DateTime DueAt { get; set; } = DateTime.Now.AddDays(30);
-    }
+    //    public DateTime StartAt { get; set; } = DateTime.Now;
+    //    public DateTime DueAt { get; set; } = DateTime.Now.AddDays(30);
+    //}
 
     /// <summary>
     /// 学校端：我的任务列表项

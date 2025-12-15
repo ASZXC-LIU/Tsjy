@@ -1,4 +1,5 @@
-﻿using Furion.DatabaseAccessor;
+﻿using BootstrapBlazor.Components;
+using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Tsjy.Application.System.Dtos.BatchDtos;
@@ -11,7 +12,6 @@ namespace Tsjy.Application.System.Service;
 public class BatchService : IBatchService, ITransient,IScoped
 {
     private readonly IRepository<DistributionBatch> _batchRepo;
-    private readonly IRepository<BatchTarget> _targetRepo;
     private readonly IRepository<Tasks> _taskRepo;
     // ★★★ 新增注入：用于查询体系名称 ★★★
     private readonly IRepository<SpeEvalNode> _speRepo;
@@ -22,7 +22,6 @@ public class BatchService : IBatchService, ITransient,IScoped
     private readonly IRepository<ExpertReview> _expertReviewRepo;
     public BatchService(
         IRepository<DistributionBatch> batchRepo,
-        IRepository<BatchTarget> targetRepo,
         IRepository<Tasks> taskRepo,
         IRepository<InspectionTeam> inspectionTeamRepo,
         IRepository<InspectionTeamMember> teamMemberRepo,
@@ -33,7 +32,6 @@ public class BatchService : IBatchService, ITransient,IScoped
         )
     {
         _batchRepo = batchRepo;
-        _targetRepo = targetRepo;
         _taskRepo = taskRepo;
         _speRepo = speRepo;
         _incRepo = incRepo;
@@ -85,7 +83,7 @@ public class BatchService : IBatchService, ITransient,IScoped
 
             // ★★★ 修复步骤 2：单独批量查询 OrgCount ★★★
             // 使用 GroupBy 一次性查出所有相关批次的数量，避免 N+1 问题，且不在循环中使用 Context
-            var counts = await _targetRepo.AsQueryable(false)
+            var counts = await _taskRepo.AsQueryable(false)
                 .Where(t => batchIds.Contains(t.BatchId) && !t.IsDeleted)
                 .GroupBy(t => t.BatchId)
                 .Select(g => new { BatchId = g.Key, Count = g.Count() })
@@ -146,7 +144,9 @@ public class BatchService : IBatchService, ITransient,IScoped
                 // 1. 获取批次
                 var batch = await _batchRepo.FindOrDefaultAsync(input.BatchId);
                 if (batch == null) throw new Exception("批次不存在");
-
+                // ★★★ 新增：防止重复发布 ★★★
+                if (batch.Status != PublicStatus.NotStarted)
+                    throw new Exception($"该批次状态为“{batch.Status.ToDescriptionString()}”，不可重复分发！");
                 // 2. 获取该体系所有“评估要点(Points)”
                 List<long> pointNodeIds = new();
 
