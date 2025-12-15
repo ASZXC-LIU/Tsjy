@@ -13,4 +13,5 @@ public interface IBatchService
     Task UpdateStatusAsync(long id, bool isEnabled);
     Task UpdateAsync(BatchInputDto input);
     Task CreateAsync(BatchInputDto input);
+    Task<BatchInputDto> GetDetailAsync(long id); // 新增
 }

@@ -1,113 +1,130 @@
 ﻿@page "/Admin/BatchManagement"
 @using Tsjy.Application.System.Dtos.BatchDtos
+@using Tsjy.Core.Entities
 @using Tsjy.Core.Enums
-@using Tsjy.Core.MyHelper
 @attribute [Authorize(Roles = "Admin")]
 @inherits BootstrapComponentBase
+@namespace Tsjy.Web.Entry.Pages.Admin
 
-<PageTitle>批次管理</PageTitle>
+<div class="container-fluid page-wrapper animate__animated animate__fadeIn">
+    <div class="card modern-card">
+        @* 顶部装饰 *@
+        <div class="card-accent"></div>
 
-<div class="container-fluid p-3">
-    @* 顶部搜索与筛选区域 *@
-    <div class="row mb-3">
-        <div class="col-12 col-md-4">
-            <Select TValue="OrgType?"
-                    @bind-Value="@SearchOrgType"
-                    PlaceHolder="请选择批次类型进行筛选"
-                    ShowLabel="true"
-                    Label="批次类型"
-                    OnValueChanged="@(async _ => await BatchTable.QueryAsync())"
-                    IsClearable="true" />
+        @* 1. 头部标题与新建按钮 *@
+        <div class="page-header">
+            <div>
+                <h1 class="header-title">批次任务管理</h1>
+                <div class="header-subtitle">
+                    <i class="fa-solid fa-list-check me-1"></i> 管理所有评估任务批次，监控发布状态
+                </div>
+            </div>
+            <div>
+                <Button Color="Color.Primary" Icon="fa-solid fa-plus" class="px-4 py-2 rounded-pill shadow-sm fw-bold" OnClick="@OnAdd">
+                    新建批次
+                </Button>
+            </div>
         </div>
-        <div class="col-12 col-md-4 d-flex align-items-end">
-            @* 控制是否显示 IsDeleted=true 的数据 *@
-            <Switch @bind-Value="@ShowInactiveBatches"
-                    OnValueChanged="@(async _ => await BatchTable.QueryAsync())"
-                    ShowLabel="true"
-                    Label="查看未启用批次" />
-        </div>
-        <div class="col-12 col-md-4 d-flex align-items-end justify-content-end">
-            <Button Color="Color.Success" Icon="fa fa-plus" Text="新建批次" OnClick="@OnCreateBatch" />
-        </div>
-    </div>
 
-    @* 表格区域 *@
-    <Table TItem="BatchListDto"
-           @ref="BatchTable"
-           IsPagination="true"
-           IsStriped="true"
-           IsBordered="true"
-           ShowToolbar="false"
-           ShowSearch="true"
-           ShowDefaultButtons="false"
-           ShowExtendButtons="false"
-           OnQueryAsync="@OnQueryAsync">
+        @* 2. 表格组件 *@
+        <Table TItem="BatchListDto"
+               @ref="Table"
+               IsPagination="true"
+               IsStriped="false"
+               IsBordered="false"
+               IsHover="true"
+               ShowToolbar="false"
+               ShowSearch="true"
+               ShowExtendButtons="true"
+               ShowSkeleton="true"
+               OnQueryAsync="@OnQueryAsync">
 
-        <TableColumns>
-            <TableColumn @bind-Field="@context.Id" Text="ID" Width="60" />
+            @* 3. 自定义搜索区 *@
+            <SearchTemplate>
+                <div class="search-section">
+                    <div class="row g-4">
+                        @* 批次名称搜索 *@
+                        <div class="col-12 col-md-4">
+                            <label class="custom-label">
+                                <i class="fa-solid fa-magnifying-glass"></i> 批次名称
+                            </label>
+                            <BootstrapInput @bind-Value="@context.Name"
+                                            ShowLabel="false"
+                                            Placeholder="输入名称模糊查询..."
+                                            class="search-input shadow-none" />
+                        </div>
 
-            <TableColumn @bind-Field="@context.Name" Text="批次名称" Searchable="true" />
-            <TableColumn @bind-Field="@context.TargetType" Text="对象类型" Width="120" Align="Alignment.Center">
-                <Template Context="value">
-                    <Tag Color="Color.Info">@value.Value.GetDescription()</Tag>
-                </Template>
-            </TableColumn>
-            @* ★★★ 新增：评价体系名称 ★★★ *@
-            <TableColumn @bind-Field="@context.TreeName" Text="评价体系" />
-            @* 状态列只展示业务状态 *@
-            <TableColumn @bind-Field="@context.Status" Text="进行状态" Width="100" Align="Alignment.Center">
-                <Template Context="value">
-                    @if (value.Row.Status == PublicStatus.NotStarted)
-                    {
-                        <Tag Color="Color.Info">未开始</Tag>
-                    }
-                    else if (value.Row.Status == PublicStatus.InProgress)
-                    {
-                        <Tag Color="Color.Primary">进行中</Tag>
-                    }
-                    else
-                    {
-                        <Tag Color="Color.Success">已结束</Tag>
-                    }
-                </Template>
-            </TableColumn>
+                        @* 批次类型搜索 *@
+                        <div class="col-12 col-md-4">
+                            <label class="custom-label">
+                                <i class="fa-solid fa-filter"></i> 批次类型
+                            </label>
+                            @* ★★★ 修复 CS1662：TValue 必须与 BatchListDto.TargetType (OrgType) 类型完全一致 ★★★ *@
+                            <Select TValue="OrgType"
+                                    @bind-Value="@context.TargetType"
+                                    Items="@OrgTypeItems"
+                                    ShowLabel="false"
+                                    PlaceHolder="全部类型"
+                                    class="search-input shadow-none" />
+                        </div>
 
-            <TableColumn @bind-Field="@context.OrgCount" Text="覆盖机构数" Width="100" Align="Alignment.Center">
-                <Template Context="value">
-                    <span class="badge bg-info text-dark">@value.Value</span>
-                </Template>
-            </TableColumn>
-
-            <TableColumn @bind-Field="@context.StartAt" Text="开始时间" Width="160" FormatString="yyyy-MM-dd HH:mm" />
-            <TableColumn @bind-Field="@context.DueAt" Text="结束时间" Width="160" FormatString="yyyy-MM-dd HH:mm" />
-
-            @* 是否启用列：直接控制 IsDeleted *@
-            <TableColumn @bind-Field="@context.IsEnabled" Text="是否启用" Width="100" Align="Alignment.Center">
-                <Template Context="value">
-                    @* 这里绑定 IsEnabled 属性 (IsDeleted取反) *@
-                    <Switch Value="@value.Row.IsEnabled"
-                            ValueChanged="@((bool val) => OnStatusChanged(value.Row, val))" />
-                </Template>
-            </TableColumn>
-
-            <TableColumn @bind-Field="@context.Id" Text="操作" Width="120" Align="Alignment.Center">
-                @* <Template Context="value">
-                    <Button Color="Color.Primary" Size="Size.ExtraSmall" Icon="fa fa-list-alt" TooltipText="查看进度"
-                            OnClick="() => CheckProgress(value.Row.Id)" />
-                </Template> *@
-                <Template Context="value">
-                    <div class="btn-group">
-                        @* 按钮1: 名单管理 (分配对象) *@
-                        <Button Color="Color.Warning" Size="Size.ExtraSmall" Icon="fa fa-users" TooltipText="管理名单"
-                                OnClick="() => OnAssignTargets(value.Row)" />
-
-                        @* 按钮2: 查看进度 *@
-                        <Button Color="Color.Primary" Size="Size.ExtraSmall" Icon="fa fa-chart-bar" TooltipText="查看进度"
-                                OnClick="() => CheckProgress(value.Row.Id)" />
+                        @* 按钮组 *@
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <Button Color="Color.Primary" Icon="fa-solid fa-magnifying-glass" class="me-2 rounded-3 px-3" OnClick="@OnSearch">查询</Button>
+                            <Button Color="Color.Light" Icon="fa-solid fa-rotate-right" class="rounded-3 px-3 text-secondary" OnClick="@OnReset">重置</Button>
+                        </div>
                     </div>
-                </Template>
-            </TableColumn>
+                </div>
+            </SearchTemplate>
 
-        </TableColumns>
-    </Table>
+            @* 4. 表格列定义 *@
+            <TableColumns>
+                <TableColumn @bind-Field="@context.Name" Text="任务名称" Width="250">
+                    <Template Context="value">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light text-primary rounded p-2 me-3">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">@value.Row.Name</div>
+                                <small class="text-muted">ID: @value.Row.Id</small>
+                            </div>
+                        </div>
+                    </Template>
+                </TableColumn>
+
+                <TableColumn @bind-Field="@context.TargetType" Text="适用机构" Width="150" />
+
+                <TableColumn @bind-Field="@context.StartAt" Text="开始时间" FormatString="yyyy-MM-dd" Width="120" />
+
+                <TableColumn @bind-Field="@context.DueAt" Text="截止时间" FormatString="yyyy-MM-dd" Width="120">
+                    <Template Context="value">
+                        @if (value.Row.DueAt < DateTime.Now)
+                        {
+                            <span class="text-danger fw-bold">
+                                <i class="fa-solid fa-circle-exclamation me-1"></i>已截止
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-success">
+                                <i class="fa-regular fa-clock me-1"></i>
+                                @(value.Value.HasValue? value.Value.Value.ToString("yyyy-MM-dd") : "-")
+                            </span>
+                        }
+                    </Template>
+                </TableColumn>
+
+                @* ★★★ 修复 CS0411：添加 @bind-Field="@context.Id" 让编译器能推断类型 ★★★ *@
+                <TableColumn @bind-Field="@context.Id" Text="操作" Align="Alignment.Center" Width="180">
+                    <Template Context="value">
+                        <div class="btn-icon-group">
+                            <Button Color="Color.None" Icon="fa-solid fa-pen-to-square text-primary" TooltipText="编辑" OnClick="@(() => OnEdit(value.Row))" />
+                            <Button Color="Color.None" Icon="fa-solid fa-trash-can text-danger" TooltipText="删除" OnClick="@(() => OnDelete(value.Row))" />
+                        </div>
+                    </Template>
+                </TableColumn>
+            </TableColumns>
+        </Table>
+    </div>
 </div>

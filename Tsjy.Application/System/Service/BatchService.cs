@@ -99,7 +99,22 @@ public class BatchService : IBatchService, ITransient,IScoped
 
         return list;
     }
+    public async Task<BatchInputDto> GetDetailAsync(long id)
+    {
+        var entity = await _batchRepo.FindOrDefaultAsync(id);
+        if (entity == null) return new BatchInputDto();
 
+        return new BatchInputDto
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            TargetType = entity.TargetType,
+            TreeId = entity.TreeId,
+            Status = entity.Status,
+            StartAt = entity.StartAt,
+            DueAt = entity.DueAt
+        };
+    }
     public async Task DeleteAsync(long id)
     {
         var entity = await _batchRepo.FindOrDefaultAsync(id);
