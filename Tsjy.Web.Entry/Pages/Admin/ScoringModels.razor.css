@@ -1,0 +1,103 @@
+﻿/* 容器与卡片 */
+.page-container {
+    padding: 1.5rem;
+}
+
+.card-modern {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* 柔和的悬浮阴影 */
+    overflow: hidden;
+    transition: transform 0.2s;
+    background: #fff;
+}
+
+/* 头部样式 */
+.header-title {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.header-desc {
+    color: #95a5a6;
+    font-size: 0.9rem;
+}
+
+/* 表格内元素 */
+.symbol-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(54, 162, 235, 0.1);
+    color: #36a2eb;
+    margin-right: 0.75rem;
+}
+
+/* 胶囊标签微调 */
+.badge-pill-custom {
+    font-weight: 500;
+    padding: 0.35em 0.8em;
+    font-size: 0.85em;
+    letter-spacing: 0.5px;
+}
+
+/* 弹窗中的步骤条设计 */
+.step-section {
+    position: relative;
+    padding-left: 1rem;
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px dashed #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.step-num {
+    background-color: var(--bs-primary);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-right: 0.75rem;
+    box-shadow: 0 2px 5px rgba(var(--bs-primary-rgb), 0.3);
+}
+
+.step-title {
+    font-weight: 700;
+    color: #344767;
+    font-size: 1rem;
+}
+
+/* 引导提示框 */
+.guide-alert {
+    background-color: #f8f9fa;
+    border-left: 4px solid var(--bs-primary);
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+/* 输入框美化 */
+::deep .form-control-modern {
+    border: 1px solid #e2e5e8;
+    background-color: #fcfcfc;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+}
+
+    ::deep .form-control-modern:focus {
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(var(--bs-primary-rgb), 0.1);
+        border-color: var(--bs-primary);
+    }
