@@ -192,20 +192,60 @@ namespace Tsjy.Web.Entry.Pages.Admin
             {
                 if (SelectedNode == null) return;
 
+                // --- 修复问题 1：层级限制 ---
+                // 如果当前节点是“评估要点” (Points)，则禁止添加子节点
+                if (SelectedNode.Value.Type == EvalNodeType.Points)
+                {
+                    await Toast.Warning("操作受限", "‘评估要点’已是最后一级指标，无法继续添加子节点。");
+                    return;
+                }
+                // 防御性编程：如果是‘评估方法’也不允许添加（虽然树上可能不显示）
+                if (SelectedNode.Value.Type == EvalNodeType.Method)
+                {
+                    await Toast.Warning("操作受限", "‘评估方法’节点无法添加子节点。");
+                    return;
+                }
+
+                // --- 修复问题 2：自动生成序号 (如 1.1.2) ---
+                // 逻辑：父级Code + "." + (当前子节点数量 + 1)
+
+                int nextSortIndex = SelectedNode.Items.Count + 1;
+                string newCode;
+
+                if (SelectedNode.Value.Code == "0" || SelectedNode.Value.Type == EvalNodeType.System)
+                {
+                    // 如果父级是根节点，直接生成 "1", "2" 等
+                    newCode = nextSortIndex.ToString();
+                }
+                else
+                {
+                    // 否则生成 "父Code.序号"，例如 "1.1" -> "1.1.1"
+                    newCode = $"{SelectedNode.Value.Code}.{nextSortIndex}";
+                }
+
                 CurrentMethodContent = "";
                 var NewEditModel = new CreateNodeDto
                 {
                     Category = CurrentCategory,
                     ParentId = SelectedNode.Value.Id,
-                    OrderIndex = (SelectedNode.Items.Count + 1) * 10,
-                    Code = SelectedNode.Value.Code == "0" ? "1" : $"{SelectedNode.Value.Code}."
+                    OrderIndex = nextSortIndex * 10, // 排序默认间隔10，方便插入
+                    Code = newCode // 使用计算好的序号
                 };
 
                 await EvalNodeService.CreateChildNode(NewEditModel);
+
+                // 刷新树并在界面上展开
                 await RefreshTreeAsync();
+
+                // 尝试自动展开当前节点以显示刚添加的子节点
+                // 注意：RefreshTreeAsync 会重置 TreeItems，需要重新定位 SelectedNode 才能设置 IsExpand
+                // 这里简单处理：刷新后 TreeItems 是新的对象，保持默认展开即可，或者依靠 RefreshTreeAsync 里的逻辑
+                // 如果需要保持选中状态，需要更复杂的逻辑，目前暂且清空预览
 
                 PreviewScoringItems.Clear();
                 CurrentScoringModelName = "";
+
+                await Toast.Success("创建子节点成功");
             }
             finally
             {
@@ -366,11 +406,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
             return methodNode?.Name ?? "暂无评估方法";
         }
 
-        private async Task OnDeleteNode()
-        {
-            if (SelectedNode == null) return;
-            await Toast.Warning("演示模式", "删除接口待后端实现");
-        }
+       
 
         private async Task OnCreateScoringModel()
         {
@@ -400,7 +436,46 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 }
             });
         }
+        /// <summary>
+        /// 删除节点
+        /// </summary>
+        private async Task OnDeleteNode()
+        {
+            // 双重保险
+            if (SelectedNode == null) return;
 
+            // 获取当前要删除的节点名称，用于提示
+            var nodeName = SelectedNode.Text;
+
+            // 再次确认（虽然 PopConfirmButton 已经确认过一次，但为了防止误触，特别是级联删除，谨慎一点没错）
+            // 如果觉得 PopConfirmButton 够了，这里可以省略 Swal，直接调用
+            // 这里我们假设直接处理逻辑，因为界面上用的是 PopConfirmButton
+
+            await _semaphore.WaitAsync();
+            try
+            {
+                // 调用后端软删除接口
+                await EvalNodeService.DeleteNode(CurrentCategory, SelectedNode.Value.Id);
+
+                await Toast.Success("删除成功", $"节点“{SelectedNode.Value.Name}”及其子节点已删除");
+
+                // 清空当前选中状态
+                SelectedNode = null;
+                CurrentEditModel = new CreateNodeDto();
+                CurrentNodeId = 0;
+
+                // 刷新树
+                await RefreshTreeAsync();
+            }
+            catch (Exception ex)
+            {
+                await Toast.Error("删除失败", ex.Message);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
         private async Task RefreshTreeAsync()
         {
             // 注意：此方法必须在已获取锁的上下文中调用

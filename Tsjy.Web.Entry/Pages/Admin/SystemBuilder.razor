@@ -123,35 +123,40 @@
         <div class="col-12 col-md-9 h-100">
             <Card IsShadow="true" class="h-100 border-0 shadow-sm rounded-3 d-flex flex-column fixed-card">
                 <HeaderTemplate>
-                    @* ... Header 保持不变 ... *@
-                    <div class="py-1">
+                    @* 关键：使用与左侧完全一致的容器结构 (py-1 + flex-between) 确保高度对齐 *@
+                    <div class="d-flex justify-content-between align-items-center w-100 py-1">
                         @if (SelectedNode != null)
                         {
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px;height: 40px;">
-                                        <i class="fa-solid fa-pen-to-square fs-5"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold fs-6">编辑节点信息</div>
-                                        <div class="text-muted small">
-                                            类型：<span class="text-dark fw-medium">@CurrentEditModel.Type.GetDescription()</span>
-                                        </div>
-                                    </div>
+                            @* 左侧：标题与类型 *@
+                            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                @* 微缩版时尚图标：28px高度，保证不撑大 Header *@
+                                <div class="bg-primary bg-gradient text-white rounded d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                                     style="width: 28px; height: 28px;">
+                                    <i class="fa-solid fa-pen-to-square" style="font-size: 0.8rem;"></i>
                                 </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="text-muted small me-2">编码：</span>
-                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill font-monospace">
-                                        @CurrentEditModel.Code
-                                    </span>
-                                </div>
+
+                                <span class="fw-bold text-dark text-truncate">编辑节点</span>
+
+                                @* 类型标签 *@
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 fw-normal rounded-pill px-2">
+                                    <small>@CurrentEditModel.Type.GetDescription()</small>
+                                </span>
+                            </div>
+
+                            @* 右侧：编码展示 *@
+                            <div class="d-flex align-items-center flex-shrink-0">
+                                <span class="text-secondary small me-2 fw-bold" style="font-size: 0.7rem;">CODE</span>
+                                <span class="font-monospace fw-bold text-dark bg-light border px-2 rounded user-select-all">
+                                    @CurrentEditModel.Code
+                                </span>
                             </div>
                         }
                         else
                         {
-                            <div class="text-muted d-flex align-items-center">
-                                <i class="fa-solid fa-circle-info me-2 text-info"></i>
-                                <span>请在左侧选择一个节点进行操作</span>
+                            @* 空状态：保持单行高度 *@
+                            <div class="d-flex align-items-center text-muted">
+                                <i class="fa-solid fa-arrow-left me-2 animate__animated animate__headShake animate__infinite animate__slow"></i>
+                                <span class="small">请选择左侧节点</span>
                             </div>
                         }
                     </div>
