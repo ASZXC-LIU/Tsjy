@@ -25,10 +25,17 @@ public class BatchListDto
         get => !IsDeleted;
         set => IsDeleted = !value;
     }
-    // 新增：任务开始时间
-    public DateTime? StartAt { get; set; }
+    // ★★★ 新增：分阶段时间设置 ★★★
+    // 设默认值方便操作
+    public DateTime? UploadStart { get; set; } = DateTime.Now;
+    public DateTime? UploadEnd { get; set; } = DateTime.Now.AddDays(7);
 
-    // 新增：任务截止时间
+    public DateTime? ReviewStart { get; set; } = DateTime.Now.AddDays(8);
+    public DateTime? ReviewEnd { get; set; } = DateTime.Now.AddDays(14);
+
+    public DateTime? InspectionStart { get; set; } = DateTime.Now.AddDays(15);
+    public DateTime? InspectionEnd { get; set; } = DateTime.Now.AddDays(20);
+    public DateTime? StartAt { get; set; }
     public DateTime? DueAt { get; set; }
     // ★★★ 新增：用于列表展示 ★★★
     public OrgType TargetType { get; set; } // 对象类型枚举
@@ -49,7 +56,14 @@ public class BatchInputDto
     [Required(ErrorMessage = "请选择评价体系")]
     public long? TreeId { get; set; }
     public PublicStatus Status { get; set; } = PublicStatus.NotStarted;
-    public DateTime? StartAt { get; set; } = DateTime.Now;
-    public DateTime? DueAt { get; set; } = DateTime.Now.AddDays(7);
-    // 如果有其他字段如 TreeId 也可以在这里添加
+    // ★★★ 新增：分阶段时间设置 ★★★
+    // 设默认值方便操作
+    public DateTime? UploadStart { get; set; } = DateTime.Now;
+    public DateTime? UploadEnd { get; set; } = DateTime.Now.AddDays(7);
+
+    public DateTime? ReviewStart { get; set; } = DateTime.Now.AddDays(8);
+    public DateTime? ReviewEnd { get; set; } = DateTime.Now.AddDays(14);
+
+    public DateTime? InspectionStart { get; set; } = DateTime.Now.AddDays(15);
+    public DateTime? InspectionEnd { get; set; } = DateTime.Now.AddDays(20);
 }

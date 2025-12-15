@@ -10,11 +10,10 @@ namespace Tsjy.Application.System.IService
     {
         
         //Task<List<SysUserDto>> GetTargetsByType(OrgType type);
-        Task<List<SchoolTaskListDto>> GetMyTasks(long myId);
+        Task<List<SchoolTaskListDto>> GetMyTasks(string myId);
         Task<List<TaskNodeTreeDto>> GetTaskTree(long taskId);
         Task<NodeFillDetailDto> GetNodeFillDetail(long taskId, long nodeId);
         Task SubmitEvidence(NodeFillDetailDto input);
-
 
 
 

@@ -70,14 +70,14 @@ public partial class BatchManagement
         }
 
         // 4. 处理排序
-        if (!string.IsNullOrEmpty(options.SortName))
-        {
-            if (options.SortName == nameof(BatchListDto.StartAt))
-            {
-                items = options.SortOrder == SortOrder.Asc ? items.OrderBy(i => i.StartAt) : items.OrderByDescending(i => i.StartAt);
-            }
-            // ... 其他列排序
-        }
+        //if (!string.IsNullOrEmpty(options.SortName))
+        //{
+        //    if (options.SortName == nameof(BatchListDto.StartAt))
+        //    {
+        //        items = options.SortOrder == SortOrder.Asc ? items.OrderBy(i => i.StartAt) : items.OrderByDescending(i => i.StartAt);
+        //    }
+        //    // ... 其他列排序
+        //}
 
         // 5. 分页
         var total = items.Count();
@@ -175,6 +175,23 @@ public partial class BatchManagement
               })
             }
         })
+        });
+    }
+
+    /// <summary>
+    /// 显示时间排期详情弹窗 (组件化版)
+    /// </summary>
+    private async Task ShowScheduleInfo(BatchListDto item)
+    {
+        await DialogService.Show(new DialogOption
+        {
+            Title = $"{item.Name} - 时间安排",
+            // 使用组件渲染内容
+            Component = BootstrapDynamicComponent.CreateComponent<BatchScheduleWidget>(new Dictionary<string, object?>
+            {
+                // 传递参数给组件
+                { nameof(BatchScheduleWidget.BatchInfo), item }
+            })
         });
     }
     public class BatchSearchModel

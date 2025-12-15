@@ -92,34 +92,56 @@
 
                 <TableColumn @bind-Field="@context.TargetType" Text="适用机构" Width="150" />
 
-                <TableColumn @bind-Field="@context.StartAt" Text="开始时间" FormatString="yyyy-MM-dd" Sortable="true" Width="120" />
-
-                <TableColumn @bind-Field="@context.DueAt" Text="截止时间" Sortable="true" Width="120">
+                <TableColumn @bind-Field="@context.Status" Text="状态" Width="100" Align="Alignment.Center">
                     <Template Context="value">
-                        @if (value.Row.DueAt < DateTime.Now)
+                        @switch (value.Row.Status)
                         {
-                            <span class="text-danger fw-bold">
-                                <i class="fa-solid fa-circle-exclamation me-1"></i>已截止
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="text-success">
-                                <i class="fa-regular fa-clock me-1"></i>
-                                @(value.Value.HasValue? value.Value.Value.ToString("yyyy-MM-dd") : "-")
-                            </span>
+                            case PublicStatus.NotStarted:
+                                <Tag Color="Color.Secondary">未发布</Tag>
+                                break;
+                            case PublicStatus.Published:
+                                <Tag Color="Color.Success">已发布</Tag>
+                                break;
+                            case PublicStatus.InProgress:
+                                <Tag Color="Color.Primary">进行中</Tag>
+                                break;
+                            case PublicStatus.Finished:
+                                <Tag Color="Color.Dark">已结束</Tag>
+                                break;
                         }
                     </Template>
                 </TableColumn>
 
-                @* 操作列 *@
+                @* ★★★ 修改 2: 时间安排按钮 (替换原有的 StartAt/DueAt) ★★★ *@
+                <TableColumn @bind-Field="@context.Id" Text="时间安排" Align="Alignment.Center" Width="120">
+                    <Template Context="value">
+                        <Button Color="Color.Info"
+                                IsOutline="true"
+                                Size="Size.ExtraSmall"
+                                Icon="fa-regular fa-clock"
+                                Text="查看排期"
+                                OnClick="@(() => ShowScheduleInfo(value.Row))" />
+                    </Template>
+                </TableColumn>
+
+                @* ★★★ 修改 3: 操作列 (根据状态显示分发按钮) ★★★ *@
                 <TableColumn @bind-Field="@context.Id" Text="操作" Align="Alignment.Center" Width="180">
                     <Template Context="value">
                         <div class="btn-icon-group">
-                            <Button Color="Color.None"
-                                    Icon="fa-solid fa-paper-plane text-success"
-                                    TooltipText="任务分发"
-                                    OnClick="@(() => OnDistribute(value.Row))" />
+                            @* 只有“未开始”状态才显示分发按钮 *@
+                            @if (value.Row.Status == PublicStatus.NotStarted)
+                            {
+                                <Button Color="Color.None"
+                                        Icon="fa-solid fa-paper-plane text-success"
+                                        TooltipText="任务分发"
+                                        OnClick="@(() => OnDistribute(value.Row))" />
+                            }
+                            else
+                            {
+                                @* 已发布后可以显示一个禁用的图标或者提示 *@
+                                <span class="text-muted me-2" title="任务已分发"><i class="fa-solid fa-check-circle"></i></span>
+                            }
+
                             <Button Color="Color.None" Icon="fa-solid fa-pen-to-square text-primary" TooltipText="编辑" OnClick="@(() => OnEdit(value.Row))" />
                             <Button Color="Color.None" Icon="fa-solid fa-trash-can text-danger" TooltipText="删除" OnClick="@(() => OnDelete(value.Row))" />
                         </div>

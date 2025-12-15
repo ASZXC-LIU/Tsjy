@@ -18,10 +18,9 @@
                             @(Model.Id > 0 ? "编辑任务" : "创建新任务")
                         </h1>
                         <div class="header-subtitle">
-                            请配置下方的考评任务详情及时间节点。
+                            请配置下方的考评任务详情及各阶段时间节点。
                         </div>
                     </div>
-                    @* 装饰性大图标 *@
                     <div class="d-none d-md-block text-primary opacity-10">
                         <i class="fa-solid fa-paper-plane fa-3x"></i>
                     </div>
@@ -29,8 +28,8 @@
             </div>
 
             <div class="form-body">
-                <div class="row g-5">
-                    @* 任务名称 *@
+                @* 1. 基础信息 *@
+                <div class="row g-5 mb-4">
                     <div class="col-12">
                         <label class="custom-label">
                             <i class="fa-solid fa-heading"></i> 任务名称
@@ -40,28 +39,61 @@
                                         Placeholder="请输入任务名称，例如：2025年度特殊教育学校春季考评"
                                         class="form-control-lg shadow-none" />
                     </div>
+                </div>
 
-                    @* 时间选择器：CSS 已修复 padding-right，文字不会被挡住 *@
-                    <div class="col-12 col-md-6">
-                        <label class="custom-label">
-                            <i class="fa-regular fa-calendar-plus"></i> 开始时间
-                        </label>
-                        <DateTimePicker @bind-Value="@Model.StartAt"
-                                        ShowLabel="false"
-                                        class="shadow-none" />
+                @* 2. 时间流程配置 (核心修改) *@
+                <div class="section-divider">
+                    <span class="section-tag">流程时间配置</span>
+                </div>
+
+                <div class="row g-4">
+                    @* 第一阶段：单位填报 *@
+                    <div class="col-12 col-md-4">
+                        <div class="time-card bg-light-primary p-3 rounded-3 border h-100">
+                            <h6 class="text-primary fw-bold mb-3"><i class="fa-solid fa-upload me-2"></i>第一阶段：单位填报</h6>
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">开始时间</label>
+                                <DateTimePicker @bind-Value="@Model.UploadStart" ShowLabel="false" />
+                            </div>
+                            <div>
+                                <label class="small text-muted mb-1">截止时间</label>
+                                <DateTimePicker @bind-Value="@Model.UploadEnd" ShowLabel="false" />
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-12 col-md-6">
-                        <label class="custom-label">
-                            <i class="fa-regular fa-calendar-check"></i> 截止时间
-                        </label>
-                        <DateTimePicker @bind-Value="@Model.DueAt"
-                                        ShowLabel="false"
-                                        class="shadow-none" />
+                    @* 第二阶段：专家评审 *@
+                    <div class="col-12 col-md-4">
+                        <div class="time-card bg-light-warning p-3 rounded-3 border h-100">
+                            <h6 class="text-warning fw-bold mb-3" style="color:#d97706 !important"><i class="fa-solid fa-gavel me-2"></i>第二阶段：专家评审</h6>
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">开始时间</label>
+                                <DateTimePicker @bind-Value="@Model.ReviewStart" ShowLabel="false" />
+                            </div>
+                            <div>
+                                <label class="small text-muted mb-1">截止时间</label>
+                                <DateTimePicker @bind-Value="@Model.ReviewEnd" ShowLabel="false" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @* 第三阶段：视导巡视 *@
+                    <div class="col-12 col-md-4">
+                        <div class="time-card bg-light-success p-3 rounded-3 border h-100">
+                            <h6 class="text-success fw-bold mb-3"><i class="fa-solid fa-car-side me-2"></i>第三阶段：视导巡视</h6>
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">开始时间</label>
+                                <DateTimePicker @bind-Value="@Model.InspectionStart" ShowLabel="false" />
+                            </div>
+                            <div>
+                                <label class="small text-muted mb-1">截止时间</label>
+                                <DateTimePicker @bind-Value="@Model.InspectionEnd" ShowLabel="false" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="section-divider">
+                <div class="section-divider mt-5">
                     <span class="section-tag">关联配置</span>
                 </div>
 
@@ -115,10 +147,27 @@
                 <Button ButtonType="ButtonType.Submit"
                         Color="Color.Primary"
                         class="px-5 py-2 rounded-pill shadow-sm fw-bold">
-                    <i class="fa-solid fa-floppy-disk me-2"></i> 保存并发布
+                    <i class="fa-solid fa-floppy-disk me-2"></i> 保存配置
                 </Button>
             </div>
 
         </ValidateForm>
     </div>
 </div>
+
+<style>
+    .bg-light-primary {
+        background-color: #f0f7ff;
+        border-color: #bae0ff !important;
+    }
+
+    .bg-light-warning {
+        background-color: #fffbe6;
+        border-color: #ffe58f !important;
+    }
+
+    .bg-light-success {
+        background-color: #f6ffed;
+        border-color: #b7eb8f !important;
+    }
+</style>

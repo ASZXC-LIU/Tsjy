@@ -70,8 +70,12 @@ public class BatchService : IBatchService, ITransient,IScoped
                 IsDeleted = b.IsDeleted,
                 TargetType = b.TargetType,
                 TreeId = b.TreeId,
-                StartAt = b.StartAt,
-                DueAt = b.DueAt,
+                UploadStart = b.UploadStart,
+                UploadEnd = b.UploadEnd,
+                ReviewStart = b.ReviewStart,
+                ReviewEnd = b.ReviewEnd,
+                InspectionStart = b.InspectionStart,
+                InspectionEnd = b.InspectionEnd
                 // OrgCount = 0 // 先不计算，防止并发冲突
             })
             .ToListAsync(); // 此时 Context 操作已完成，释放控制权
@@ -309,8 +313,12 @@ public class BatchService : IBatchService, ITransient,IScoped
             TargetType = entity.TargetType,
             TreeId = entity.TreeId,
             Status = entity.Status,
-            StartAt = entity.StartAt,
-            DueAt = entity.DueAt
+            UploadStart = entity.UploadStart,
+            UploadEnd = entity.UploadEnd,
+            ReviewStart = entity.ReviewStart,
+            ReviewEnd = entity.ReviewEnd,
+            InspectionStart = entity.InspectionStart,
+            InspectionEnd = entity.InspectionEnd
         };
     }
     public async Task DeleteAsync(long id)
@@ -346,9 +354,16 @@ public class BatchService : IBatchService, ITransient,IScoped
         {
             entity.Name = input.Name;
             // 可以在这里更新其他字段
-            if (input.StartAt.HasValue) entity.StartAt = input.StartAt.Value;
-            if (input.DueAt.HasValue) entity.DueAt = input.DueAt.Value;
+            
+            entity.UploadStart = input.UploadStart;
+            entity.UploadEnd = input.UploadEnd;
+            entity.ReviewStart = input.ReviewStart;
+            entity.ReviewEnd = input.ReviewEnd;
+            entity.InspectionStart = input.InspectionStart;
+            entity.InspectionEnd = input.InspectionEnd;
             entity.UpdatedAt = DateTime.Now;
+            if (input.UploadStart.HasValue) entity.StartAt = input.UploadStart.Value;
+            if (input.InspectionEnd.HasValue) entity.DueAt = input.ReviewEnd.Value;
             await _batchRepo.UpdateNowAsync(entity);
         }
     }
@@ -364,8 +379,16 @@ public class BatchService : IBatchService, ITransient,IScoped
             UpdatedAt = DateTime.Now,
             IsDeleted = false,
             // 赋默认值或前端传来的值
-            StartAt = input.StartAt ?? DateTime.Now,
-            DueAt = input.DueAt ?? DateTime.Now.AddDays(30),
+            UploadStart = input.UploadStart,
+            UploadEnd = input.UploadEnd,
+            ReviewStart = input.ReviewStart,
+            ReviewEnd = input.ReviewEnd,
+            InspectionStart = input.InspectionStart,
+            InspectionEnd = input.InspectionEnd,
+
+            // 兼容旧字段
+            StartAt = input.UploadStart ?? DateTime.Now,
+            DueAt = input.ReviewEnd ?? DateTime.Now.AddDays(30),
             TreeId = input.TreeId ?? 0,
             TargetType = input.TargetType ?? OrgType.SpecialSchool
         };

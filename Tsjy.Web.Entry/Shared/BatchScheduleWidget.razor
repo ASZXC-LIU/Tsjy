@@ -1,0 +1,85 @@
+﻿@namespace Tsjy.Web.Entry.Shared
+@using Tsjy.Application.System.Dtos.BatchDtos
+@inherits BootstrapComponentBase
+
+<div class="batch-schedule-widget">
+    @* 第一阶段：填报 *@
+    <div class="schedule-item mb-3">
+        <div class="d-flex align-items-center mb-1">
+            <div class="icon-box bg-light-primary text-primary me-2">
+                <i class="fa-solid fa-upload"></i>
+            </div>
+            <strong class="text-primary">单位填报阶段</strong>
+        </div>
+        <div class="time-range ms-5 text-secondary">
+            @Fmt(BatchInfo.UploadStart)
+            <span class="mx-2 text-muted small"><i class="fa-solid fa-arrow-right"></i></span>
+            @Fmt(BatchInfo.UploadEnd)
+        </div>
+    </div>
+
+    @* 第二阶段：评审 *@
+    <div class="schedule-item mb-3">
+        <div class="d-flex align-items-center mb-1">
+            <div class="icon-box bg-light-warning text-warning me-2">
+                <i class="fa-solid fa-gavel"></i>
+            </div>
+            <strong class="text-warning" style="color:#d97706 !important">专家评审阶段</strong>
+        </div>
+        <div class="time-range ms-5 text-secondary">
+            @Fmt(BatchInfo.ReviewStart)
+            <span class="mx-2 text-muted small"><i class="fa-solid fa-arrow-right"></i></span>
+            @Fmt(BatchInfo.ReviewEnd)
+        </div>
+    </div>
+
+    @* 第三阶段：视导 *@
+    <div class="schedule-item">
+        <div class="d-flex align-items-center mb-1">
+            <div class="icon-box bg-light-success text-success me-2">
+                <i class="fa-solid fa-car-side"></i>
+            </div>
+            <strong class="text-success">视导巡视阶段</strong>
+        </div>
+        <div class="time-range ms-5 text-secondary">
+            @Fmt(BatchInfo.InspectionStart)
+            <span class="mx-2 text-muted small"><i class="fa-solid fa-arrow-right"></i></span>
+            @Fmt(BatchInfo.InspectionEnd)
+        </div>
+    </div>
+</div>
+
+<style>
+    .icon-box {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bg-light-primary {
+        background-color: #e6f7ff;
+    }
+
+    .bg-light-warning {
+        background-color: #fffbe6;
+    }
+
+    .bg-light-success {
+        background-color: #f6ffed;
+    }
+
+    .time-range {
+        font-family: Consolas, Monaco, monospace;
+        font-size: 0.95rem;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public BatchListDto BatchInfo { get; set; } = new();
+
+    private string Fmt(DateTime? d) => d.HasValue ? d.Value.ToString("yyyy-MM-dd HH:mm") : "未设置";
+}
