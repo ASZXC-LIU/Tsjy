@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Tsjy.Application.System.Dtos;
 using Tsjy.Application.System.IService;
-using Tsjy.Application.System.Service; // 引用 EvalNodeService
 using Tsjy.Core.Entities;
 using Tsjy.Core.Enums;
 using System.Threading;
+
 namespace Tsjy.Web.Entry.Pages.Admin
 {
     public partial class SystemBuilder : IDisposable
@@ -15,12 +15,15 @@ namespace Tsjy.Web.Entry.Pages.Admin
         // --- 服务注入 ---
         [Inject]
         [NotNull]
-        private EvalNodeService? NodeService { get; set; }
+        private IEvalNodeService? EvalNodeService { get; set; }
 
         [Inject]
         [NotNull]
         private IScoringModelService? ScoringService { get; set; }
+
+        // 信号量，用于控制并发访问 DbContext
         private readonly SemaphoreSlim _semaphore = new(1, 1);
+
         [Inject]
         [NotNull]
         private ToastService? Toast { get; set; }
@@ -34,38 +37,24 @@ namespace Tsjy.Web.Entry.Pages.Admin
         private SwalService? Swal { get; set; }
 
         // --- 页面状态 ---
-
-        // 左侧树的数据源
         private List<TreeViewItem<EvalNodeTreeDto>> TreeItems { get; set; } = new();
         private List<EvalNodeTreeDto> AllFlatNodes { get; set; } = new();
-
         private long RootNodeId { get; set; }
-
-        // 当前选中的树节点
         private TreeViewItem<EvalNodeTreeDto>? SelectedNode { get; set; }
-
-        // 右侧表单绑定的 DTO
         private CreateNodeDto CurrentEditModel { get; set; } = new();
-        private long CurrentNodeId { get; set; } // 新增：用于存储当前选中节点的ID (编辑目标)
-      
-        // 评分模板下拉框选项
+        private long CurrentNodeId { get; set; }
         private List<SelectedItem> ScoringModelOptions { get; set; } = new();
-
-        // 当前预览的评分项列表 (用于右侧表格展示)
         private List<ScoringModelItemDto> PreviewScoringItems { get; set; } = new();
-
-        // 当前选中的模板名称
         private string CurrentScoringModelName { get; set; } = "";
-
-        // 当前体系类型 (可扩展为下拉选择，目前默认特教)
         private string CurrentCategory { get; set; } = "special_school";
-
         private string CurrentMethodContent { get; set; } = "";
+
         [Parameter]
         public string? Category { get; set; }
 
         [Parameter]
         public long? TreeId { get; set; }
+
         /// <summary>
         /// 初始化加载
         /// </summary>
@@ -74,27 +63,30 @@ namespace Tsjy.Web.Entry.Pages.Admin
             if (!string.IsNullOrEmpty(Category)) CurrentCategory = Category;
             if (TreeId.HasValue && TreeId.Value > 0) RootNodeId = TreeId.Value;
 
-            await LoadScoringModelsAsync();
-            if (RootNodeId > 0)
+            // ★★★ 修改 1: 为初始化逻辑加锁，防止与后续操作冲突 ★★★
+            await _semaphore.WaitAsync();
+            try
             {
-                // 注意：如果 RefreshTreeAsync 内部没加锁，这里可以直接调。
-                await RefreshTreeAsync();
+                await LoadScoringModelsAsync();
+                if (RootNodeId > 0)
+                {
+                    // RefreshTreeAsync 内部调用数据库查询，必须受保护
+                    await RefreshTreeAsync();
+                }
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
 
         // --- 数据加载逻辑 ---
-        /// <summary>
-        /// 通用方法：根据 ID 加载模板详情并更新预览区
-        /// </summary>
-    
         private async Task LoadScoringModelsAsync()
         {
             List<ScoringModel> list = await ScoringService.GetOptions();
             ScoringModelOptions = list.Select(x => new SelectedItem(x.Id.ToString(), x.Name)).ToList();
         }
 
-
-        // 递归构建树
         private List<TreeViewItem<EvalNodeTreeDto>> BuildTree(List<EvalNodeTreeDto> allNodes, long? parentId)
         {
             var children = allNodes.Where(x => x.ParentId == parentId).OrderBy(x => x.OrderIndex).ToList();
@@ -102,7 +94,6 @@ namespace Tsjy.Web.Entry.Pages.Admin
 
             foreach (var node in children)
             {
-                // 不显示 Method 类型的节点在树上，因为它是 Reference 的一部分
                 if (node.Type == EvalNodeType.Method) continue;
 
                 var item = new TreeViewItem<EvalNodeTreeDto>(node)
@@ -119,22 +110,17 @@ namespace Tsjy.Web.Entry.Pages.Admin
 
         // --- 交互事件 ---
 
-        /// <summary>
-        /// 点击树节点
-        /// </summary>
         private async Task OnTreeItemClick(TreeViewItem<EvalNodeTreeDto> item)
         {
-            // 尝试获取锁，如果获取不到（有其他操作在运行），则等待
+            // 加锁
             await _semaphore.WaitAsync();
             try
             {
                 SelectedNode = item;
                 CurrentNodeId = item.Value.Id;
 
-                // 1. 获取详情
-                var detail = await NodeService.GetNodeDetailAsync(CurrentCategory, CurrentNodeId);
+                var detail = await EvalNodeService.GetNodeDetailAsync(CurrentCategory, CurrentNodeId);
 
-                // 2. 填充表单
                 CurrentEditModel = new CreateNodeDto
                 {
                     Name = detail.Name,
@@ -147,7 +133,6 @@ namespace Tsjy.Web.Entry.Pages.Admin
                     Type = detail.Type
                 };
 
-                // 3. 处理 Reference 类型的 Method 字段
                 CurrentMethodContent = "";
                 if (detail.Type == EvalNodeType.Reference)
                 {
@@ -155,11 +140,8 @@ namespace Tsjy.Web.Entry.Pages.Admin
                     if (methodNode != null) CurrentMethodContent = methodNode.Name;
                 }
 
-                // 4. 加载模板预览
                 if (CurrentEditModel.ScoringTemplateId > 0)
                 {
-                    // 直接调用 Service 也可以，或者调用 LoadPreviewAsync
-                    // 因为 LoadPreviewAsync 内部没加锁，这里可以直接调
                     await LoadPreviewAsync(CurrentEditModel.ScoringTemplateId.Value);
                 }
                 else
@@ -174,7 +156,6 @@ namespace Tsjy.Web.Entry.Pages.Admin
             {
                 _semaphore.Release();
             }
-
         }
 
         private async Task LoadPreviewAsync(long modelId)
@@ -186,15 +167,6 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 StateHasChanged();
                 return;
             }
-
-            // 这里是被其他加锁方法调用的，或者单独调用的。
-            // 建议：如果此方法总是被 click 等事件直接调用，则加锁。
-            // 但如果它被已经加锁的方法（如 OnTreeItemClick）调用，再次加锁会导致死锁（SemaphoreSlim 默认不可重入）。
-            // ★ 策略：我们在顶层事件入口（OnTreeItemClick, OnScoringModelChanged）加锁，
-            // 内部私有方法不加锁，或者使用 CheckWait。
-
-            // 为了安全起见，我们假设 LoadPreviewAsync 可能被独立调用（如 OnScoringModelChanged），
-            // 因此我们在各个事件入口处加锁最稳妥。
 
             try
             {
@@ -212,28 +184,68 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 PreviewScoringItems.Clear();
             }
         }
+
         private async Task OnBeginCreateChild()
         {
-            // 加锁
             await _semaphore.WaitAsync();
             try
             {
                 if (SelectedNode == null) return;
-                // ... 逻辑 ...
+
+                // --- 修复问题 1：层级限制 ---
+                // 如果当前节点是“评估要点” (Points)，则禁止添加子节点
+                if (SelectedNode.Value.Type == EvalNodeType.Points)
+                {
+                    await Toast.Warning("操作受限", "‘评估要点’已是最后一级指标，无法继续添加子节点。");
+                    return;
+                }
+                // 防御性编程：如果是‘评估方法’也不允许添加（虽然树上可能不显示）
+                if (SelectedNode.Value.Type == EvalNodeType.Method)
+                {
+                    await Toast.Warning("操作受限", "‘评估方法’节点无法添加子节点。");
+                    return;
+                }
+
+                // --- 修复问题 2：自动生成序号 (如 1.1.2) ---
+                // 逻辑：父级Code + "." + (当前子节点数量 + 1)
+
+                int nextSortIndex = SelectedNode.Items.Count + 1;
+                string newCode;
+
+                if (SelectedNode.Value.Code == "0" || SelectedNode.Value.Type == EvalNodeType.System)
+                {
+                    // 如果父级是根节点，直接生成 "1", "2" 等
+                    newCode = nextSortIndex.ToString();
+                }
+                else
+                {
+                    // 否则生成 "父Code.序号"，例如 "1.1" -> "1.1.1"
+                    newCode = $"{SelectedNode.Value.Code}.{nextSortIndex}";
+                }
+
                 CurrentMethodContent = "";
                 var NewEditModel = new CreateNodeDto
                 {
                     Category = CurrentCategory,
                     ParentId = SelectedNode.Value.Id,
-                    OrderIndex = (SelectedNode.Items.Count + 1) * 10,
-                    Code = SelectedNode.Value.Code == "0" ? "1" : $"{SelectedNode.Value.Code}."
+                    OrderIndex = nextSortIndex * 10, // 排序默认间隔10，方便插入
+                    Code = newCode // 使用计算好的序号
                 };
 
-                await NodeService.CreateChildNode(NewEditModel);
+                await EvalNodeService.CreateChildNode(NewEditModel);
+
+                // 刷新树并在界面上展开
                 await RefreshTreeAsync();
+
+                // 尝试自动展开当前节点以显示刚添加的子节点
+                // 注意：RefreshTreeAsync 会重置 TreeItems，需要重新定位 SelectedNode 才能设置 IsExpand
+                // 这里简单处理：刷新后 TreeItems 是新的对象，保持默认展开即可，或者依靠 RefreshTreeAsync 里的逻辑
+                // 如果需要保持选中状态，需要更复杂的逻辑，目前暂且清空预览
 
                 PreviewScoringItems.Clear();
                 CurrentScoringModelName = "";
+
+                await Toast.Success("创建子节点成功");
             }
             finally
             {
@@ -241,12 +253,8 @@ namespace Tsjy.Web.Entry.Pages.Admin
             }
         }
 
-        /// <summary>
-        /// 下拉框选择模板变动时 -> 触发预览
-        /// </summary>
         private async Task OnScoringModelChanged(SelectedItem item)
         {
-            // 同样加锁，防止与 OnTreeItemClick 冲突
             await _semaphore.WaitAsync();
             try
             {
@@ -277,20 +285,29 @@ namespace Tsjy.Web.Entry.Pages.Admin
         {
             var op = new SwalOption()
             {
-                // ...
+                Category = SwalCategory.Question,
+                Title = "新建体系",
+                Content = $"确定要创建一个新的空白体系吗？",
+                IsConfirm = true,
+                // ★★★ 修改 2: 在回调中加锁，防止并发写入 ★★★
                 OnConfirmAsync = async () =>
                 {
-                    // 在回调内部加锁
-                    await _semaphore.WaitAsync();
+                    await _semaphore.WaitAsync(); // 获取锁
                     try
                     {
-                        RootNodeId = await NodeService.CreateTree(CurrentCategory, $"{DateTime.Now.Year}年评价体系");
-                        await Toast.Success("创建成功");
+                        // 调用 CreateTree (这是写入操作，必须保护)
+                        RootNodeId = await EvalNodeService.CreateTree(CurrentCategory, $"{DateTime.Now.Year}年新评价体系");
+
                         await RefreshTreeAsync();
+                        await Toast.Success("创建成功");
+                    }
+                    catch (Exception ex)
+                    {
+                        await Toast.Error("创建失败", ex.Message);
                     }
                     finally
                     {
-                        _semaphore.Release();
+                        _semaphore.Release(); // 释放锁
                     }
                 }
             };
@@ -302,13 +319,11 @@ namespace Tsjy.Web.Entry.Pages.Admin
         /// </summary>
         private async Task OnSaveNode(EditContext context)
         {
-            // 保存操作也涉及 DB，需要加锁
             await _semaphore.WaitAsync();
             try
             {
                 if (SelectedNode == null) return;
 
-                // ... 更新逻辑 ...
                 var updateDto = new UpdateNodeDto
                 {
                     Id = CurrentNodeId,
@@ -319,15 +334,14 @@ namespace Tsjy.Web.Entry.Pages.Admin
                     ScoringTemplateId = CurrentEditModel.ScoringTemplateId,
                     OrderIndex = CurrentEditModel.OrderIndex
                 };
-                await NodeService.UpdateNode(updateDto);
+                await EvalNodeService.UpdateNode(updateDto);
 
-                // ... Method 逻辑 ...
                 if (SelectedNode.Value.Type == EvalNodeType.Reference)
                 {
                     var methodNode = AllFlatNodes.FirstOrDefault(x => x.ParentId == CurrentNodeId && x.Type == EvalNodeType.Method);
                     if (methodNode != null)
                     {
-                        await NodeService.UpdateNode(new UpdateNodeDto
+                        await EvalNodeService.UpdateNode(new UpdateNodeDto
                         {
                             Id = methodNode.Id,
                             Category = CurrentCategory,
@@ -338,7 +352,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
                     }
                     else if (!string.IsNullOrWhiteSpace(CurrentMethodContent))
                     {
-                        await NodeService.CreateChildNode(new CreateNodeDto
+                        await EvalNodeService.CreateChildNode(new CreateNodeDto
                         {
                             Category = CurrentCategory,
                             ParentId = CurrentNodeId,
@@ -351,11 +365,8 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 }
 
                 await Toast.Success("更新成功");
-
-                // 刷新树
                 await RefreshTreeAsync();
 
-                // 重置
                 CurrentEditModel = new CreateNodeDto();
                 SelectedNode = null;
             }
@@ -372,11 +383,9 @@ namespace Tsjy.Web.Entry.Pages.Admin
         public void Dispose()
         {
             _semaphore?.Dispose();
-            // 如果有订阅事件，也在此处取消订阅
             GC.SuppressFinalize(this);
         }
 
-        // 获取祖先节点链 (用于上下文显示)
         private List<EvalNodeTreeDto> GetAncestors(long? parentId)
         {
             var list = new List<EvalNodeTreeDto>();
@@ -385,34 +394,20 @@ namespace Tsjy.Web.Entry.Pages.Admin
             {
                 var node = AllFlatNodes.FirstOrDefault(x => x.Id == currentId);
                 if (node == null) break;
-                list.Insert(0, node); // 插入到开头
+                list.Insert(0, node);
                 currentId = node.ParentId;
             }
             return list;
         }
 
-        // 获取某个 Reference 节点的评估方法内容 (用于 Points 上下文显示)
         private string GetMethodContent(long referenceNodeId)
         {
             var methodNode = AllFlatNodes.FirstOrDefault(x => x.ParentId == referenceNodeId && x.Type == EvalNodeType.Method);
             return methodNode?.Name ?? "暂无评估方法";
         }
 
-        /// <summary>
-        /// 3. 删除节点
-        /// </summary>
-        private async Task OnDeleteNode()
-        {
-            if (SelectedNode == null) return;
+       
 
-            // 暂时未实现 Service 的 Delete 方法，这里仅做 UI 演示
-            // 实际应调用 await NodeService.DeleteNode(SelectedNode.Value.Id);
-            await Toast.Warning("演示模式", "删除接口待后端实现");
-        }
-
-        /// <summary>
-        /// 4. 弹窗新建评分模板
-        /// </summary>
         private async Task OnCreateScoringModel()
         {
             await DialogService.Show(new DialogOption
@@ -425,33 +420,69 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 },
                 OnCloseAsync = async () =>
                 {
-                    await LoadScoringModelsAsync();
-                    StateHasChanged();
+                    // 此处是弹窗关闭后的回调，如果涉及 DB 也建议加锁
+                    // 但 LoadScoringModelsAsync 是读操作，且与树操作表不同，风险较小
+                    // 为了一致性，可以加上
+                    await _semaphore.WaitAsync();
+                    try
+                    {
+                        await LoadScoringModelsAsync();
+                        StateHasChanged();
+                    }
+                    finally
+                    {
+                        _semaphore.Release();
+                    }
                 }
             });
         }
+        /// <summary>
+        /// 删除节点
+        /// </summary>
+        private async Task OnDeleteNode()
+        {
+            // 双重保险
+            if (SelectedNode == null) return;
 
-   
+            // 获取当前要删除的节点名称，用于提示
+            var nodeName = SelectedNode.Text;
+
+            // 再次确认（虽然 PopConfirmButton 已经确认过一次，但为了防止误触，特别是级联删除，谨慎一点没错）
+            // 如果觉得 PopConfirmButton 够了，这里可以省略 Swal，直接调用
+            // 这里我们假设直接处理逻辑，因为界面上用的是 PopConfirmButton
+
+            await _semaphore.WaitAsync();
+            try
+            {
+                // 调用后端软删除接口
+                await EvalNodeService.DeleteNode(CurrentCategory, SelectedNode.Value.Id);
+
+                await Toast.Success("删除成功", $"节点“{SelectedNode.Value.Name}”及其子节点已删除");
+
+                // 清空当前选中状态
+                SelectedNode = null;
+                CurrentEditModel = new CreateNodeDto();
+                CurrentNodeId = 0;
+
+                // 刷新树
+                await RefreshTreeAsync();
+            }
+            catch (Exception ex)
+            {
+                await Toast.Error("删除失败", ex.Message);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
         private async Task RefreshTreeAsync()
         {
-            // 这是私有辅助方法，通常被 OnInitialized 或 OnSaveNode 调用。
-            // 这些调用方应该负责处理并发，但为了保险，如果 RefreshTreeAsync 被多处调用，
-            // 最好确保它执行时也是独占的，或者我们约定：所有 Public/Event Handler 方法必须加锁。
-
-            // 让我们在调用方加锁，或者在这里加锁。
-            // 考虑到 RefreshTreeAsync 操作较重，这里加锁较好。
-            // *注意*：必须确保不会发生递归加锁（即 A方法加锁 -> 调用B方法 -> B方法也加锁）。
-            // 目前 RefreshTreeAsync 没有被其他已加锁的方法调用（OnSaveNode 可能会调用）。
-            // 如果 OnSaveNode 加了锁，这里就不能加。
-
-            // 为了简化，我们采取【事件入口加锁】策略。
-            // 下面的 RefreshTreeAsync 保持原样，只负责逻辑。
-
-            var nodes = await NodeService.GetNodesAsync(CurrentCategory, RootNodeId);
-            AllFlatNodes = nodes; // 更新缓存
+            // 注意：此方法必须在已获取锁的上下文中调用
+            var nodes = await EvalNodeService.GetNodesAsync(CurrentCategory, RootNodeId);
+            AllFlatNodes = nodes;
             TreeItems = BuildTree(nodes, null);
             StateHasChanged();
         }
-
     }
 }

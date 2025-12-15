@@ -14,7 +14,7 @@ using Tsjy.Core.MyHelper;
 
 namespace Tsjy.Application.System.Service
 {
-    public class EvalNodeService : IDynamicApiController, IScoped
+    public class EvalNodeService : IDynamicApiController, IScoped, IEvalNodeService
     {
         private readonly IRepository<SpeEvalNode> _speRepo;
         private readonly IRepository<IncEvalNode> _incRepo;
@@ -156,6 +156,28 @@ namespace Tsjy.Application.System.Service
             }
         }
 
+
+        /// <summary>
+        /// 5. 删除节点（软删除，并级联删除子节点）
+        /// </summary>
+        [HttpPost("api/eval/delete-node")]
+        public async Task DeleteNode([Required] string category, [Required] long nodeId)
+        {
+            switch (category?.ToLower())
+            {
+                case "special_school":
+                    await DeleteNodeInternal(_speRepo, nodeId);
+                    break;
+                case "inclusive_school":
+                    await DeleteNodeInternal(_incRepo, nodeId);
+                    break;
+                case "education_bureau":
+                    await DeleteNodeInternal(_eduRepo, nodeId);
+                    break;
+                default:
+                    throw new ArgumentException($"无效的评价体系类型: {category}");
+            }
+        }
         private async Task<List<EvalSystemListDto>> GetSystemListInternal<T>(IRepository<T> repo, string category)
     where T : class, IEntity, IEvalNode, new()
         {
@@ -418,6 +440,117 @@ namespace Tsjy.Application.System.Service
                     throw new ArgumentException($"无效的评价体系类型: {category}");
             }
         }
+
+
+        /// <summary>
+        /// 通用的级联软删除逻辑
+        /// </summary>
+        private async Task DeleteNodeInternal<T>(IRepository<T> repo, long nodeId)
+            where T : class, IEntity, IEvalNode, new()
+        {
+            // 1. 获取目标节点
+            var targetNode = await repo.FirstOrDefaultAsync(x => x.Id == nodeId);
+            if (targetNode == null) return;
+
+            // 2. 获取该体系下的所有有效节点（用于计算后代和重排）
+            var allTreeNodes = await repo.Where(x => x.TreeId == targetNode.TreeId && !x.IsDeleted)
+                                         .ToListAsync();
+
+            // 3. 级联标记删除
+            // 找到所有需要删除的ID（自己 + 所有后代）
+            var deleteIds = new List<long> { nodeId };
+            GetDescendants(allTreeNodes, nodeId, deleteIds);
+
+            // 在内存中标记删除
+            var nodesToDelete = allTreeNodes.Where(x => deleteIds.Contains(x.Id)).ToList();
+            foreach (var node in nodesToDelete)
+            {
+                node.IsDeleted = true;
+            }
+
+            // 先保存删除状态，确保数据一致性
+            await repo.UpdateNowAsync(nodesToDelete);
+
+            // 4. ★★★ 核心步骤：重排剩余节点的序号 ★★★
+            // 过滤出剩余的有效节点
+            var remainingNodes = allTreeNodes.Where(x => !deleteIds.Contains(x.Id)).ToList();
+
+            // 从根节点开始递归重算 Code
+            // ParentId 为 null 的是根节点
+            bool anyChanged = ReorganizeRecursively(remainingNodes, null, "");
+
+            if (anyChanged)
+            {
+                await repo.UpdateNowAsync(remainingNodes);
+            }
+        }
+        /// <summary>
+        /// 递归重排序号
+        /// </summary>
+        /// <param name="allNodes">所有有效节点池</param>
+        /// <param name="parentId">当前父级ID</param>
+        /// <param name="parentCodePrefix">父级Code前缀（如 "1.2"）</param>
+        /// <returns>是否有数据变动</returns>
+        private bool ReorganizeRecursively<T>(List<T> allNodes, long? parentId, string parentCodePrefix)
+            where T : IEvalNode
+        {
+            // 找到当前层级的子节点，并按 OrderIndex 排序保证顺序不乱
+            var children = allNodes.Where(x => x.ParentId == parentId)
+                                   .OrderBy(x => x.OrderIndex)
+                                   .ToList();
+
+            bool changed = false;
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                var child = children[i];
+
+                // 计算新序号：
+                // 如果是根节点，就是 "0"...
+                // 如果是子节点，就是 "ParentCode.1", "ParentCode.2"...
+                string rank = (i ).ToString();
+                string newCode = string.IsNullOrEmpty(parentCodePrefix) ? rank : $"{parentCodePrefix}.{rank}";
+
+                // 检查是否需要更新 Code
+                if (child.Code != newCode)
+                {
+                    child.Code = newCode;
+                    changed = true;
+                }
+
+                // 可选：顺便重置 OrderIndex 为整齐的 10, 20, 30... 防止多次增删后中间有空隙
+                int newOrder = (i + 1) * 10;
+                if (child.OrderIndex != newOrder)
+                {
+                    child.OrderIndex = newOrder;
+                    changed = true;
+                }
+
+                // 递归处理下一级（传入当前的 newCode 作为前缀）
+                if (ReorganizeRecursively(allNodes, child.Id, newCode))
+                {
+                    changed = true;
+                }
+            }
+
+            return changed;
+        }
+        // 辅助方法：递归查找子孙节点 ID
+        private void GetDescendants<T>(List<T> allNodes, long parentId, List<long> results)
+            where T : IEvalNode
+        {
+            var children = allNodes.Where(x => x.ParentId == parentId).ToList();
+            foreach (var child in children)
+            {
+                results.Add(child.Id);
+                // 递归
+                GetDescendants(allNodes, child.Id, results);
+            }
+        }
+
+
+
+
         #endregion
 
 

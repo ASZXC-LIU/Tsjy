@@ -24,7 +24,10 @@
 
         @* 数据表格 *@
         <Table TItem="SysUserListDto" @ref="UserTable"
-               IsPagination="true" IsStriped="true" IsBordered="false"
+               IsPagination="true"
+               PageItemsSource="@(new[] {  10, 20,30 })"
+               ShowPageInfo="true"
+               ShowGotoNavigator="true" IsStriped="true" IsBordered="false"
                ShowToolbar="false" ShowSearch="true"
                OnQueryAsync="OnQueryAsync">
 

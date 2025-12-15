@@ -2,6 +2,7 @@ using BootstrapBlazor.Components;
 using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
 using Tsjy.Application.System.Dtos;
+using Tsjy.Application.System.IService;
 using Tsjy.Application.System.Service;
 
 namespace Tsjy.Web.Entry.Pages.Admin
@@ -10,7 +11,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
     {
         [Inject]
         [NotNull]
-        private EvalNodeService? NodeService { get; set; }
+        private IEvalNodeService? EvalNodeService { get; set; }
 
         [Inject]
         [NotNull]
@@ -50,7 +51,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
             {
                 // 直接根据当前选中的类型，从后端拉取最新数据
                 // 表格组件会自动显示“加载中”骨架屏，无需手动控制 IsLoading
-                SystemItems = await NodeService.GetSystemListAsync(CurrentCategory);
+                SystemItems = await EvalNodeService.GetSystemListAsync(CurrentCategory);
 
                 // 简单的内存分页逻辑
                 var total = SystemItems.Count;
@@ -94,7 +95,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
                 OnConfirmAsync = async () =>
                 {
                     // 调用 CreateTree
-                    var newId = await NodeService.CreateTree(CurrentCategory, $"{DateTime.Now.Year}年新评价体系");
+                    var newId = await EvalNodeService.CreateTree(CurrentCategory, $"{DateTime.Now.Year}年新评价体系");
 
                     // 刷新表格
                     if (SystemTable != null) await SystemTable.QueryAsync();
@@ -143,7 +144,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
                     try
                     {
                         // 调用 Service 的停用方法
-                        await NodeService.DeactivateTree(item.Category, item.Id);
+                        await EvalNodeService.DeactivateTree(item.Category, item.Id);
 
                         // 刷新表格
                         if (SystemTable != null) await SystemTable.QueryAsync();
@@ -175,7 +176,7 @@ namespace Tsjy.Web.Entry.Pages.Admin
                     try
                     {
                         // 调用新的切换接口
-                        await NodeService.ToggleTreeStatus(item.Category, item.Id);
+                        await EvalNodeService.ToggleTreeStatus(item.Category, item.Id);
 
                         // 刷新表格
                         if (SystemTable != null) await SystemTable.QueryAsync();
