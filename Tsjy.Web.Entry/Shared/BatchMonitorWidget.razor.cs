@@ -37,7 +37,7 @@ public partial class BatchMonitorWidget : BootstrapComponentBase
 
     private Color GetStatusColor(TaskStatu status) => status switch
     {
-        TaskStatu.Pending => Color.Secondary,
+        TaskStatu.NotStarted => Color.Secondary,
         TaskStatu.Submitted => Color.Success,
         TaskStatu.Submitting => Color.Primary,
         _ => Color.Info

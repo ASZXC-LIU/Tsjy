@@ -10,7 +10,7 @@ namespace Tsjy.Web.Entry.Pages.School;
 public partial class DoTask
 {
     [Parameter] public long TaskId { get; set; }
-
+    private bool IsEditable { get; set; } = false;
     [Inject] private TaskService TaskService { get; set; }
     [Inject] private MessageService MessageService { get; set; }
     [Inject] private NavigationManager NavigationManager { get; set; } // 注入导航服务 (需求 5)
@@ -22,6 +22,7 @@ public partial class DoTask
 
     protected override async Task OnInitializedAsync()
     {
+        IsEditable = await TaskService.IsTaskEditable(TaskId);
         await LoadTree();
     }
 

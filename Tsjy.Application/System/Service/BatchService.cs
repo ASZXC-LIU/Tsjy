@@ -210,7 +210,7 @@ public class BatchService : IBatchService, ITransient,IScoped
                     TreeId = batch.TreeId,
                     TargetType = batch.TargetType,
                     TargetId = orgId,
-                    Status = TaskStatu.Pending,
+                    Status = TaskStatu.NotStarted,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 }).ToList();

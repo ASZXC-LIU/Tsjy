@@ -44,8 +44,34 @@ namespace Tsjy.Application.System.Service
             _eduRepo = eduRepo;
         }
 
-    
+
         #region 学校端：查看与执行
+
+        public async Task<bool> IsTaskEditable(long taskId)
+        {
+            var task = await _taskRepo.FindOrDefaultAsync(taskId);
+            if (task == null) return false;
+
+            // 1. 状态校验：适配新枚举
+            // 允许：待提交、填报中、被退回
+            bool isStatusAllow = task.Status == TaskStatu.ToSubmit ||
+                                 task.Status == TaskStatu.Submitting ||
+                                 task.Status == TaskStatu.Returned;
+
+            if (!isStatusAllow) return false;
+
+            // 2. 时间校验 (保持不变)
+            var batch = await _batchRepo.FindOrDefaultAsync(task.BatchId);
+            if (batch != null)
+            {
+                var now = DateTime.Now;
+                if (batch.UploadStart.HasValue && now < batch.UploadStart.Value) return false;
+                // 注意：虽然有自动结束逻辑，但这里保留时间检查作为双重保险
+                if (batch.UploadEnd.HasValue && now > batch.UploadEnd.Value) return false;
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// 获取我的任务列表
@@ -54,7 +80,7 @@ namespace Tsjy.Application.System.Service
         public async Task<List<SchoolTaskListDto>> GetMyTasks(string myOrgId)
         {
             if (string.IsNullOrEmpty(myOrgId)) return new List<SchoolTaskListDto>();
-            // 查找 TargetId 等于我的 OrgId 的任务
+
             var tasks = await _taskRepo.AsQueryable()
                 .Where(t => t.TargetId == myOrgId && !t.IsDeleted)
                 .OrderByDescending(t => t.CreatedAt)
@@ -62,13 +88,45 @@ namespace Tsjy.Application.System.Service
 
             if (!tasks.Any()) return new List<SchoolTaskListDto>();
 
-            // 2. 获取相关的批次信息 (不仅获取Name，还要获取时间)
             var batchIds = tasks.Select(t => t.BatchId).Distinct().ToList();
-
-            // ★★★ 修改：查询 Batch 对象以便获取时间 ★★★
             var batches = await _batchRepo.Where(b => batchIds.Contains(b.Id))
-                                          .ToDictionaryAsync(b => b.Id, b => b); // Value 存整个实体
+                                          .ToDictionaryAsync(b => b.Id, b => b);
 
+            bool needSave = false;
+            var now = DateTime.Now;
+
+            foreach (var task in tasks)
+            {
+                if (batches.TryGetValue(task.BatchId, out var batch))
+                {
+                    // Logic A: 自动开始
+                    // 如果是 "未开始" 且 时间已到 -> 变为 "待提交"
+                    if (task.Status == TaskStatu.NotStarted && batch.UploadStart.HasValue && now >= batch.UploadStart.Value)
+                    {
+                        task.Status = TaskStatu.ToSubmit;
+                        _taskRepo.Update(task);
+                        needSave = true;
+                    }
+
+                    // Logic B: 自动结束 (响应您的新需求)
+                    // 当时间超过 截止时间，且状态仍在 "填报中" (或 "待提交")，则自动结束。
+                    if (batch.UploadEnd.HasValue && now > batch.UploadEnd.Value)
+                    {
+                        // 只要是还没提交的状态，统统结束
+                        if (task.Status == TaskStatu.Submitting || task.Status == TaskStatu.ToSubmit)
+                        {
+                            task.Status = TaskStatu.Finished; // 自动变为 已完成 (或视需求改为 Submitted)
+                            _taskRepo.Update(task);
+                            needSave = true;
+                        }
+                    }
+                }
+            }
+
+            if (needSave)
+            {
+                await _taskRepo.Context.SaveChangesAsync();
+            }
             // 3. 组装 DTO
             return tasks.Select(t =>
             {
@@ -206,7 +264,16 @@ namespace Tsjy.Application.System.Service
         [HttpPost]
         public async Task SubmitEvidence([FromBody] NodeFillDetailDto input)
         {
+
+            // --- 新增：强制时间与状态校验 ---
+            if (!await IsTaskEditable(input.TaskId))
+            {
+                throw new Exception("当前不在填报周期内或任务状态不允许提交，操作已拒绝。");
+            }
+            // -----------------------------
+
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == input.TaskId && e.NodeId == input.NodeId);
+           
             if (evidence == null)
             {
                 evidence = new TaskEvidences
@@ -226,7 +293,7 @@ namespace Tsjy.Application.System.Service
             await _evidenceRepo.UpdateAsync(evidence);
 
             var task = await _taskRepo.FindOrDefaultAsync(input.TaskId);
-            if (task.Status == TaskStatu.Pending || task.Status == TaskStatu.Sent || task.Status == TaskStatu.Returned)
+            if (task.Status == TaskStatu.NotStarted || task.Status == TaskStatu.ToSubmit || task.Status == TaskStatu.Returned)
             {
                 task.Status = TaskStatu.Submitting;
                 await _taskRepo.UpdateAsync(task);

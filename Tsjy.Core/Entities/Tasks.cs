@@ -79,8 +79,8 @@ public class Tasks : IEntity
     public string TargetId { get; set; }
 
     [DisplayName("当前状态")]
-    public TaskStatu Status { get; set; } = TaskStatu.Pending;
-
+    public TaskStatu Status { get; set; } = TaskStatu.NotStarted;
+    
   
 
     public DateTime? SubmittedAt { get; set; }

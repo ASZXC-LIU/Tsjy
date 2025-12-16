@@ -54,10 +54,9 @@ public partial class MyTask
         // 2. 内存筛选
         if (CurrentFilter == "Unfinished")
         {
-            items = items.Where(t => t.Status == TaskStatu.Pending ||
-                                     t.Status == TaskStatu.Sent ||
-                                     t.Status == TaskStatu.Submitting ||
-                                     t.Status == TaskStatu.Returned);
+            items = items.Where(t => t.Status == TaskStatu.ToSubmit ||
+                                      t.Status == TaskStatu.Submitting ||
+                                      t.Status == TaskStatu.Returned);
         }
         else if (CurrentFilter == "Finished")
         {
@@ -92,12 +91,21 @@ public partial class MyTask
 
     // --- 业务操作 ---
 
-    private bool CanFill(TaskStatu status)
+    private bool CanFill(SchoolTaskListDto item)
     {
-        return status == TaskStatu.Pending ||
-               status == TaskStatu.Sent ||
-               status == TaskStatu.Submitting ||
-               status == TaskStatu.Returned;
+        var status = item.Status;
+        bool isStatusOk = item.Status == TaskStatu.ToSubmit ||
+                           item.Status == TaskStatu.Submitting ||
+                           item.Status == TaskStatu.Returned;
+
+        if (!isStatusOk) return false;
+
+        // 2. 时间判断 (新增)
+        var now = DateTime.Now;
+        if (item.UploadStart.HasValue && now < item.UploadStart.Value) return false;
+        if (item.UploadEnd.HasValue && now > item.UploadEnd.Value) return false;
+
+        return true;
     }
 
     private void OnFill(SchoolTaskListDto item)
@@ -120,7 +128,7 @@ public partial class MyTask
     {
         if (!item.UploadEnd.HasValue) return false;
         // 如果已经提交了，就不紧急
-        if (!CanFill(item.Status)) return false;
+        if (!CanFill(item)) return false;
 
         var daysLeft = (item.UploadEnd.Value - DateTime.Now).TotalDays;
         return daysLeft >= 0 && daysLeft <= 3;
@@ -129,18 +137,22 @@ public partial class MyTask
     // 获取任务图标框的 CSS 类 (UI美化用)
     private string GetIconClass(TaskStatu status) => status switch
     {
-        TaskStatu.Pending or TaskStatu.Sent => "pending",
-        TaskStatu.Submitting or TaskStatu.Returned => "active",
+        TaskStatu.NotStarted => "pending",        // 未开始 -> 灰色
+        TaskStatu.ToSubmit => "active",           // 待提交 -> 亮色 (新)
+        TaskStatu.Submitting => "active",         // 填报中 -> 亮色
+        TaskStatu.Returned => "active",           // 被退回 -> 亮色
         _ => "finished"
     };
 
     // 获取状态胶囊的 CSS 类 (UI美化用)
     private string GetStatusClass(TaskStatu status) => status switch
     {
-        TaskStatu.Pending or TaskStatu.Sent => "status-pending",
-        TaskStatu.Submitting => "status-active",
-        TaskStatu.Returned => "status-danger", // 被退回是红色
-        TaskStatu.Submitted or TaskStatu.Reviewing => "status-warning", // 审核中是黄色
+        TaskStatu.NotStarted => "status-pending",
+        TaskStatu.ToSubmit => "status-active",    // 待提交 -> 绿色/蓝色
+        TaskStatu.Submitting => "status-active",  // 填报中 -> 绿色/蓝色
+        TaskStatu.Returned => "status-danger",
+        TaskStatu.Submitted => "status-warning",  // 或者是 status-info
+        TaskStatu.Reviewing => "status-warning",
         TaskStatu.Finished => "status-success",
         _ => "status-pending"
     };
@@ -148,8 +160,9 @@ public partial class MyTask
     // 获取状态图标 (UI美化用)
     private string GetStatusIcon(TaskStatu status) => status switch
     {
-        TaskStatu.Pending => "fa-regular fa-clock",
-        TaskStatu.Submitting => "fa-solid fa-pen-nib",
+        TaskStatu.NotStarted => "fa-regular fa-clock",
+        TaskStatu.ToSubmit => "fa-solid fa-pen",          // 待提交：笔图标
+        TaskStatu.Submitting => "fa-solid fa-pen-nib",    // 填报中：钢笔图标
         TaskStatu.Returned => "fa-solid fa-triangle-exclamation",
         TaskStatu.Submitted => "fa-solid fa-paper-plane",
         TaskStatu.Finished => "fa-solid fa-check-circle",

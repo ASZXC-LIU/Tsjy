@@ -53,8 +53,8 @@ public enum EvalNodeType
 /// </summary>
 public enum TaskStatu
 {
-    [Description("待发")] Pending,
-    [Description("已下发")] Sent,
+    [Description("未开始")] NotStarted,
+    [Description("待提交")] ToSubmit,
     [Description("填报中")] Submitting,
     [Description("已提交")] Submitted,
     [Description("评审中")] Reviewing,

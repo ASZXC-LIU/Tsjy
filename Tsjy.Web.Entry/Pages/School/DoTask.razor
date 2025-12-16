@@ -185,9 +185,19 @@
 
             @* 3. 底部：固定操作栏 *@
             <div class="action-footer">
-                <Button Color="Color.Primary" Icon="fa fa-floppy-disk" Text="保存并提交此项"
-                        OnClick="OnSaveEvidence" IsAsync="true"
-                        class="px-5 shadow rounded-pill fw-bold" />
+                @if (IsEditable)
+                {
+                    <Button Color="Color.Primary" Icon="fa fa-floppy-disk" Text="保存并提交此项"
+                            OnClick="OnSaveEvidence" IsAsync="true"
+                            class="px-5 shadow rounded-pill fw-bold" />
+                }
+                else
+                {
+                    @* 可选：显示只读提示 *@
+                    <span class="text-muted bg-light px-3 py-2 rounded-pill border">
+                        <i class="fa fa-lock me-1"></i> 当前仅供查看（非填报周期或已完结）
+                    </span>
+                }
             </div>
         }
         else

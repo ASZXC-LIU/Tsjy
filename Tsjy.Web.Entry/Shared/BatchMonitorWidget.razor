@@ -22,7 +22,7 @@
                             <div class="alert alert-info">
                                 <i class="fa-solid fa-school me-2"></i>
                                 共 <strong>@Data.OrgProgresses.Count</strong> 家单位，
-                                已提交 <strong>@Data.OrgProgresses.Count(x => x.Status != TaskStatu.Pending && x.Status != TaskStatu.Sent)</strong> 家
+                                已提交 <strong>@Data.OrgProgresses.Count(x => x.Status != TaskStatu.NotStarted && x.Status != TaskStatu.ToSubmit)</strong> 家
                             </div>
                         </div>
                     </div>
