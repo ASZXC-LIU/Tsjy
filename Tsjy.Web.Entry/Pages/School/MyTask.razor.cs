@@ -93,6 +93,7 @@ public partial class MyTask
 
     private bool CanFill(SchoolTaskListDto item)
     {
+        if (item.Status == TaskStatu.Returned) return true;
         var status = item.Status;
         bool isStatusOk = item.Status == TaskStatu.ToSubmit ||
                            item.Status == TaskStatu.Submitting ||

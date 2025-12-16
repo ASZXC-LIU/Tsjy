@@ -300,23 +300,24 @@
             删除模板 (软删除)
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.IsTaskEditable(System.Int64)">
+            <summary>
+            检查任务是否处于可编辑状态 (通用检查：状态+时间)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.GetTaskStatus(System.Int64)">
+            <summary>
+            获取任务当前状态 (供前端判断)
+            </summary>
+        </member>
         <member name="M:Tsjy.Application.System.Service.TaskService.GetMyTasks(System.String)">
             <summary>
-            获取我的任务列表
-            </summary>
-            <param name="myOrgId">当前登录用户的 OrgId</param>
-        </member>
-        <member name="M:Tsjy.Application.System.Service.TaskService.GetTaskTree(System.Int64)">
-            <summary>
-            获取任务详情树 (带填报状态)
+            获取我的任务列表 (包含状态自动流转逻辑)
             </summary>
         </member>
-        <member name="M:Tsjy.Application.System.Service.TaskService.GetNodeFillDetail(System.Int64,System.Int64)">
+        <member name="M:Tsjy.Application.System.Service.TaskService.SubmitEvidence(Tsjy.Application.System.Dtos.NodeFillDetailDto)">
             <summary>
-            获取单个节点的详细填报信息
-            </summary>
-            <summary>
-            获取单个节点的详细填报信息 (完全修复：兄弟节点 Reference 继承逻辑)
+            提交佐证材料 (核心修复：解决变量重复定义、状态校验、立即保存)
             </summary>
         </member>
     </members>
