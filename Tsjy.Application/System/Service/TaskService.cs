@@ -113,7 +113,10 @@ namespace Tsjy.Application.System.Service
             {
                 // A. 自动检测驳回：优先级最高
                 // 只要有节点被驳回，状态强制变为 Returned
-                if (task.Status == TaskStatu.Reviewing || task.Status == TaskStatu.Submitted || task.Status == TaskStatu.Submitting)
+                if (task.Status == TaskStatu.Reviewing ||
+            task.Status == TaskStatu.Submitted ||
+            task.Status == TaskStatu.Submitting ||
+            task.Status == TaskStatu.Finished)
                 {
                     bool hasRejectedNodes = await _evidenceRepo.AnyAsync(e => e.TaskId == task.Id && e.Status == AuditStatus.Rejected);
                     if (hasRejectedNodes && task.Status != TaskStatu.Returned)
@@ -140,7 +143,7 @@ namespace Tsjy.Application.System.Service
                     // 时间过了截止时间 且 状态还在填报中 -> 自动变为 "已完成"
                     if (batch.UploadEnd.HasValue && now > batch.UploadEnd.Value)
                     {
-                        if (task.Status == TaskStatu.Submitting || task.Status == TaskStatu.ToSubmit || task.Status == TaskStatu.Returned)
+                        if (task.Status == TaskStatu.Submitting || task.Status == TaskStatu.ToSubmit)
                         {
                             task.Status = TaskStatu.Finished;
                             _taskRepo.Update(task);
@@ -309,18 +312,17 @@ namespace Tsjy.Application.System.Service
         [HttpPost]
         public async Task SubmitEvidence([FromBody] NodeFillDetailDto input)
         {
-            // 1. 获取任务信息 (只定义一次 task)
+            // 1. 获取任务信息
             var task = await _taskRepo.FindOrDefaultAsync(input.TaskId);
             if (task == null) throw new Exception("任务不存在");
 
             // 2. 获取当前佐证记录
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == input.TaskId && e.NodeId == input.NodeId);
 
-            // 3. 安全校验：是否允许提交？
+            // 3. 安全校验
             if (task.Status == TaskStatu.Returned)
             {
-                // 【被退回状态】: 只有当该节点是 "Rejected (驳回)" 状态时，才允许修改提交
-                // 如果 evidence 为空(没填过) 或者 状态不是 Rejected，则禁止操作
+                // 【被退回状态】: 只能修改被驳回的节点
                 if (evidence == null || evidence.Status != AuditStatus.Rejected)
                 {
                     throw new Exception("当前任务处于【被退回】状态，您只能修改并提交被专家【驳回】的节点。");
@@ -335,7 +337,7 @@ namespace Tsjy.Application.System.Service
                 }
             }
 
-            // 4. 保存佐证数据 (使用 InsertNowAsync / UpdateNowAsync 立即生效)
+            // 4. 保存佐证数据
             if (evidence == null)
             {
                 // 新增
@@ -367,18 +369,32 @@ namespace Tsjy.Application.System.Service
                 await _evidenceRepo.UpdateNowAsync(evidence);
             }
 
-            // 5. 更新任务主状态 (如果需要)
-            // 如果是 "未开始/待提交" -> 变为 "填报中"
-            // 如果是 "被退回" -> 这里保持 "被退回" 还是变 "填报中"？
-            // 通常建议：如果是退回修改，修改完一个节点后，状态仍保持 "被退回"，直到再次提交审核。
-            // 但为了简化，这里只要有操作就视为 "填报中" 也是可以的。或者不改状态，只改 evidence。
+            // 5. 更新任务主状态 (核心修改部分)
+            bool statusChanged = false;
 
-            bool shouldActive = task.Status == TaskStatu.NotStarted ||
-                                task.Status == TaskStatu.ToSubmit;
-
-            if (shouldActive)
+            // 情况 A: 从"未开始/待提交" -> "填报中"
+            if (task.Status == TaskStatu.NotStarted || task.Status == TaskStatu.ToSubmit)
             {
                 task.Status = TaskStatu.Submitting;
+                statusChanged = true;
+            }
+            // 情况 B: 从"被退回" -> "已提交" (当且仅当所有驳回项都已修复时)
+            else if (task.Status == TaskStatu.Returned)
+            {
+                // 检查数据库中该任务是否还有状态为 Rejected 的节点
+                // 注意：当前这个 evidence 已经在上面被改为 Pending 并保存了，所以这里查出来的都是"剩余没改的"
+                bool hasRemainingRejected = await _evidenceRepo.AnyAsync(e => e.TaskId == task.Id && e.Status == AuditStatus.Rejected);
+
+                // 如果没有剩余的驳回项了，说明全部修复完毕
+                if (!hasRemainingRejected)
+                {
+                    task.Status = TaskStatu.Submitted; // 改为已提交，等待专家审核
+                    statusChanged = true;
+                }
+            }
+
+            if (statusChanged)
+            {
                 await _taskRepo.UpdateNowAsync(task);
             }
         }
