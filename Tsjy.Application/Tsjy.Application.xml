@@ -315,6 +315,9 @@
             <summary>
             获取单个节点的详细填报信息
             </summary>
+            <summary>
+            获取单个节点的详细填报信息 (完全修复：兄弟节点 Reference 继承逻辑)
+            </summary>
         </member>
     </members>
 </doc>

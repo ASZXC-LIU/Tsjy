@@ -19,9 +19,14 @@ public partial class DoTask
     private bool IsLoading { get; set; } = true;
     private NodeFillDetailDto CurrentNodeDetail { get; set; }
     private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private TaskStatu CurrentTaskStatus { get; set; }
 
+    // [新增] 当前选中的节点是否允许编辑 (控制按钮显示)
+    private bool IsNodeEditable { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
+        // 所有逻辑都必须放在大括号里面
+        CurrentTaskStatus = await TaskService.GetTaskStatus(TaskId);
         IsEditable = await TaskService.IsTaskEditable(TaskId);
         await LoadTree();
     }
@@ -68,10 +73,22 @@ public partial class DoTask
             if (item.Value.Type == EvalNodeType.Points)
             {
                 CurrentNodeDetail = await TaskService.GetNodeFillDetail(TaskId, item.Value.Id);
+                if (CurrentTaskStatus == TaskStatu.Returned)
+                {
+                    // 场景A：任务被退回 -> 只有状态为 "驳回" 的节点可编辑
+                    // 注意：CurrentNodeDetail.Status 是佐证材料的审核状态
+                    IsNodeEditable = CurrentNodeDetail.Status == AuditStatus.Rejected;
+                }
+                else
+                {
+                    // 场景B：正常填报 -> 看全局 IsEditable (时间符合 && 状态符合)
+                    IsNodeEditable = IsEditable;
+                }
             }
             else
             {
                 CurrentNodeDetail = null;
+                IsNodeEditable = false;
             }
             StateHasChanged();
         }

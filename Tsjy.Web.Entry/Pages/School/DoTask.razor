@@ -185,20 +185,31 @@
 
             @* 3. 底部：固定操作栏 *@
             <div class="action-footer">
-                @if (IsEditable)
+    @if (CurrentNodeDetail != null)
+    {
+        @* 使用 IsNodeEditable 控制按钮显示 *@
+        @if (IsNodeEditable)
+        {
+            <Button Color="Color.Primary" Icon="fa fa-floppy-disk" Text="保存并提交此项"
+                    OnClick="OnSaveEvidence" IsAsync="true"
+                    class="px-5 shadow rounded-pill fw-bold" />
+        }
+        else
+        {
+            @* 根据不同情况显示提示信息 *@
+            <span class="text-muted bg-light px-3 py-2 rounded-pill border">
+                @if (CurrentTaskStatus == TaskStatu.Returned)
                 {
-                    <Button Color="Color.Primary" Icon="fa fa-floppy-disk" Text="保存并提交此项"
-                            OnClick="OnSaveEvidence" IsAsync="true"
-                            class="px-5 shadow rounded-pill fw-bold" />
+                    <i class="fa fa-lock me-1"></i> <span>该节点未被驳回，无需修改</span>
                 }
-                else
+                else if (!IsEditable)
                 {
-                    @* 可选：显示只读提示 *@
-                    <span class="text-muted bg-light px-3 py-2 rounded-pill border">
-                        <i class="fa fa-lock me-1"></i> 当前仅供查看（非填报周期或已完结）
-                    </span>
+                    <i class="fa fa-clock me-1"></i> <span>非填报时间或已完结，仅供查看</span>
                 }
-            </div>
+            </span>
+        }
+    }
+</div>
         }
         else
         {
