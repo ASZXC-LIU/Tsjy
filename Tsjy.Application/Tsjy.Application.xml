@@ -87,6 +87,16 @@
             评分模板ID，关联 scoring_models 表
             </summary>
         </member>
+        <member name="T:Tsjy.Application.System.Dtos.ReviewDtos.ExpertTaskListDto">
+            <summary>
+            专家端：任务列表项 DTO
+            </summary>
+        </member>
+        <member name="T:Tsjy.Application.System.Dtos.ReviewDtos.ReviewSubmissionDto">
+            <summary>
+            专家提交评审的输入模型
+            </summary>
+        </member>
         <member name="T:Tsjy.Application.System.Dtos.ScoringModelDto">
             <summary>
             评分模板表单 DTO (用于新增和编辑)
@@ -269,6 +279,21 @@
             <param name="parentId">当前父级ID</param>
             <param name="parentCodePrefix">父级Code前缀（如 "1.2"）</param>
             <returns>是否有数据变动</returns>
+        </member>
+        <member name="T:Tsjy.Application.System.Service.ReviewService">
+            <summary>
+            专家评审业务服务
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.ReviewService.GetExpertTasks(System.String)">
+            <summary>
+            获取分配给专家的任务进度列表
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.ReviewService.SubmitReview(Tsjy.Application.System.Dtos.ReviewDtos.ReviewSubmissionDto)">
+            <summary>
+            提交专家评审结论
+            </summary>
         </member>
         <member name="T:Tsjy.Application.System.Service.ScoringModelService">
             <summary>

@@ -381,30 +381,42 @@ namespace Tsjy.Application.System.Service
             }
 
             // 5. 更新任务主状态 (核心修改部分)
-            bool statusChanged = false;
+            var oldStatus = task.Status;
 
-            // 情况 A: 从"未开始/待提交" -> "填报中"
-            if (task.Status == TaskStatu.NotStarted || task.Status == TaskStatu.ToSubmit)
+            if (task.Status == TaskStatu.Returned)
             {
-                task.Status = TaskStatu.Submitting;
-                statusChanged = true;
-            }
-            // 情况 B: 从"被退回" -> "已提交" (当且仅当所有驳回项都已修复时)
-            else if (task.Status == TaskStatu.Returned)
-            {
-                // 检查数据库中该任务是否还有状态为 Rejected 的节点
-                // 注意：当前这个 evidence 已经在上面被改为 Pending 并保存了，所以这里查出来的都是"剩余没改的"
+                // 情况 B: 从"被退回" -> "已提交" (当且仅当所有驳回项都已修复时)
                 bool hasRemainingRejected = await _evidenceRepo.AnyAsync(e => e.TaskId == task.Id && e.Status == AuditStatus.Rejected);
-
-                // 如果没有剩余的驳回项了，说明全部修复完毕
                 if (!hasRemainingRejected)
                 {
-                    task.Status = TaskStatu.Submitted; // 改为已提交，等待专家审核
-                    statusChanged = true;
+                    task.Status = TaskStatu.Submitted;
+                }
+            }
+            else if (task.Status == TaskStatu.NotStarted || task.Status == TaskStatu.ToSubmit || task.Status == TaskStatu.Submitting)
+            {
+                // 情况 A/C: 正常填报流程 (处理“待提交”和“填报中”)
+
+                // 核心修复点：调用 GetTaskTree 检查整体完成度
+                var treeNodes = await GetTaskTree(task.Id);
+                var pointNodes = treeNodes.Where(x => x.Type == EvalNodeType.Points).ToList();
+
+                // 检查是否所有必填点（Points类型）都已经有了佐证记录
+                bool isAllCompleted = pointNodes.All(x => x.IsCompleted);
+
+                if (isAllCompleted)
+                {
+                    // 全部填完，自动转为“已提交”
+                    task.Status = TaskStatu.Submitted;
+                }
+                else
+                {
+                    // 只要开始填了且没填完，就是“填报中”
+                    task.Status = TaskStatu.Submitting;
                 }
             }
 
-            if (statusChanged)
+            // 如果状态发生了实质性改变，则执行更新
+            if (task.Status != oldStatus)
             {
                 await _taskRepo.UpdateNowAsync(task);
             }
