@@ -1,0 +1,115 @@
+﻿@page "/Review/ReviewDetail/{TaskId:long}"
+@using Tsjy.Application.System.Dtos
+@using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "Expert")]
+@namespace Tsjy.Web.Entry.Pages.Review
+
+<div class="expert-review-container">
+    @* 左侧指标树 *@
+    <div class="tree-sidebar shadow-sm">
+        <div class="sidebar-header p-3 border-bottom">
+            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-list-check me-2"></i>指标体系</h6>
+        </div>
+        <div class="sidebar-body p-2">
+            <TreeView TItem="TaskNodeTreeDto" Items="@TreeItems" OnTreeItemClick="@OnNodeClick" ShowIcon="true" />
+        </div>
+    </div>
+
+    @* 右侧评审区域 *@
+    <div class="review-main bg-light">
+        @if (CurrentNodeDetail == null)
+        {
+            <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                <img src="/images/Argo.png" style="width: 200px; opacity: 0.1;" />
+                <p class="mt-3">请点击左侧指标开始评审</p>
+            </div>
+        }
+        else
+        {
+            <div class="content-wrapper p-4">
+                @* 1. 指标详情卡片 *@
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item small text-secondary">@CurrentNodeDetail.FirstIndicator</li>
+                                <li class="breadcrumb-item small text-secondary">@CurrentNodeDetail.SecondIndicator</li>
+                                <li class="breadcrumb-item small active text-primary fw-bold">@CurrentNodeDetail.PointName</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="fw-bold mb-3">评估要点</h5>
+                                <div class="text-dark mb-4 p-3 bg-light rounded-3 border-start border-4 border-primary">@CurrentNodeDetail.ReferencePoint</div>
+                                <h6 class="fw-bold"><i class="fa-solid fa-vial text-info me-2"></i>评估方法</h6>
+                                <p class="text-secondary small">@CurrentNodeDetail.Method</p>
+                            </div>
+                            <div class="col-md-4 text-center border-start">
+                                <div class="score-badge">
+                                    <div class="small text-muted">标准分值</div>
+                                    <div class="h2 fw-bold text-primary mb-0">@CurrentNodeDetail.MaxScore</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    @* 2. 学校佐证展示 *@
+                    <div class="col-lg-7">
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-header bg-white fw-bold"><i class="fa-solid fa-file-invoice me-2 text-warning"></i>受评单位佐证</div>
+                            <div class="card-body">
+                                <h6 class="small text-muted mb-2">自评说明：</h6>
+                                <div class="content-box p-3 bg-light rounded-3 mb-4" style="min-height: 120px;">
+                                    @(string.IsNullOrWhiteSpace(CurrentNodeDetail.MyContent) ? "（未填写文字说明）" : CurrentNodeDetail.MyContent)
+                                </div>
+                                <h6 class="small text-muted mb-2">附件材料：</h6>
+                                <div class="file-list">
+                                    @if (CurrentNodeDetail.FileUrls?.Any() == true)
+                                    {
+                                        @foreach (var file in CurrentNodeDetail.FileUrls)
+                                        {
+                                            <div class="file-item d-flex align-items-center p-2 mb-2 border rounded-3 bg-white">
+                                                <i class="fa-solid fa-file-pdf text-danger me-2"></i>
+                                                <span class="flex-grow-1 text-truncate small">@file</span>
+                                                <a href="@file" target="_blank" class="btn btn-sm btn-link">预览</a>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center py-4 text-muted small border rounded-3 border-dashed">暂无附件</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* 3. 评审操作区 *@
+                    <div class="col-lg-5">
+                        <div class="card border-0 shadow-sm rounded-4 h-100 border-top border-5 border-success">
+                            <div class="card-header bg-white fw-bold"><i class="fa-solid fa-gavel me-2 text-success"></i>专家评审意见</div>
+                            <div class="card-body">
+                                <h6 class="small text-muted mb-3">评分等级：</h6>
+                                <div class="scoring-list mb-4">
+                                    <RadioList TValue="long" Items="@ScoringOptions" @bind-Value="@SelectedScoringItemId" IsVertical="true" />
+                                </div>
+
+                                <h6 class="small text-muted mb-2">驳回建议 (仅驳回时必填)：</h6>
+                                <Textarea @bind-Value="@RejectReason" Rows="3" placeholder="若认为佐证不充分，请在此输入修改建议..." class="mb-4" />
+
+                                <div class="d-grid gap-2">
+                                    <Button Color="Color.Success" IsBlock="true" OnClick="OnApprove" Icon="fa-solid fa-check"> 评审通过 </Button>
+                                    <Button Color="Color.Danger" IsBlock="true" OnClick="OnReject" Icon="fa-solid fa-xmark"> 予以驳回 </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

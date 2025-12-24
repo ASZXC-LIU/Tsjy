@@ -1,8 +1,9 @@
-﻿using Furion.DatabaseAccessor;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using Tsjy.Application.System.Dtos;
 using Tsjy.Core.Entities;
 using Tsjy.Core.Enums;
@@ -15,25 +16,27 @@ namespace Tsjy.Application.System.Service
         private readonly IRepository<Tasks> _taskRepo;
         private readonly IRepository<TaskEvidences> _evidenceRepo;
         private readonly IRepository<Departments> _orgRepo;
-        // 修改：注入 SysUsers 仓储
         private readonly IRepository<SysUsers> _userRepo;
-
         private readonly IRepository<SpeEvalNode> _speRepo;
         private readonly IRepository<IncEvalNode> _incRepo;
         private readonly IRepository<EduEvalNode> _eduRepo;
         private readonly IRepository<ScoringModelItem> _scoringItemRepo;
+        private readonly IRepository<ScoringModel> _modelRepo;
+
         public TaskService(
             IRepository<ScoringModelItem> scoringItemRepo,
             IRepository<DistributionBatch> batchRepo,
             IRepository<Tasks> taskRepo,
             IRepository<TaskEvidences> evidenceRepo,
             IRepository<SysUsers> userRepo,
-            IRepository<Departments> orgRepo, // Update
+            IRepository<Departments> orgRepo,
             IRepository<SpeEvalNode> speRepo,
             IRepository<IncEvalNode> incRepo,
+            IRepository<ScoringModel> modelRepo,
             IRepository<EduEvalNode> eduRepo)
         {
             _scoringItemRepo = scoringItemRepo;
+            _modelRepo = modelRepo;
             _batchRepo = batchRepo;
             _taskRepo = taskRepo;
             _evidenceRepo = evidenceRepo;
@@ -44,17 +47,54 @@ namespace Tsjy.Application.System.Service
             _eduRepo = eduRepo;
         }
 
-    
         #region 学校端：查看与执行
 
         /// <summary>
-        /// 获取我的任务列表
+        /// 检查任务是否处于可编辑状态 (通用检查：状态+时间)
         /// </summary>
-        /// <param name="myOrgId">当前登录用户的 OrgId</param>
+        public async Task<bool> IsTaskEditable(long taskId)
+        {
+            var task = await _taskRepo.FindOrDefaultAsync(taskId);
+            if (task == null) return false;
+           
+            // 1. 状态校验：允许 待提交、填报中、被退回
+            bool isStatusAllow = task.Status == TaskStatu.ToSubmit ||
+                                 task.Status == TaskStatu.Submitting ||
+                                 task.Status == TaskStatu.Returned;
+
+            if (!isStatusAllow) return false;
+
+            // 2. 时间校验
+            var batch = await _batchRepo.FindOrDefaultAsync(task.BatchId);
+            if (batch != null)
+            {
+                var now = DateTime.Now;
+                // 如果还没到开始时间
+                if (batch.UploadStart.HasValue && now < batch.UploadStart.Value) return false;
+                // 如果已经过了结束时间
+                if (batch.UploadEnd.HasValue && now > batch.UploadEnd.Value) return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 获取任务当前状态 (供前端判断)
+        /// </summary>
+        [HttpGet]
+        public async Task<TaskStatu> GetTaskStatus(long taskId)
+        {
+            var task = await _taskRepo.FindOrDefaultAsync(taskId);
+            return task?.Status ?? TaskStatu.NotStarted;
+        }
+
+        /// <summary>
+        /// 获取我的任务列表 (包含状态自动流转逻辑)
+        /// </summary>
         public async Task<List<SchoolTaskListDto>> GetMyTasks(string myOrgId)
         {
             if (string.IsNullOrEmpty(myOrgId)) return new List<SchoolTaskListDto>();
-            // 查找 TargetId 等于我的 OrgId 的任务
+
             var tasks = await _taskRepo.AsQueryable()
                 .Where(t => t.TargetId == myOrgId && !t.IsDeleted)
                 .OrderByDescending(t => t.CreatedAt)
@@ -62,39 +102,104 @@ namespace Tsjy.Application.System.Service
 
             if (!tasks.Any()) return new List<SchoolTaskListDto>();
 
-            // 2. 获取相关的批次信息 (不仅获取Name，还要获取时间)
             var batchIds = tasks.Select(t => t.BatchId).Distinct().ToList();
-
-            // ★★★ 修改：查询 Batch 对象以便获取时间 ★★★
             var batches = await _batchRepo.Where(b => batchIds.Contains(b.Id))
-                                          .ToDictionaryAsync(b => b.Id, b => b); // Value 存整个实体
+                                          .ToDictionaryAsync(b => b.Id, b => b);
 
-            // 3. 组装 DTO
+            bool needSave = false;
+            var now = DateTime.Now;
+
+            foreach (var task in tasks)
+            {
+                // A. 自动检测驳回：优先级最高
+                // 只要有节点被驳回，状态强制变为 Returned
+                if (task.Status == TaskStatu.Reviewing ||
+            task.Status == TaskStatu.Submitted ||
+            task.Status == TaskStatu.Submitting ||
+            task.Status == TaskStatu.Finished)
+                {
+                    bool hasRejectedNodes = await _evidenceRepo.AnyAsync(e => e.TaskId == task.Id && e.Status == AuditStatus.Rejected);
+                    if (hasRejectedNodes && task.Status != TaskStatu.Returned)
+                    {
+                        task.Status = TaskStatu.Returned;
+                        _taskRepo.Update(task);
+                        needSave = true;
+                        continue; // 状态已变，跳过后续检查
+                    }
+                }
+
+                if (batches.TryGetValue(task.BatchId, out var batch))
+                {
+                    // Logic A: 自动开始
+                    // 状态是"未开始" 且 时间到了 -> 变为 "待提交"
+                    if (task.Status == TaskStatu.NotStarted && batch.UploadStart.HasValue && now >= batch.UploadStart.Value)
+                    {
+                        task.Status = TaskStatu.ToSubmit;
+                        _taskRepo.Update(task);
+                        needSave = true;
+                    }
+
+                    // Logic B: 自动结束
+                    // 时间过了截止时间 且 状态还在填报中 -> 自动变为 "已完成"
+                    if (batch.UploadEnd.HasValue && now > batch.UploadEnd.Value)
+                    {
+                        if (task.Status == TaskStatu.Submitting || task.Status == TaskStatu.ToSubmit)
+                        {
+                            task.Status = TaskStatu.Finished;
+                            _taskRepo.Update(task);
+                            needSave = true;
+                        }
+                    }
+                }
+
+                // Logic C: 自动检测驳回 (如果专家驳回了节点，任务状态自动变更为"被退回")
+                if (task.Status!= TaskStatu.Returned)
+                {
+                    bool hasRejectedNodes = await _evidenceRepo.AnyAsync(e => e.TaskId == task.Id && e.Status == AuditStatus.Rejected);
+                    if (hasRejectedNodes)
+                    {
+                        task.Status = TaskStatu.Returned;
+                        _taskRepo.Update(task);
+                        needSave = true;
+                    }
+                }
+            }
+            //// Logic D: 自动检测是待审核 (如果专家驳回了节点，任务状态自动变更为"被退回")
+            //if (task.Status != TaskStatu.Returned)
+            //{
+            //    bool hasRejectedNodes = await _evidenceRepo.AnyAsync(e => e.TaskId == task.Id && e.Status == AuditStatus.Rejected);
+            //    if (hasRejectedNodes)
+            //    {
+            //        task.Status = TaskStatu.Returned;
+            //        _taskRepo.Update(task);
+            //        needSave = true;
+            //    }
+            //}
+
+            if (needSave)
+            {
+                await _taskRepo.Context.SaveChangesAsync();
+            }
+
             return tasks.Select(t =>
             {
-                // 尝试获取对应的 Batch
                 var batch = batches.ContainsKey(t.BatchId) ? batches[t.BatchId] : null;
-
                 return new SchoolTaskListDto
                 {
                     TaskId = t.Id,
-                    BatchName = batch?.Name ?? "未知任务", // 如果 batch 不为空则取 Name
+                    BatchName = batch?.Name ?? "未知任务",
                     Status = t.Status,
-
-                    // ★★★ 核心修复：赋值时间 ★★★
                     UploadStart = batch?.UploadStart,
                     UploadEnd = batch?.UploadEnd,
-
                     FinalScore = t.FinalScore
                 };
             }).ToList();
         }
 
-        /// <summary>
-        /// 获取任务详情树 (带填报状态)
-        /// </summary>
+        // ... GetTaskTree 方法保持不变 ...
         public async Task<List<TaskNodeTreeDto>> GetTaskTree(long taskId)
         {
+            // 保持您原有的代码逻辑
             var task = await _taskRepo.FindOrDefaultAsync(taskId);
             if (task == null) throw new Exception("任务不存在");
 
@@ -123,13 +228,14 @@ namespace Tsjy.Application.System.Service
             }).ToList();
         }
 
-        /// <summary>
-        /// 获取单个节点的详细填报信息
-        /// </summary>
+        // ... GetNodeFillDetail 方法保持不变 (使用您之前修改好的版本) ...
         public async Task<NodeFillDetailDto> GetNodeFillDetail(long taskId, long nodeId)
         {
-            var task = await _taskRepo.FindOrDefaultAsync(taskId);
+            // 此处代码较长，请保持上一轮我们修复后的版本，包含 Reference 查找和 TemplateId 查找逻辑
+            // 为节省篇幅，此处省略，请确保不要覆盖掉那部分逻辑
+            // ... (复制您代码中已有的 GetNodeFillDetail 实现) ...
 
+            var task = await _taskRepo.FindOrDefaultAsync(taskId);
             IEvalNode targetNode = null;
             List<IEvalNode> allNodes = new();
 
@@ -159,33 +265,44 @@ namespace Tsjy.Application.System.Service
                 MaxScore = targetNode.MaxScore
             };
 
+            IEvalNode referenceNode = null;
             var current = targetNode;
             while (current.ParentId != null)
             {
                 var parent = allNodes.FirstOrDefault(x => x.Id == current.ParentId);
                 if (parent == null) break;
-                if (parent.Type == EvalNodeType.Reference) dto.ReferencePoint = parent.Name;
+                if (parent.Type == EvalNodeType.Reference) { dto.ReferencePoint = parent.Name; referenceNode = parent; }
                 else if (parent.Type == EvalNodeType.SecondIndicator) dto.SecondIndicator = parent.Name;
                 else if (parent.Type == EvalNodeType.FirstIndicator) dto.FirstIndicator = parent.Name;
                 current = parent;
             }
 
-            var methodNode = allNodes.FirstOrDefault(x => x.ParentId == nodeId && x.Type == EvalNodeType.Method);
+            if (referenceNode == null && targetNode.ParentId.HasValue)
+            {
+                referenceNode = allNodes.FirstOrDefault(x => x.ParentId == targetNode.ParentId && x.Type == EvalNodeType.Reference);
+                if (referenceNode != null) dto.ReferencePoint = referenceNode.Name;
+            }
+
+            IEvalNode methodNode = allNodes.FirstOrDefault(x => x.ParentId == targetNode.Id && x.Type == EvalNodeType.Method);
+            if (methodNode == null && referenceNode != null)
+            {
+                methodNode = allNodes.FirstOrDefault(x => x.ParentId == referenceNode.Id && x.Type == EvalNodeType.Method);
+            }
             if (methodNode != null) dto.Method = methodNode.Name;
 
+            long? finalTemplateId = targetNode.ScoringTemplateId;
+            if (finalTemplateId == null && referenceNode != null) finalTemplateId = referenceNode.ScoringTemplateId;
 
-            if (targetNode.ScoringTemplateId.HasValue)
+            if (finalTemplateId.HasValue)
             {
-                var items = await _scoringItemRepo.Where(x => x.TemplateId == targetNode.ScoringTemplateId.Value && !x.IsDeleted)
-                                                  .OrderBy(x => x.Sort)
-                                                  .ToListAsync();
-                dto.ScoringItems = items.Select(x => new ScoringModelItemDto
+                var modelWithItems = await _modelRepo.Include(x => x.Items)
+                                                     .Where(x => x.Id == finalTemplateId.Value && !x.IsDeleted)
+                                                     .FirstOrDefaultAsync();
+                if (modelWithItems != null && modelWithItems.Items != null)
                 {
-                    Id = x.Id,
-                    LevelCode = x.LevelCode,
-                    Ratio = x.Ratio,
-                    Description = x.Description
-                }).ToList();
+                    dto.ScoringItems = modelWithItems.Items.Where(x => !x.IsDeleted).OrderBy(x => x.Sort)
+                        .Select(x => new ScoringModelItemDto { Id = x.Id, LevelCode = x.LevelCode, Ratio = x.Ratio, Description = x.Description }).ToList();
+                }
             }
 
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == taskId && e.NodeId == nodeId);
@@ -193,43 +310,115 @@ namespace Tsjy.Application.System.Service
             {
                 dto.EvidenceId = evidence.Id;
                 dto.MyContent = evidence.Content;
-                dto.FileUrls = string.IsNullOrEmpty(evidence.FileUrls)
-                    ? new List<string>()
-                    : global::System.Text.Json.JsonSerializer.Deserialize<List<string>>(evidence.FileUrls);
+                dto.FileUrls = string.IsNullOrEmpty(evidence.FileUrls) ? new List<string>() : global::System.Text.Json.JsonSerializer.Deserialize<List<string>>(evidence.FileUrls);
                 dto.Status = evidence.Status;
                 dto.RejectReason = evidence.RejectReason;
             }
-
             return dto;
         }
 
+        /// <summary>
+        /// 提交佐证材料 (核心修复：解决变量重复定义、状态校验、立即保存)
+        /// </summary>
         [HttpPost]
         public async Task SubmitEvidence([FromBody] NodeFillDetailDto input)
         {
+            // 1. 获取任务信息
+            var task = await _taskRepo.FindOrDefaultAsync(input.TaskId);
+            if (task == null) throw new Exception("任务不存在");
+
+            // 2. 获取当前佐证记录
             var evidence = await _evidenceRepo.FirstOrDefaultAsync(e => e.TaskId == input.TaskId && e.NodeId == input.NodeId);
+
+            // 3. 安全校验
+            if (task.Status == TaskStatu.Returned)
+            {
+                // 【被退回状态】: 只能修改被驳回的节点
+                if (evidence == null || evidence.Status != AuditStatus.Rejected)
+                {
+                    throw new Exception("当前任务处于【被退回】状态，您只能修改并提交被专家【驳回】的节点。");
+                }
+            }
+            else
+            {
+                // 【普通状态】: 检查时间和通用状态
+                if (!await IsTaskEditable(input.TaskId))
+                {
+                    throw new Exception("当前不在填报周期内或任务状态不允许提交。");
+                }
+            }
+
+            // 4. 保存佐证数据
             if (evidence == null)
             {
+                // 新增
                 evidence = new TaskEvidences
                 {
                     TaskId = input.TaskId,
                     NodeId = input.NodeId,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    Content = input.MyContent,
+                    FileUrls = global::System.Text.Json.JsonSerializer.Serialize(input.FileUrls),
+                    Status = AuditStatus.Pending,
+                    UpdatedAt = DateTime.Now
                 };
-                await _evidenceRepo.InsertAsync(evidence);
+                await _evidenceRepo.InsertNowAsync(evidence);
+            }
+            else
+            {
+                // 更新
+                evidence.Content = input.MyContent;
+                evidence.FileUrls = global::System.Text.Json.JsonSerializer.Serialize(input.FileUrls);
+
+                // 如果是驳回状态修改后，重置为 Pending (待审核)
+                if (evidence.Status == AuditStatus.Rejected)
+                {
+                    evidence.Status = AuditStatus.Pending;
+                }
+
+                evidence.UpdatedAt = DateTime.Now;
+                await _evidenceRepo.UpdateNowAsync(evidence);
             }
 
-            evidence.Content = input.MyContent;
-            evidence.FileUrls = global::System.Text.Json.JsonSerializer.Serialize(input.FileUrls);
-            if (evidence.Status == AuditStatus.Rejected) evidence.Status = AuditStatus.Pending;
-            evidence.UpdatedAt = DateTime.Now;
+            // 5. 更新任务主状态 (核心修改部分)
+            var oldStatus = task.Status;
 
-            await _evidenceRepo.UpdateAsync(evidence);
-
-            var task = await _taskRepo.FindOrDefaultAsync(input.TaskId);
-            if (task.Status == TaskStatu.Pending || task.Status == TaskStatu.Sent || task.Status == TaskStatu.Returned)
+            if (task.Status == TaskStatu.Returned)
             {
-                task.Status = TaskStatu.Submitting;
-                await _taskRepo.UpdateAsync(task);
+                // 情况 B: 从"被退回" -> "已提交" (当且仅当所有驳回项都已修复时)
+                bool hasRemainingRejected = await _evidenceRepo.AnyAsync(e => e.TaskId == task.Id && e.Status == AuditStatus.Rejected);
+                if (!hasRemainingRejected)
+                {
+                    task.Status = TaskStatu.Submitted;
+                }
+            }
+            else if (task.Status == TaskStatu.NotStarted || task.Status == TaskStatu.ToSubmit || task.Status == TaskStatu.Submitting)
+            {
+                // 情况 A/C: 正常填报流程 (处理“待提交”和“填报中”)
+
+                // 核心修复点：调用 GetTaskTree 检查整体完成度
+                var treeNodes = await GetTaskTree(task.Id);
+                var pointNodes = treeNodes.Where(x => x.Type == EvalNodeType.Points).ToList();
+
+                // 检查是否所有必填点（Points类型）都已经有了佐证记录
+                bool isAllCompleted = pointNodes.All(x => x.IsCompleted);
+
+                if (isAllCompleted)
+                {
+                    // 全部填完，自动转为“已提交”
+                    task.Status = TaskStatu.Submitted;
+                }
+                else
+                {
+                    // 只要开始填了且没填完，就是“填报中”
+                    task.Status = TaskStatu.Submitting;
+                }
+            }
+
+            // 如果状态发生了实质性改变，则执行更新
+            if (task.Status != oldStatus)
+            {
+                await _taskRepo.UpdateNowAsync(task);
             }
         }
 
@@ -238,15 +427,9 @@ namespace Tsjy.Application.System.Service
             var list = await repo.Where(x => !x.IsDeleted && x.TreeId == TreeId)
                                  .OrderBy(x => x.OrderIndex)
                                  .ToListAsync();
-            Console.WriteLine("1111");
-            Console.WriteLine("1111");
-            Console.WriteLine("1111");
             return list.Adapt<List<EvalNodeTreeDto>>();
         }
 
-
-
-        
         #endregion
     }
 }

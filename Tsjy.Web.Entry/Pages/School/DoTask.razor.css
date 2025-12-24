@@ -1,47 +1,172 @@
-﻿/* 顶部指引 */
-.alert-light-primary {
-    background-color: #eef4ff;
-    color: #495057;
+﻿/* DoTask.razor.css */
+
+/* --- 布局容器 --- */
+.page-wrapper {
+    height: calc(100vh - 60px);
+    background-color: #f3f5f9; /* 柔和背景色 */
+    overflow: hidden;
 }
 
-/* 分数徽章 */
-.score-badge {
-    background-color: #eef2ff;
-    border: 1px solid #c7d2fe;
-    border-radius: 8px;
-    padding: 4px 12px;
-    min-width: 80px;
+/* --- 统一头部高度 (关键需求 4) --- */
+.section-header {
+    height: 72px; /* 强制左右头部高度一致 */
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    flex-shrink: 0;
 }
 
-/* 附件小标签 */
-.file-chip {
-    transition: all 0.2s;
+/* --- 左侧列表区域 --- */
+.sidebar-panel {
+    background-color: #ffffff;
+    border-right: 1px solid #e9ecef;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-    .file-chip:hover {
-        background-color: #f8f9fa !important;
-        border-color: #dee2e6 !important;
-    }
-
-/* 边框样式 */
-.border-dashed {
-    border-style: dashed !important;
-    border-width: 2px !important;
+.tree-container {
+    padding: 1rem 0.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-/* 树形列表优化 - 强制背景色，防止透明变黑 */
+/* --- 树节点样式优化 (关键需求 3) --- */
+/* 覆盖 BootstrapBlazor 默认样式，增加内边距和圆角 */
 ::deep .tree-node {
-    padding: 8px 4px;
-    border-radius: 4px;
-    background-color: #fff; /* 确保背景是白色 */
+    padding: 0.5rem 0.5rem !important;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    transition: all 0.2s ease;
+    /* 核心：确保节点本身宽度不超过父容器 */
+    max-width: 100%;
 }
 
     ::deep .tree-node:hover {
-        background-color: #e9ecef;
+        background-color: #f8f9fa;
     }
 
     ::deep .tree-node.active {
-        background-color: #e7f1ff !important;
+        background-color: #eef4ff !important; /* 选中态淡蓝背景 */
         color: #0d6efd !important;
-        font-weight: bold;
+    }
+
+/* 节点内容包装器：用于 Flex 布局 */
+.node-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%; /* 占满可用空间 */
+    overflow: hidden; /* 溢出隐藏 */
+}
+
+/* 节点文本：强制单行、截断显示省略号 */
+.node-text {
+    flex: 1; /* 占据剩余空间 */
+    margin-left: 8px;
+    margin-right: 8px;
+    /* 截断三件套 */
+    white-space: nowrap; /* 不换行 */
+    overflow: hidden; /* 超出隐藏 */
+    text-overflow: ellipsis; /* 显示省略号 (...) */
+    /* Flex 布局截断补丁：非常重要！防止 Flex 子元素撑开父元素 */
+    min-width: 0;
+    font-size: 0.9rem;
+    color: #495057;
+}
+::deep .tree-node.active .node-text {
+    font-weight: 600;
+    color: #0d6efd;
+}
+/* --- 右侧详情区域 --- */
+.content-panel {
+    background-color: #f3f5f9;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-scroll-area {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+/* 卡片通用样式美化 */
+.task-card {
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s;
+}
+
+    .task-card:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+.card-title-line {
+    font-weight: 700;
+    color: #495057;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #f1f3f5;
+    display: flex;
+    align-items: center;
+}
+
+/* 指标层级胶囊样式 */
+.indicator-pill {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.indicator-label {
+    font-size: 0.75rem;
+    color: #adb5bd;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.indicator-content {
+    color: #212529;
+    font-weight: 600;
+}
+
+/* 底部操作栏 */
+.action-footer {
+    height: 72px; /* 与头部高度呼应 */
+    background: #fff;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 2rem;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.03);
+    z-index: 10;
+}
+
+/* 自定义滚动条 */
+.custom-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #ced4da;
+    border-radius: 3px;
+}
+
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+        background: #adb5bd;
     }

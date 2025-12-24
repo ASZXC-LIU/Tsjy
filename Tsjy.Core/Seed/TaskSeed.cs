@@ -53,7 +53,7 @@ namespace Tsjy.Core.Seed
                 new Tasks { Id = id++, BatchId = 10000, TreeId = 202501, TargetType = OrgType.SpecialSchool, TargetId = "130100_SPE_01", Status = TaskStatu.Submitted, SubmittedAt = DateTime.UtcNow.AddDays(-1) },
 
                 // 融合任务
-                new Tasks { Id = id++, BatchId = 10001, TreeId = 202502, TargetType = OrgType.InclusiveSchool, TargetId = "110108_INC_01", Status = TaskStatu.Pending },
+                new Tasks { Id = id++, BatchId = 10001, TreeId = 202502, TargetType = OrgType.InclusiveSchool, TargetId = "110108_INC_01", Status = TaskStatu.NotStarted },
 
                 // 局端任务
                 new Tasks { Id = id++, BatchId = 10002, TreeId = 202503, TargetType = OrgType.EducationBureau, TargetId = "110105_EDU", Status = TaskStatu.Reviewing, SubmittedAt = DateTime.UtcNow.AddDays(-2) },

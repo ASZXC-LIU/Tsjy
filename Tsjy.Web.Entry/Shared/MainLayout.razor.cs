@@ -71,6 +71,9 @@ namespace Tsjy.Web.Entry.Shared
                     case "SchoolUser":
                         Menus = GetUserSideMenuItems();
                         break;
+                    case "Expert":
+                        Menus = GetExpertSideMenuItems();
+                        break;
                     default:
                         Menus = GetSysAdminSideMenuItems();
                         break;
@@ -158,6 +161,26 @@ namespace Tsjy.Web.Entry.Shared
          new MenuItem() { Text = "历史评价", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/School/HistoryEvaluation" },
 
         new MenuItem() { Text = "我的任务", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/School/MyTasks" },
+        //new MenuItem() { Text = "用户列表", Icon = "fa-solid fa-fw fa-users", Url = "/UserList" },
+        //new MenuItem() { Text = "获取数据", Icon = "fa-solid fa-fw fa-database", Url = "/fetchdata" },
+    };
+
+            return menus;
+        }
+
+        private static List<MenuItem> GetExpertSideMenuItems()
+        {
+
+
+            var menus = new List<MenuItem>
+    {
+        //new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
+
+
+
+         new MenuItem() { Text = "工作台", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/Review/Dashboard" },
+
+        //new MenuItem() { Text = "我的任务", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/Review/ReviewDetail" },
         //new MenuItem() { Text = "用户列表", Icon = "fa-solid fa-fw fa-users", Url = "/UserList" },
         //new MenuItem() { Text = "获取数据", Icon = "fa-solid fa-fw fa-database", Url = "/fetchdata" },
     };
