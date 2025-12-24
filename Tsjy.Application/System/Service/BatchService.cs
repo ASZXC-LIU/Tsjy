@@ -294,7 +294,7 @@ public class BatchService : IBatchService, ITransient,IScoped
 
                 // 7. 更新批次状态
                 batch.Status = PublicStatus.Published;
-                await _batchRepo.UpdateAsync(batch);
+                await _batchRepo.UpdateNowAsync(batch);
 
                 await _batchRepo.Context.SaveChangesAsync(); // 确保所有更改提交
                 await transaction.CommitAsync();

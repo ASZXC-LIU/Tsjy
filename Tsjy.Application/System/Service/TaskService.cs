@@ -56,7 +56,7 @@ namespace Tsjy.Application.System.Service
         {
             var task = await _taskRepo.FindOrDefaultAsync(taskId);
             if (task == null) return false;
-            if (task.Status == TaskStatu.Returned) return true;
+           
             // 1. 状态校验：允许 待提交、填报中、被退回
             bool isStatusAllow = task.Status == TaskStatu.ToSubmit ||
                                  task.Status == TaskStatu.Submitting ||
@@ -153,7 +153,7 @@ namespace Tsjy.Application.System.Service
                 }
 
                 // Logic C: 自动检测驳回 (如果专家驳回了节点，任务状态自动变更为"被退回")
-                if (task.Status == TaskStatu.Reviewing || task.Status == TaskStatu.Submitted)
+                if (task.Status!= TaskStatu.Returned)
                 {
                     bool hasRejectedNodes = await _evidenceRepo.AnyAsync(e => e.TaskId == task.Id && e.Status == AuditStatus.Rejected);
                     if (hasRejectedNodes)
@@ -164,6 +164,17 @@ namespace Tsjy.Application.System.Service
                     }
                 }
             }
+            //// Logic D: 自动检测是待审核 (如果专家驳回了节点，任务状态自动变更为"被退回")
+            //if (task.Status != TaskStatu.Returned)
+            //{
+            //    bool hasRejectedNodes = await _evidenceRepo.AnyAsync(e => e.TaskId == task.Id && e.Status == AuditStatus.Rejected);
+            //    if (hasRejectedNodes)
+            //    {
+            //        task.Status = TaskStatu.Returned;
+            //        _taskRepo.Update(task);
+            //        needSave = true;
+            //    }
+            //}
 
             if (needSave)
             {
