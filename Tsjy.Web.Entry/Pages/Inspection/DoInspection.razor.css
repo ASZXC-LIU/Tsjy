@@ -1,0 +1,14 @@
+﻿.inspection-page {
+    /* 适应不同屏幕 */
+}
+
+.empty-state {
+    padding: 2rem;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+}
+
+.inspection-form textarea {
+    resize: none;
+}

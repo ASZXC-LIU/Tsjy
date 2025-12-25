@@ -1,0 +1,50 @@
+﻿@page "/Inspection/MyInspections"
+@using Microsoft.AspNetCore.Authorization
+@using Tsjy.Application.System.Dtos.InspectionDtos
+@using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "Expert")]
+
+<div class="container-fluid animate__animated animate__fadeIn">
+    <div class="d-flex align-items-center mb-3">
+        <i class="fa-solid fa-car-side fa-2x text-primary me-3"></i>
+        <h3 class="mb-0 fw-bold">我的视导任务</h3>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <Table TItem="InspectorTaskDto" Items="@Tasks" IsStriped="true" IsBordered="false" ShowToolbar="false">
+                <TableColumns>
+                    <TableColumn @bind-Field="@context.TaskName" Text="考评任务" Width="250" />
+                    <TableColumn @bind-Field="@context.SchoolName" Text="受评单位" />
+                    <TableColumn @bind-Field="@context.TeamName" Text="所属小组" />
+                    <TableColumn @bind-Field="@context.StartDate" Text="视导时间" Width="200">
+                        <Template Context="v">
+                            @v.Row.StartDate.ToString("MM-dd") 至 @v.Row.EndDate.ToString("MM-dd")
+                        </Template>
+                    </TableColumn>
+                    <TableColumn @bind-Field="@context.Status" Text="状态" Width="100">
+                        <Template Context="v">
+                            @switch (v.Value)
+                            {
+                                case InspectionScheduleStatus.Scheduled:
+                                    <span class="badge bg-info">已安排</span> break;
+                                case InspectionScheduleStatus.InProgress:
+                                    <span class="badge bg-primary">进行中</span> break;
+                                case InspectionScheduleStatus.Finished:
+                                    <span class="badge bg-success">已完成</span> break;
+                            }
+                        </Template>
+                    </TableColumn>
+                    <TableColumn Text="操作" Width="120" Align="Alignment.Center">
+                        <Template Context="v">
+                            @* 传递 ScheduleId 作为唯一标识，同时也传 TaskId 用于查树 *@
+                            <a href="/Inspection/DoInspection/@v.Row.ScheduleId/@v.Row.TaskId" class="btn btn-sm btn-outline-primary">
+                                <i class="fa-solid fa-edit"></i> 现场视导
+                            </a>
+                        </Template>
+                    </TableColumn>
+                </TableColumns>
+            </Table>
+        </div>
+    </div>
+</div>
