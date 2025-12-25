@@ -1,0 +1,93 @@
+﻿@page "/Inspection/DoInspection/{ScheduleId:long}/{TaskId:long}"
+@using Microsoft.AspNetCore.Authorization
+@using Tsjy.Application.System.Dtos
+@using Tsjy.Application.System.Dtos.InspectionDtos
+@using Tsjy.Core.Entities
+@using System.Security.Claims
+@attribute [Authorize(Roles = "Expert")]
+
+<div class="inspection-page row g-3 h-100">
+    <div class="col-md-3 h-100">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-light fw-bold">
+                <i class="fa-solid fa-list-ul me-2"></i> 评估指标体系
+            </div>
+            <div class="card-body overflow-auto" style="height: calc(100vh - 150px);">
+                @if (TreeItems != null)
+                {
+                    <TreeView TItem="EvalNodeTreeDto" Items="@TreeItems" 
+                              ShowIcon="true" 
+                              OnTreeItemClick="@OnTreeItemClick" />
+                }
+                else
+                {
+                    <div class="text-center mt-5"><Spinner /></div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9 h-100">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="mb-0">
+                    @(CurrentNode?.Name ?? "请在左侧选择一个评估要点 (Points)")
+                </h5>
+                @if (CurrentNode != null)
+                {
+                    <span class="badge bg-secondary mt-2">标准分值: @CurrentNode.Score 分</span>
+                }
+            </div>
+            
+            <div class="card-body overflow-auto" style="height: calc(100vh - 200px);">
+                @if (CurrentNode == null)
+                {
+                    <div class="empty-state d-flex flex-column align-items-center justify-content-center h-50 text-muted">
+                        <i class="fa-solid fa-arrow-left fa-3x mb-3 opacity-50"></i>
+                        <p>请点击左侧最底层的“评估要点”开始记录</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="inspection-form animate__animated animate__fadeIn">
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold"><i class="fa-solid fa-pen-to-square me-1"></i> 现场查验记录</label>
+                            <Textarea @bind-Value="@LogModel.Findings" Rows="4" 
+                                      Placeholder="请简要描述现场查验的情况、发现的问题或亮点..." />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold"><i class="fa-solid fa-camera me-1"></i> 现场取证素材 (照片/PDF)</label>
+                            
+                            <InputFile OnChange="@OnUploadFile" multiple class="form-control mb-2" />
+                            
+                            <div class="text-muted small mb-2"><i class="fa-solid fa-circle-info"></i> 支持上传现场照片或扫描文档，自动归档至本指标。</div>
+
+                            @if (LogModel.FileUrls.Any())
+                            {
+                                <div class="list-group mt-2">
+                                    @foreach (var fileUrl in LogModel.FileUrls)
+                                    {
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div class="text-truncate">
+                                                <i class="fa-solid fa-file text-primary me-2"></i>
+                                                <a href="@fileUrl" target="_blank" class="text-decoration-none">查看文件 (@GetFileName(fileUrl))</a>
+                                            </div>
+                                            <Button Icon="fa-solid fa-trash" Size="Size.ExtraSmall" Color="Color.Danger" 
+                                                    OnClick="() => RemoveFile(fileUrl)" />
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <Button Color="Color.Success" Icon="fa-solid fa-save" Text="保存记录" OnClick="@SaveData" IsAsync="true" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -139,7 +139,27 @@ namespace FurionBlazorServerEFAuth202502.Web.Entry.Pages
             {
                 Log.Information("登录成功，跳转到：/index");
                 StateHasChanged();
-                NavigationManager.NavigateTo("/index", true);
+                string targetUrl = "/index";
+                switch (loginInput.Role)
+                {
+                    case UserRole.Admin:
+                        targetUrl = "/Admin/EvalSystemList";
+                        break;
+                    case UserRole.SchoolUser:
+                        // 对应受评单位
+                        targetUrl = "/School/HistoryEvaluation";
+                        break;
+                    case UserRole.Expert:
+                        // 对应专家
+                        targetUrl = "/Review/Dashboard";
+                        break;
+                    default:
+                        targetUrl = "/index";
+                        break;
+                }
+
+                // 执行跳转 (forceLoad: true 确保强制刷新，清除旧缓存状态)
+                NavigationManager.NavigateTo(targetUrl, true);
             }
             else
             {

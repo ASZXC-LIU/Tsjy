@@ -2,7 +2,8 @@
 @using Tsjy.Application.System.Dtos.BatchDtos
 @using Tsjy.Core.Enums
 @inherits BootstrapComponentBase
-@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "Admin")]
 @namespace Tsjy.Web.Entry.Pages.Admin
 
 <div class="container-fluid page-wrapper animate__animated animate__fadeInUp">
@@ -154,7 +155,6 @@
         </ValidateForm>
     </div>
 </div>
-
 <style>
     .bg-light-primary {
         background-color: #f0f7ff;

@@ -5,7 +5,8 @@
 @using Tsjy.Core.Enums
 @using Tsjy.Core.MyHelper
 @inherits BootstrapComponentBase
-
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
 <PageTitle>评价体系构建器</PageTitle>
 
 @* 添加自定义样式优化滚动条和卡片高度 *@

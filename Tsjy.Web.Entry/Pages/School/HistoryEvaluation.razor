@@ -1,7 +1,8 @@
 ﻿@page "/School/HistoryEvaluation"
 @using Tsjy.Application.System.Dtos.History
 @using BootstrapBlazor.Components
-
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "SchoolUser")]
 <div class="history-page-content">
     <div class="d-flex align-items-center mb-4">
         <i class="fa-solid fa-school fa-2x text-primary me-3"></i>
@@ -12,12 +13,22 @@
         <div class="col-12 col-lg-8">
             <Card IsShadow="true" class="h-100 border-0">
                 <HeaderTemplate>
-                    <span class="fw-bold fs-5">历年得分趋势</span>
+                    <span class="fw-bold fs-5">历此得分趋势</span>
                 </HeaderTemplate>
                 <BodyTemplate>
-                    <div style="height: 300px;">
-                        <Chart @ref="LineChart" Type="ChartType.Line" OnInitAsync="OnInit" />
-                    </div>
+                    
+                        @if (TrendData.Any()) // 【修改点】只有当有数据时才渲染图表
+                        {
+                            <Chart @ref="LineChart" Type="ChartType.Line" OnInitAsync="OnInit" Responsive="true" />
+                        }
+                        else
+                        {
+                            // 可选：添加一个加载中或无数据的提示，利用 Flex 居中显示
+                            <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+                                <span>@(TrendData == null ? "数据加载中..." : "暂无数据")</span>
+                            </div>
+                        }
+                   
                 </BodyTemplate>
             </Card>
         </div>

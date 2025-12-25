@@ -2,7 +2,8 @@
 @using Tsjy.Application.System.Dtos
 @using Tsjy.Core.Entities
 @using Tsjy.Web.Entry.Shared
-@attribute [Authorize(Roles = "ADMIN")]
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
 @inherits BootstrapComponentBase
 @namespace Tsjy.Web.Entry.Pages.Admin
 
