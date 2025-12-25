@@ -3,14 +3,13 @@
 @using Tsjy.Application.System.Dtos
 @using Tsjy.Core.Enums
 @attribute [Authorize(Roles = "SchoolUser")]
+@namespace Tsjy.Web.Entry.Pages.School
 
 <PageTitle>任务填报</PageTitle>
 
 <div class="row g-0 page-wrapper">
 
-    @* --- 左侧：评估要点列表 --- *@
     <div class="col-md-3 sidebar-panel">
-        @* Header: 高度与右侧一致 (需求 4) *@
         <div class="section-header">
             <div class="fw-bold text-dark d-flex align-items-center">
                 <i class="fa fa-list-check me-2 text-primary"></i>
@@ -18,7 +17,6 @@
             </div>
         </div>
 
-        @* Tree List *@
         <div class="flex-grow-1 tree-container custom-scroll">
             @if (IsLoading)
             {
@@ -39,11 +37,9 @@
         </div>
     </div>
 
-    @* --- 右侧：详情填报区 --- *@
     <div class="col-md-9 content-panel">
         @if (CurrentNodeDetail != null)
         {
-            @* 1. 顶部：Title Header (需求 4) *@
             <div class="section-header justify-content-between" style="z-index: 2;">
                 <div class="d-flex align-items-center overflow-hidden">
                     <span class="badge bg-primary me-3 rounded-pill px-3">当前要点</span>
@@ -59,10 +55,8 @@
                 </div>
             </div>
 
-            @* 2. 中间：可滚动内容区 *@
             <div class="flex-grow-1 detail-scroll-area custom-scroll">
 
-                @* 驳回警告 *@
                 @if (CurrentNodeDetail.Status == AuditStatus.Rejected)
                 {
                     <div class="alert alert-danger border-0 shadow-sm mb-4 d-flex align-items-start">
@@ -74,7 +68,6 @@
                     </div>
                 }
 
-                @* (A) 指标归属路径 *@
                 <div class="task-card p-4">
                     <div class="card-title-line">
                         <i class="fa fa-sitemap me-2 text-primary"></i> 指标归属
@@ -101,7 +94,6 @@
                     </div>
                 </div>
 
-                @* (B) 评估方法 *@
                 <div class="task-card p-4">
                     <div class="card-title-line">
                         <i class="fa fa-book-open me-2 text-info"></i> 评估方法
@@ -109,7 +101,6 @@
                     <div class="text-secondary lh-lg" style="white-space: pre-wrap;">@CurrentNodeDetail.Method</div>
                 </div>
 
-                @* (C) 评分标准细则 *@
                 <div class="task-card p-4">
                     <div class="card-title-line">
                         <i class="fa fa-scale-balanced me-2 text-warning"></i> 评分标准
@@ -144,7 +135,6 @@
                     }
                 </div>
 
-                @* (D) 自评填报区 *@
                 <div class="task-card p-0 overflow-hidden border border-success border-2">
                     <div class="bg-success bg-opacity-10 p-3 border-bottom border-success border-opacity-25 text-success fw-bold">
                         <i class="fa fa-pen-to-square me-2"></i> 自评填报
@@ -156,62 +146,52 @@
                                       Placeholder="请根据上述标准，详细描述落实情况..."
                                       class="border-0 bg-light rounded p-3" />
                         </div>
-                        <div>
-                            <label class="form-label fw-bold text-secondary mb-2">佐证材料</label>
-                            <InputUpload TValue="string" ShowDeleteButton="true" OnChange="OnUploadFile"
-                                         BrowserButtonText="点击上传附件"
-                                         class="mb-3" />
 
-                            @if (CurrentNodeDetail.FileUrls != null && CurrentNodeDetail.FileUrls.Any())
-                            {
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    @foreach (var file in CurrentNodeDetail.FileUrls)
-                                    {
-                                        <div class="badge bg-white text-dark border shadow-sm p-2 d-flex align-items-center rounded-pill px-3">
-                                            <i class="fa fa-paperclip me-2 text-muted"></i>
-                                            <span class="d-inline-block text-truncate" style="max-width: 180px;">@file</span>
-                                            <i class="fa fa-xmark ms-2 text-danger cursor-pointer hover-scale" @onclick="() => RemoveFile(file)"></i>
-                                        </div>
-                                    }
-                                </div>
-                            }
+                        <div class="evidence-upload-wrapper p-3 border-dashed rounded-3 bg-light">
+                            <div class="mb-2 small text-muted">
+                                <i class="fa-solid fa-circle-info me-1"></i>
+                                请拖拽或点击上传 PDF 佐证材料（支持多文件，单文件不超过 20MB）
+                            </div>
+
+                            <DropUpload TValue="string"
+                                        Accept=".pdf"
+                                        IsMultiple="true"
+                                        MaxFileCount="10"
+                                        ShowProgress="true"
+                                        OnChange="OnUploadChanged"
+                                        OnDelete="OnDeleteFile"
+                                        DefaultFileList="@UploadedFiles" />
                         </div>
                     </div>
                 </div>
 
-                @* 底部留白 *@
                 <div style="height: 20px;"></div>
             </div>
 
-            @* 3. 底部：固定操作栏 *@
-<div class="action-footer">
-    @if (CurrentNodeDetail != null)
-    {
-        @if (IsNodeEditable)
-        {
-            <Button Color="Color.Primary" Icon="fa fa-floppy-disk" Text="保存并提交此项"
-                    OnClick="OnSaveEvidence" IsAsync="true"
-                    class="px-5 shadow rounded-pill fw-bold" />
+            <div class="action-footer">
+                @if (IsNodeEditable)
+                {
+                    <Button Color="Color.Primary" Icon="fa fa-floppy-disk" Text="保存并提交此项"
+                            OnClick="OnSaveEvidence" IsAsync="true"
+                            class="px-5 shadow rounded-pill fw-bold" />
+                }
+                else
+                {
+                    <span class="text-muted bg-light px-3 py-2 rounded-pill border">
+                        @if (CurrentTaskStatus == TaskStatu.Returned)
+                        {
+                            <i class="fa fa-lock me-1"></i> <span>该节点未被驳回，无需修改</span>
+                        }
+                        else
+                        {
+                            <i class="fa fa-clock me-1"></i> <span>非填报时间或已完结，仅供查看</span>
+                        }
+                    </span>
+                }
+            </div>
         }
         else
         {
-             <span class="text-muted bg-light px-3 py-2 rounded-pill border">
-                @if (CurrentTaskStatus == TaskStatu.Returned)
-                {
-                    <i class="fa fa-lock me-1"></i> <span>该节点未被驳回，无需修改</span>
-                }
-                else if (!IsEditable)
-                {
-                    <i class="fa fa-clock me-1"></i> <span>非填报时间或已完结，仅供查看</span>
-                }
-            </span>
-        }
-    }
-</div>
-        }
-        else
-        {
-            @* 空状态 *@
             <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
                 <div class="bg-white p-5 rounded-circle shadow-sm mb-4">
                     <i class="fa fa-arrow-left fa-3x text-primary opacity-25"></i>

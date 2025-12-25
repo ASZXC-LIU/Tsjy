@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Tsjy.Application.System.Dtos.AI;
 using Tsjy.Web.Core.DataService;
 using Tsjy.Web.Core.Handler;
 
@@ -33,7 +34,8 @@ namespace Tsjy.Web.Core
                     options.SlidingExpiration = false;
                     options.LoginPath = "/login";
                 });
-
+            // 让 appsettings.json 的 "Gemini": {...} 自动绑定到 GeminiOptions
+            services.AddConfigurableOptions<QwenOptions>();
             //添加
             services.AddAuthorizationCore(options =>
             {

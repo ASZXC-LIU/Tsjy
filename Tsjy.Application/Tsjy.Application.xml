@@ -4,6 +4,18 @@
         <name>Tsjy.Application</name>
     </assembly>
     <members>
+        <member name="P:Tsjy.Application.System.Dtos.AI.AiAssistResultDto.RecommendedScore">
+            <summary>按 MaxScore * Ratio 计算出来的建议分（如果你 Ratio 是 0~1）</summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.AI.AiAssistResultDto.Confidence">
+            <summary>0~1</summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.AI.AiAssistResultDto.Explanation">
+            <summary>给页面显示的解释（Markdown/纯文本都行）</summary>
+        </member>
+        <member name="P:Tsjy.Application.System.Dtos.AI.AiAssistResultDto.RawJson">
+            <summary>模型原始 JSON（方便你排错）</summary>
+        </member>
         <member name="T:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto">
             <summary>
             任务分发提交对象
@@ -197,6 +209,14 @@
             删除模板
             </summary>
         </member>
+        <member name="T:Tsjy.Application.System.Service.AiAssistService">
+            <summary>
+            评审专家 AI 辅助服务：
+            - 读取指标信息（TaskService.GetNodeFillDetail）
+            - 读取该指标 PDF 文件（FileService 列目录 + 读本地文件）
+            - 上传到 Gemini Files API 并作为 FileData 输入，让模型直接“看 PDF”
+            </summary>
+        </member>
         <member name="M:Tsjy.Application.System.Service.DepartmentsService.GetOrgSelectListAsync(Tsjy.Core.Enums.OrgType)">
             <summary>
             根据机构类型获取下拉框列表
@@ -280,6 +300,32 @@
             <param name="parentCodePrefix">父级Code前缀（如 "1.2"）</param>
             <returns>是否有数据变动</returns>
         </member>
+        <member name="T:Tsjy.Application.System.Service.FileService">
+             <summary>
+             文件服务：
+             1) UploadEvidence(IFormFile) —— 保持你原来 API 上传方式可用（如果别处用到）
+             2) SaveEvidenceFromBrowserFile(Stream...) —— 供 Blazor Server 组件直接注入调用（不走 HttpClient）
+             3) GetEvidenceList/DeleteEvidence —— 目录级列表与删除（按 taskId+nodeId）
+            
+             注意：当前仍存放在 wwwroot/uploads/evidences 下（与原项目一致）
+             </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.FileService.GetEvidenceUrlList(System.Int64,System.Int64)">
+            <summary>
+            供服务端内部（AI/页面）使用：直接枚举某 taskId+nodeId 目录下的 PDF URL 列表
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.FileService.TryResolvePhysicalPathFromUrl(System.String)">
+            <summary>
+            供 AI 读取本地文件：把站内 URL（/uploads/...）解析成物理路径（wwwroot/...）
+            只允许解析 uploads 目录下的站内路径，避免任意文件读取。
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.InspectionService.GetInspectionEvidence(System.Int64,System.Int64)">
+            <summary>
+            获取特定任务和节点的巡视组证据材料
+            </summary>
+        </member>
         <member name="T:Tsjy.Application.System.Service.ReviewService">
             <summary>
             专家评审业务服务
@@ -343,6 +389,18 @@
         <member name="M:Tsjy.Application.System.Service.TaskService.SubmitEvidence(Tsjy.Application.System.Dtos.NodeFillDetailDto)">
             <summary>
             提交佐证材料 (核心修复：解决变量重复定义、状态校验、立即保存)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.AreAllReviewsCompleted(System.Int64)">
+            <summary>
+            检查该任务下的所有评审（所有专家）是否都已完成
+            </summary>
+            <param name="taskId">任务ID</param>
+            <returns>true: 全部完成; false: 还有待评审项</returns>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.CompleteTaskAndSettleScore(System.Int64)">
+            <summary>
+            结算任务分数并标记为“已完成”
             </summary>
         </member>
     </members>

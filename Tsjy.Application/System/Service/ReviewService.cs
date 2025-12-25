@@ -69,7 +69,8 @@ namespace Tsjy.Application.System.Service
                     TaskId = t.Id,
                     BatchName = batch?.Name ?? "未知任务",
                     SchoolName = orgDict.GetValueOrDefault(t.TargetId) ?? "未知单位",
-                    UploadEnd = batch?.UploadEnd,
+                    ReviewStart = batch?.ReviewStart, // 赋值开始时间
+                    ReviewEnd = batch?.ReviewEnd,
                     ReviewedCount = taskReviews.Count(r => r.Status == ReviewStatus.Submitted),
                     TotalCount = taskReviews.Count
                 };
@@ -88,7 +89,7 @@ namespace Tsjy.Application.System.Service
 
             var review = await _expertReviewRepo.FirstOrDefaultAsync(x => x.TaskId == input.TaskId && x.NodeId == input.NodeId);
             if (review == null) throw new Exception("评审分配不存在");
-
+            review.StandardScore = input.MaxScore;
             review.ScoreRatio = scoringItem.Ratio;
             review.FinalScore = review.StandardScore * scoringItem.Ratio;
             review.Status = ReviewStatus.Submitted;
@@ -104,6 +105,22 @@ namespace Tsjy.Application.System.Service
                 evidence.UpdatedAt = DateTime.Now;
                 await _evidenceRepo.UpdateNowAsync(evidence);
             }
+           
+        }
+
+        public async Task<List<ExpertReviewNodeDto>> GetExpertReviewNodes(long taskId, string expertId)
+        {
+            // 查询该专家在该任务下分配的所有评审记录
+            var reviews = await _expertReviewRepo.AsQueryable()
+                .Where(x => x.TaskId == taskId && x.ReviewerId == expertId && !x.IsDeleted)
+                .OrderBy(x => x.Id) // 维持一个稳定的顺序
+                .ToListAsync();
+
+            return reviews.Select(r => new ExpertReviewNodeDto
+            {
+                NodeId = r.NodeId,
+                Status = r.Status
+            }).ToList();
         }
     }
 }

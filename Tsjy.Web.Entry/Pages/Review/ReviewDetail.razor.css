@@ -1,0 +1,148 @@
+﻿.review-detail-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.review-top-bar {
+    height: 60px;
+    background: #fff;
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.review-main-split {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.material-panel {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.empty-material {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.action-panel {
+    width: 480px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.info-section {
+    flex: 0 0 auto;
+    max-height: 40%;
+    overflow-y: auto;
+}
+
+.info-block label {
+    font-size: 0.75rem;
+    color: #888;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.info-content {
+    background: #fcfcfc;
+    border: 1px solid #f0f0f0;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.operation-section {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.loading-overlay {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-assist-section {
+    flex: 0 0 auto;
+    border-bottom: 2px solid #f0f2f5;
+}
+
+.ai-result-box textarea {
+    border: 1px solid #cff4fc !important;
+    color: #055160 !important;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+/* 按钮动画（可选） */
+.ai-assist-section .btn-info {
+    background-image: linear-gradient(to right, #0dcaf0, #0aa2c0);
+    border: none;
+}
+.material-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.material-tabs {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+}
+
+    .material-tabs .btn {
+        border-radius: 4px;
+        font-size: 0.8rem;
+        padding: 4px 12px;
+    }
+
+.pdf-viewer {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.material-perspective-tabs {
+    background: #2b3035;
+    border-bottom: 1px solid #3d444b;
+    flex-shrink: 0;
+}
+
+    .material-perspective-tabs .btn {
+        border-radius: 20px;
+        padding: 2px 15px;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+    }
+
+.material-toolbar {
+    background: #343a40;
+    border-bottom: 1px solid #3d444b;
+    flex-shrink: 0;
+}
+
+.material-file-select {
+    min-width: 220px;
+}
+
+.pdf-viewer {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #525659;
+}

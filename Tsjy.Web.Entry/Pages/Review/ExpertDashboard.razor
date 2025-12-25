@@ -1,41 +1,64 @@
 ﻿@page "/Review/Dashboard"
-@using Tsjy.Application.System.Dtos
+@using Tsjy.Application.System.Dtos.ReviewDtos
 @using Tsjy.Core.Enums
 @attribute [Authorize(Roles = "Expert")]
 @namespace Tsjy.Web.Entry.Pages.Review
 
 <div class="container-fluid page-wrapper animate__animated animate__fadeIn">
-    <div class="welcome-section mb-4">
-        <h2 class="page-title fw-bold text-dark">专家评审工作台</h2>
-        <p class="text-muted">请选择需要评审的任务进行细节核查与打分。</p>
+    @* --- 新增：工作区 (搜索与筛选) --- *@
+    <div class="workspace-section card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+                <label class="form-label small fw-bold text-muted">搜索任务/学校</label>
+                <BootstrapInput @bind-Value="@SearchText" placeholder="模糊搜索名称..." OnEnterAsync="OnSearch" ShowLabel="false" />
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-bold text-muted">任务状态</label>
+                <Select @bind-Value="@StatusFilter" Items="@StatusItems" OnValueChanged="OnFilterChanged" ShowLabel="false" />
+            </div>
+            <div class="col-12 col-md-5 text-md-end">
+                <div class="text-muted small mb-2">共有 @FilteredTasks.Count() 个匹配任务</div>
+                <Button Color="Color.Secondary" Icon="fa-solid fa-rotate" Text="重置" OnClick="OnReset" />
+            </div>
+        </div>
     </div>
 
-    @if (TaskList == null || !TaskList.Any())
+    @* --- 任务展示区 --- *@
+    @if (PagedTasks == null || !PagedTasks.Any())
     {
         <div class="empty-state card border-0 shadow-sm rounded-4 py-5 text-center">
-            <div class="text-muted mb-3 opacity-25">
-                <i class="fa-solid fa-clipboard-check fa-5x"></i>
-            </div>
-            <h4 class="text-secondary">暂无待评审任务</h4>
-            <p class="text-muted">当前没有分配给您的考评任务，请稍后再试。</p>
+            <i class="fa-solid fa-magnifying-glass fa-3x text-muted mb-3 opacity-25"></i>
+            <h5 class="text-secondary">未找到匹配的任务</h5>
         </div>
     }
     else
     {
-        <div class="row g-4">
-            @foreach (var task in TaskList)
+        <div class="row g-4 mb-4">
+            @foreach (var task in PagedTasks)
             {
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="task-card card h-100 border-0 shadow-sm rounded-4 hover-lift">
                         <div class="card-body p-4">
+                            @{
+                                var btnState = GetButtonState(task);
+                            }
                             <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div class="badge bg-primary-subtle text-primary rounded-pill px-3">评审中</div>
-                                <span class="small text-muted"><i class="fa-regular fa-clock me-1"></i>截止：@task.UploadEnd?.ToString("yyyy-MM-dd")</span>
+                                <div class="badge @btnState.BtnClass text-white rounded-pill px-3">@btnState.Text</div>
+                                <div class="text-end">
+                                    @if (task.ReviewStart.HasValue)
+                                    {
+                                        <div class="small text-muted mb-1" style="font-size: 0.75rem;">
+                                            <i class="fa-regular fa-calendar-check me-1"></i>起：@task.ReviewStart?.ToString("yyyy-MM-dd")
+                                        </div>
+                                    }
+                                    <div class="small text-muted" style="font-size: 0.75rem;">
+                                        <i class="fa-regular fa-clock me-1"></i>止：@task.ReviewEnd?.ToString("yyyy-MM-dd")
+                                    </div>
+                                </div>
                             </div>
                             <h5 class="fw-bold mb-2">@task.BatchName</h5>
-                            <div class="info-item mb-3">
-                                <i class="fa-solid fa-school text-secondary me-2"></i>
-                                <span class="text-dark">受评单位：@task.SchoolName</span>
+                            <div class="info-item mb-3 small text-muted">
+                                <i class="fa-solid fa-school me-2"></i>受评单位：@task.SchoolName
                             </div>
                             <div class="progress-box mb-4">
                                 <div class="d-flex justify-content-between small mb-1">
@@ -44,13 +67,21 @@
                                 </div>
                                 <Progress Value="@GetProgress(task)" Color="Color.Success" Height="6" IsShowValue="false" />
                             </div>
-                            <Button Color="Color.Primary" IsBlock="true" class="rounded-pill shadow-sm" OnClick="@(() => OnStartReview(task.TaskId))">
-                                <i class="fa-solid fa-magnifying-glass-chart me-2"></i> 进入评审
+                            <Button Color="@btnState.BtnColor" IsBlock="true" class="rounded-pill shadow-sm"
+                                    OnClick="@(() => HandleReviewClick(task))">
+                                <i class="fa-solid fa-magnifying-glass-chart me-2"></i>
+                                @(task.ReviewedCount == task.TotalCount ? "查看评审" : "进入评审")
                             </Button>
                         </div>
                     </div>
                 </div>
             }
+        </div>
+
+        @* --- 新增：分页控件 --- *@
+        <div class="d-flex justify-content-center mt-4">
+            @* 确保这里正确绑定了 PageIndex 和 OnPageClick *@
+            <Pagination PageCount="@PageCount" PageIndex="@PageIndex" OnPageLinkClick="@OnPageClick" />
         </div>
     }
 </div>
