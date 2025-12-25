@@ -18,7 +18,11 @@
 	</ItemGroup>
 
 
-
+	<ItemGroup>
+		<None Include="Resources\tessdata\**\*.traineddata">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Tsjy.Web.Core\Tsjy.Web.Core.csproj" />
 		<ProjectReference Include="..\Tsjy.Database.Migrations\Tsjy.Database.Migrations.csproj" />

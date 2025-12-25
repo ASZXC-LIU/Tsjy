@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Tsjy.Application.System.Service; // 仅为了保持你的项目引用一致
 using SystemIO = System.IO;
-
+using System.Net;
 namespace Tsjy.Application.System.Service;
 
 /// <summary>
@@ -208,16 +208,27 @@ public class FileService : IDynamicApiController, ITransient
         if (string.IsNullOrWhiteSpace(url)) return null;
 
         var rel = url.Trim();
+
+        // 1) 只允许站内路径
         if (!rel.StartsWith("/")) return null;
 
-        // 只允许 uploads 目录，防止乱读
+        // 2) 去掉 query（保险）
+        var q = rel.IndexOf('?');
+        if (q >= 0) rel = rel[..q];
+
+        // 3) 统一分隔符（保险）
+        rel = rel.Replace('\\', '/');
+
+        // 4) 只允许 uploads 目录，防止乱读
         if (!rel.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase)) return null;
+
+        // ✅ 5) 关键：把 %E9%BB%91... 解码成 黑白...
+        rel = WebUtility.UrlDecode(rel);
 
         var webRoot = _environment.WebRootPath;
         if (string.IsNullOrWhiteSpace(webRoot))
             webRoot = SystemIO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot");
 
-        // /uploads/a/b.pdf -> {webRoot}\uploads\a\b.pdf
         var physical = SystemIO.Path.Combine(
             webRoot,
             rel.TrimStart('/').Replace("/", SystemIO.Path.DirectorySeparatorChar.ToString()));

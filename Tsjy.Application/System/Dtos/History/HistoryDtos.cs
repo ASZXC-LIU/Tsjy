@@ -25,7 +25,13 @@ public class HistoryTaskDto
     // 年份
     public int Year { get; set; }
 }
-
+public sealed class HistoryEvalTrendPointDto
+{
+    public DateTime Date { get; set; }          // 该点日期（按天聚合就用当天 00:00）
+    public int UploadCount { get; set; }        // 当天上传/提交次数
+    public int ApprovedCount { get; set; }      // 当天审核通过次数
+    public int RejectedCount { get; set; }      // 当天审核驳回次数
+}
 public class ChartDataDto
 {
     public string Label { get; set; }

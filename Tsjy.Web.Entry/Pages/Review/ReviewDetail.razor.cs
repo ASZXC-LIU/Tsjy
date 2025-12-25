@@ -151,7 +151,8 @@ public partial class ReviewDetail
                 NodeId = CurrentNodeDetail.NodeId,
                 ScoringItemId = SelectedScoringItemId,
                 AuditStatus = status,
-                RejectReason = status == AuditStatus.Rejected ? RejectReason : null
+                RejectReason = status == AuditStatus.Rejected ? RejectReason : null,
+                MaxScore = CurrentNodeDetail.MaxScore
             };
 
             await ReviewService.SubmitReview(submission);
@@ -164,20 +165,47 @@ public partial class ReviewDetail
             else
             {
                 await LoadCurrentNode();
+                // 3. 调用 Service 检查：是不是所有专家都评完了？
+                bool isAllGlobalCompleted = await TaskService.AreAllReviewsCompleted(TaskId);
 
-                await SwalService.Show(new SwalOption()
+                if (isAllGlobalCompleted)
                 {
-                    Category = SwalCategory.Success,
-                    Title = "本任务已全部完成",
-                    Content = "所有评估指标已评审完毕！请关闭此页面或点击下方按钮返回工作台。",
-                    ShowClose = false,
-                    ConfirmButtonText = "返回工作台",
-                    OnConfirmAsync = async () =>
+                    // 4. 如果全局都评完了，调用 Service 进行结算
+                    await TaskService.CompleteTaskAndSettleScore(TaskId);
+
+                    // 弹窗提示：任务彻底完成
+                    await SwalService.Show(new SwalOption()
                     {
-                        BackToDashboard();
-                        await Task.CompletedTask;
-                    }
-                });
+                        Category = SwalCategory.Success,
+                        Title = "任务圆满完成",
+                        Content = "所有专家的评审均已提交，系统已自动计算并结算最终得分！",
+                        ShowClose = false,
+                        ConfirmButtonText = "返回工作台",
+                        OnConfirmAsync = async () =>
+                        {
+                            BackToDashboard();
+                            await Task.CompletedTask;
+                        }
+                    });
+                }
+                else
+                {
+                    // 只是当前专家评完了，但还有其他专家没评完
+                    await SwalService.Show(new SwalOption()
+                    {
+                        Category = SwalCategory.Success,
+                        Title = "您的评审已完成",
+                        Content = "您已完成所有指标的评审，等待其他专家完成后系统将自动结算。",
+                        ShowClose = false,
+                        ConfirmButtonText = "返回工作台",
+                        OnConfirmAsync = async () =>
+                        {
+                            BackToDashboard();
+                            await Task.CompletedTask;
+                        }
+                    });
+                }
+                await LoadCurrentNode();
             }
         }
         catch (Exception ex)

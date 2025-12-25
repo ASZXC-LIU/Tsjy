@@ -38,66 +38,6 @@
             </div>
         </div>
     </div>
-
-    <Card IsShadow="true" class="border-0">
-        <HeaderTemplate>
-            <div class="d-flex align-items-center">
-                <i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i>
-                <span class="fw-bold fs-5">历次评价列表</span>
-            </div>
-        </HeaderTemplate>
-        <BodyTemplate>
-            <Table TItem="HistoryTaskDto" Items="@TaskItems" IsStriped="true" IsBordered="false" ShowToolbar="false">
-                <TableColumns>
-                    <TableColumn @bind-Field="@context.BatchName" Text="年份/批次" Width="220" />
-                    <TableColumn @bind-Field="@context.Version" Text="评价体系版本" Width="180" />
-
-                    <TableColumn @bind-Field="@context.StatusCode" Text="状态" Width="120">
-                        <Template Context="value">
-                            @{
-                                var row = (HistoryTaskDto)value.Row;
-                                var isCompleted = row.StatusCode == "Completed";
-                                var color = isCompleted ? Color.Success : Color.Primary;
-                                var text = row.Status;
-                            }
-                            <Tag Color="@color">@text</Tag>
-                        </Template>
-                    </TableColumn>
-
-                    <TableColumn @bind-Field="@context.FinalScore" Text="最终得分" Width="120">
-                        <Template Context="value">
-                            @if (value.Value != null)
-                            {
-                                <span class="fw-bold text-dark">@value.Value</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted">-</span>
-                            }
-                        </Template>
-                    </TableColumn>
-
-                    <TableColumn @bind-Field="@context.Rank" Text="排名" Width="120" />
-
-                    <TableColumn @bind-Field="@context.Id" Text="操作" Width="150" Align="Alignment.Center">
-                        <Template Context="value">
-                            @{
-                                var row = (HistoryTaskDto)value.Row;
-                            }
-                            @if (row.StatusCode == "Pending")
-                            {
-                                <Button Color="Color.Primary" Size="Size.ExtraSmall" Icon="fa-solid fa-pen-to-square" OnClick="() => OnFill(row)"> 去填报</Button>
-                            }
-                            else
-                            {
-                                <Button Color="Color.Primary" Size="Size.ExtraSmall" IsLink="true" Icon="fa-solid fa-eye" OnClick="() => OnViewDetail(row)"> 查看详情</Button>
-                            }
-                        </Template>
-                    </TableColumn>
-                </TableColumns>
-            </Table>
-        </BodyTemplate>
-    </Card>
 </div>
 
 <style>

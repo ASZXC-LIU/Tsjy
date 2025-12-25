@@ -89,7 +89,7 @@ namespace Tsjy.Application.System.Service
 
             var review = await _expertReviewRepo.FirstOrDefaultAsync(x => x.TaskId == input.TaskId && x.NodeId == input.NodeId);
             if (review == null) throw new Exception("评审分配不存在");
-
+            review.StandardScore = input.MaxScore;
             review.ScoreRatio = scoringItem.Ratio;
             review.FinalScore = review.StandardScore * scoringItem.Ratio;
             review.Status = ReviewStatus.Submitted;
@@ -105,6 +105,7 @@ namespace Tsjy.Application.System.Service
                 evidence.UpdatedAt = DateTime.Now;
                 await _evidenceRepo.UpdateNowAsync(evidence);
             }
+           
         }
 
         public async Task<List<ExpertReviewNodeDto>> GetExpertReviewNodes(long taskId, string expertId)

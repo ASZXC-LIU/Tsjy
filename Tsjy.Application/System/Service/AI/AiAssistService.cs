@@ -1,16 +1,15 @@
-﻿using System.Text;
+﻿using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using Furion.DependencyInjection;
-using Google.GenAI;
-using Google.GenAI.Types;
 using Microsoft.Extensions.Options;
 using Tsjy.Application.System.Dtos;
 using Tsjy.Application.System.Dtos.AI;
 using Tsjy.Application.System.Dtos.ReviewDtos;
 using Tsjy.Application.System.IService;
 using Tsjy.Application.System.Service;
+using Tsjy.Application.System.Service.AI;
 using SystemIO = System.IO;
-
 namespace Tsjy.Application.System.Service;
 
 /// <summary>
@@ -21,11 +20,11 @@ namespace Tsjy.Application.System.Service;
 /// </summary>
 public sealed class AiAssistService : IAiAssistService, ITransient
 {
-    private readonly IOptions<GeminiOptions> _opt;
+    private readonly IOptions<QwenOptions> _opt;
     private readonly TaskService _taskService;
     private readonly FileService _fileService;
 
-    public AiAssistService(IOptions<GeminiOptions> opt, TaskService taskService, FileService fileService)
+    public AiAssistService(IOptions<QwenOptions> opt, TaskService taskService, FileService fileService)
     {
         _opt = opt;
         _taskService = taskService;
@@ -34,112 +33,101 @@ public sealed class AiAssistService : IAiAssistService, ITransient
 
     public async Task<AiAssistResultDto> ExpertAssistAsync(long taskId, long nodeId, CancellationToken ct = default)
     {
-        var opt = _opt.Value;
-        if (string.IsNullOrWhiteSpace(opt.ApiKey))
-            throw new Exception("Gemini ApiKey 未配置（请在 appsettings / UserSecrets 配置 Gemini:ApiKey）");
-
         // 1) 指标信息
         NodeFillDetailDto detail = await _taskService.GetNodeFillDetail(taskId, nodeId);
 
         // 2) 本地 PDF（只取本指标目录）
+        var opt = _opt.Value; // 这里建议你把 GeminiOptions 换成 QwenOptions（下面我会给）
         var urls = _fileService.GetEvidenceUrlList(taskId, nodeId);
+
         var physicalFiles = urls
             .Select(u => _fileService.TryResolvePhysicalPathFromUrl(u))
             .Where(p => !string.IsNullOrWhiteSpace(p) && SystemIO.File.Exists(p!))
             .Take(opt.MaxPdfFiles)
             .Cast<string>()
             .ToList();
-
-        // 3) Gemini client
-        var client = new Client(apiKey: opt.ApiKey); // Gemini Developer API :contentReference[oaicite:1]{index=1}
-
-        // 4) 上传 PDF → 拿到 fileUri → 作为 FileData 输入
-        var uploadedFileNames = new List<string>(); // 用于 finally 清理
-        var pdfParts = new List<Part>();
-
-        foreach (var path in physicalFiles)
+        Console.WriteLine($"[AI] urls.count={urls?.Count ?? 0}");
+        if (urls != null)
         {
-            var fileInfo = new SystemIO.FileInfo(path);
-            if (fileInfo.Length > opt.MaxPdfBytes) continue;
-
-            var bytes = await SystemIO.File.ReadAllBytesAsync(path, ct);
-
-            // Files.UploadAsync(bytes, fileName) :contentReference[oaicite:2]{index=2}
-            // Gemini 上传时 fileName 必须保证 ASCII，否则 .NET 报：Request headers must contain only ASCII characters
-            var safeUploadName = $"{Guid.NewGuid():N}.pdf";
-
-            var upload = await client.Files.UploadAsync(
-                bytes: bytes,
-                fileName: safeUploadName
-            );
-            // upload 通常包含 Name/Uri 等字段；FileData 里用 Uri（示例中是 generativelanguage 的 files URL） :contentReference[oaicite:3]{index=3}
-            var fileUri = upload.Uri ?? upload.Name; // 双保险：有的返回 Uri，有的只给 name
-
-            if (string.IsNullOrWhiteSpace(fileUri)) continue;
-
-            uploadedFileNames.Add(upload.Name);
-
-            pdfParts.Add(new Part
+            foreach (var u in urls)
             {
-                FileData = new FileData
-                {
-                    FileUri = fileUri,
-                    MimeType = "application/pdf"
-                }
-            });
+                var p = _fileService.TryResolvePhysicalPathFromUrl(u);
+                Console.WriteLine($"[AI] url={u}");
+                Console.WriteLine($"[AI] resolved={p}");
+                Console.WriteLine($"[AI] exists={(p != null && SystemIO.File.Exists(p))}");
+            }
         }
-
-        // 5) 组织 Prompt（严格要求 JSON 输出）
+        Console.WriteLine($"[AI] physicalFiles.count={physicalFiles.Count}");
+        // 3) 组织 Prompt（严格要求 JSON 输出）
         var prompt = BuildPrompt(detail);
 
-        var contents = new List<Content>
+        // 4) 把 PDF 佐证材料转成“文本输入”
+        var evidenceText = await PdfTextExtractor.ExtractEvidenceTextAsync(
+    physicalFiles,
+    new PdfExtractOptions
+    {
+        MaxPdfBytes = opt.MaxPdfBytes,
+        MaxCharsPerPdf = 12000,
+        MaxCharsTotal = 40000,
+        MinTextCharsToSkipOcr = 200,
+        MaxOcrPages = 3,
+        OcrDpi = 200,
+        TessdataPath = "Resources/tessdata",
+        OcrLang = "chi_sim+eng"
+    },
+    ct);
+
+        // 5) 调用通义千问（DashScope OpenAI兼容接口）
+        var apiKey = string.IsNullOrWhiteSpace(opt.ApiKey)
+            ? Environment.GetEnvironmentVariable("DASHSCOPE_API_KEY")
+            : opt.ApiKey;
+
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new Exception("通义千问 API Key 未配置（Qwen:ApiKey 或环境变量 DASHSCOPE_API_KEY）");
+
+        var baseUrl = string.IsNullOrWhiteSpace(opt.BaseUrl)
+            ? "https://dashscope.aliyuncs.com/compatible-mode/v1"
+            : opt.BaseUrl.TrimEnd('/');
+
+        var url = $"{baseUrl}/chat/completions";
+
+        var reqBody = new
         {
-            new Content
+            model = opt.Model, // 例如：qwen-plus / qwen-max / qwen-long
+            messages = new object[]
             {
-                Role = "user",
-                Parts = new List<Part> { new Part { Text = prompt } }
-            }
+            new { role = "system", content = "你是中国教育评价体系的评审专家。只依据提供材料，不允许臆测；缺失要明确指出。" },
+            new { role = "user", content = prompt + "\n\n【PDF佐证材料】\n" + evidenceText }
+            },
+            temperature = opt.Temperature,
+            max_tokens = opt.MaxOutputTokens
         };
 
-        // 把 PDF part 追加到同一个 user content
-        contents[0].Parts.AddRange(pdfParts);
+        using var http = new HttpClient();
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+        http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        var config = new GenerateContentConfig
-        {
-            Temperature = opt.Temperature,
-            MaxOutputTokens = opt.MaxOutputTokens,
-            ResponseMimeType = "application/json",
-        };
+        var json = JsonSerializer.Serialize(reqBody);
+        using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        try
-        {
-            var resp = await client.Models.GenerateContentAsync(
-                model: opt.Model,
-                contents: contents,
-                config: config
-            );
+        using var resp = await http.PostAsync(url, content, ct);
+        var raw = await resp.Content.ReadAsStringAsync(ct);
 
-            var text = resp?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text ?? "";
-            if (string.IsNullOrWhiteSpace(text))
-                throw new Exception("AI 未返回内容（可能被安全策略拦截或输出为空）");
+        if (!resp.IsSuccessStatusCode)
+            throw new Exception($"AI 调用失败：{(int)resp.StatusCode} {resp.ReasonPhrase}\n{raw}");
 
-            return ParseAiJson(text, detail);
-        }
-        finally
-        {
-            // 尽量清理上传到 Gemini Files API 的临时文件（防止越积越多）
-            foreach (var name in uploadedFileNames.Where(n => !string.IsNullOrWhiteSpace(n)))
-            {
-                try
-                {
-                    await client.Files.DeleteAsync(name: name); // DeleteAsync 示例 :contentReference[oaicite:4]{index=4}
-                }
-                catch
-                {
-                    // 清理失败不影响主流程
-                }
-            }
-        }
+        // OpenAI兼容格式：choices[0].message.content
+        using var doc = JsonDocument.Parse(raw);
+        var text = doc.RootElement
+            .GetProperty("choices")[0]
+            .GetProperty("message")
+            .GetProperty("content")
+            .GetString();
+
+        if (string.IsNullOrWhiteSpace(text))
+            throw new Exception("AI 未返回内容（choices[0].message.content 为空）");
+
+        return ParseAiJson(text, detail);
     }
 
     private static string BuildPrompt(NodeFillDetailDto d)
@@ -191,7 +179,7 @@ public sealed class AiAssistService : IAiAssistService, ITransient
 
         return sb.ToString();
     }
-
+    
     private static AiAssistResultDto ParseAiJson(string rawJson, NodeFillDetailDto detail)
     {
         var result = new AiAssistResultDto { RawJson = rawJson };

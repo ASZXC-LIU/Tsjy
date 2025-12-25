@@ -16,24 +16,6 @@
         <member name="P:Tsjy.Application.System.Dtos.AI.AiAssistResultDto.RawJson">
             <summary>模型原始 JSON（方便你排错）</summary>
         </member>
-        <member name="P:Tsjy.Application.System.Dtos.AI.GeminiOptions.ApiKey">
-            <summary>Gemini Developer API Key（不要提交到仓库）</summary>
-        </member>
-        <member name="P:Tsjy.Application.System.Dtos.AI.GeminiOptions.Model">
-            <summary>模型名，例如：gemini-3-pro-preview</summary>
-        </member>
-        <member name="P:Tsjy.Application.System.Dtos.AI.GeminiOptions.MaxPdfFiles">
-            <summary>最多读取多少个 PDF（避免一次塞太多）</summary>
-        </member>
-        <member name="P:Tsjy.Application.System.Dtos.AI.GeminiOptions.MaxPdfBytes">
-            <summary>每个 PDF 最大读取字节（默认 20MB）</summary>
-        </member>
-        <member name="P:Tsjy.Application.System.Dtos.AI.GeminiOptions.Temperature">
-            <summary>温度，越低越稳定</summary>
-        </member>
-        <member name="P:Tsjy.Application.System.Dtos.AI.GeminiOptions.MaxOutputTokens">
-            <summary>最大输出 token</summary>
-        </member>
         <member name="T:Tsjy.Application.System.Dtos.BatchDtos.BatchDistributeDto">
             <summary>
             任务分发提交对象
@@ -407,6 +389,18 @@
         <member name="M:Tsjy.Application.System.Service.TaskService.SubmitEvidence(Tsjy.Application.System.Dtos.NodeFillDetailDto)">
             <summary>
             提交佐证材料 (核心修复：解决变量重复定义、状态校验、立即保存)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.AreAllReviewsCompleted(System.Int64)">
+            <summary>
+            检查该任务下的所有评审（所有专家）是否都已完成
+            </summary>
+            <param name="taskId">任务ID</param>
+            <returns>true: 全部完成; false: 还有待评审项</returns>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.TaskService.CompleteTaskAndSettleScore(System.Int64)">
+            <summary>
+            结算任务分数并标记为“已完成”
             </summary>
         </member>
     </members>

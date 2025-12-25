@@ -35,7 +35,7 @@ namespace Tsjy.Web.Core
                     options.LoginPath = "/login";
                 });
             // 让 appsettings.json 的 "Gemini": {...} 自动绑定到 GeminiOptions
-            services.AddConfigurableOptions<GeminiOptions>();
+            services.AddConfigurableOptions<QwenOptions>();
             //添加
             services.AddAuthorizationCore(options =>
             {

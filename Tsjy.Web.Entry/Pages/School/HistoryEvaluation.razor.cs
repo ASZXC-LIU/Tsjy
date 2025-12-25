@@ -1,6 +1,6 @@
 ﻿using BootstrapBlazor.Components;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization; // 必须引用这个
+using Microsoft.AspNetCore.Components.Authorization;
 using System.Diagnostics.CodeAnalysis;
 using Tsjy.Application.System.Dtos.History;
 using Tsjy.Application.System.IService;
@@ -17,7 +17,6 @@ public partial class HistoryEvaluation
     [NotNull]
     private NavigationManager? NavigationManager { get; set; }
 
-    // 注入身份验证状态提供程序
     [Inject]
     [NotNull]
     private AuthenticationStateProvider? AuthenticationStateProvider { get; set; }
@@ -25,7 +24,7 @@ public partial class HistoryEvaluation
     [NotNull]
     private Chart? LineChart { get; set; }
 
-    private List<HistoryTaskDto> TaskItems { get; set; } = new();
+    // 移除了 TaskItems，因为表格已删除
     private HistoryTaskDto BestScore { get; set; } = new();
     private List<ChartDataDto> TrendData { get; set; } = new();
 
@@ -35,20 +34,15 @@ public partial class HistoryEvaluation
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
-        // 2. 提取 OrgId (确保 Claim 名称与你存入 Token 时的一致，注意区分大小写)
+        // 2. 提取 OrgId
         var orgId = user.FindFirst("OrgId")?.Value;
 
         if (!string.IsNullOrEmpty(orgId))
         {
-            // 3. 将 orgId 传给后端
-            //TaskItems = await HistoryService.GetHistoryListAsync(orgId);
-            //BestScore = await HistoryService.GetBestScoreAsync(orgId);
-            //TrendData = await HistoryService.GetScoreTrendAsync(orgId);
-        }
-        else
-        {
-            // 处理未登录或没有 OrgId 的情况（可选：跳转登录或显示空）
-            // NavigationManager.NavigateTo("/login");
+            // 3. 启用数据获取
+            BestScore = await HistoryService.GetBestScoreAsync(orgId);
+            TrendData = await HistoryService.GetScoreTrendAsync(orgId);
+
         }
     }
 
@@ -58,6 +52,7 @@ public partial class HistoryEvaluation
         ds.Options.Responsive = true;
         ds.Options.MaintainAspectRatio = false;
 
+        // 设置 X 轴标签
         ds.Labels = TrendData.Select(x => x.Label).ToList();
 
         var dataset = new ChartDataset()
@@ -77,13 +72,5 @@ public partial class HistoryEvaluation
         return Task.FromResult(ds);
     }
 
-    private void OnFill(HistoryTaskDto item)
-    {
-        NavigationManager.NavigateTo($"/School/DoTask/{item.Id}");
-    }
-
-    private void OnViewDetail(HistoryTaskDto item)
-    {
-        NavigationManager.NavigateTo($"/School/TaskDetail/{item.Id}");
-    }
+    // 移除了 OnFill 和 OnViewDetail 方法
 }

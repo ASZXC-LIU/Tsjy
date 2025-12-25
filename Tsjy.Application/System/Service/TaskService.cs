@@ -22,6 +22,7 @@ namespace Tsjy.Application.System.Service
         private readonly IRepository<EduEvalNode> _eduRepo;
         private readonly IRepository<ScoringModelItem> _scoringItemRepo;
         private readonly IRepository<ScoringModel> _modelRepo;
+        private readonly IRepository<ExpertReview> _expertReviewRepo;
 
         public TaskService(
             IRepository<ScoringModelItem> scoringItemRepo,
@@ -33,8 +34,10 @@ namespace Tsjy.Application.System.Service
             IRepository<SpeEvalNode> speRepo,
             IRepository<IncEvalNode> incRepo,
             IRepository<ScoringModel> modelRepo,
-            IRepository<EduEvalNode> eduRepo)
+            IRepository<EduEvalNode> eduRepo,
+            IRepository<ExpertReview> expertReviewRepo)
         {
+            _expertReviewRepo = expertReviewRepo;
             _scoringItemRepo = scoringItemRepo;
             _modelRepo = modelRepo;
             _batchRepo = batchRepo;
@@ -428,6 +431,57 @@ namespace Tsjy.Application.System.Service
                                  .OrderBy(x => x.OrderIndex)
                                  .ToListAsync();
             return list.Adapt<List<EvalNodeTreeDto>>();
+        }
+
+        #endregion
+
+        #region 任务结算相关业务逻辑
+
+        /// <summary>
+        /// 检查该任务下的所有评审（所有专家）是否都已完成
+        /// </summary>
+        /// <param name="taskId">任务ID</param>
+        /// <returns>true: 全部完成; false: 还有待评审项</returns>
+        public async Task<bool> AreAllReviewsCompleted(long taskId)
+        {
+            // 查询是否还有状态不是 Submitted 且未删除的评审记录
+            bool hasPending = await _expertReviewRepo.AsQueryable()
+                .AnyAsync(r => r.TaskId == taskId && r.Status != ReviewStatus.Submitted && !r.IsDeleted);
+
+            // 如果没有待处理的，说明全部完成了
+            return !hasPending;
+        }
+
+        /// <summary>
+        /// 结算任务分数并标记为“已完成”
+        /// </summary>
+        [HttpPost] // 支持 API 调用，也可以被 Service 内部或前端直接调用
+        public async Task CompleteTaskAndSettleScore(long taskId)
+        {
+            var task = await _taskRepo.FindOrDefaultAsync(taskId);
+            if (task == null) throw Oops.Oh("任务不存在");
+
+            // 1. 获取所有有效的已提交评分
+            var reviews = await _expertReviewRepo.AsQueryable()
+                .Where(r => r.TaskId == taskId && r.Status == ReviewStatus.Submitted && !r.IsDeleted)
+                .ToListAsync();
+
+            decimal finalTotalScore = 0;
+
+            if (reviews.Any())
+            {
+                // 2. 计算逻辑：先按指标(NodeId)分组取平均分（处理多专家评同一个点的情况），再累加
+                finalTotalScore = reviews.GroupBy(r => r.NodeId)
+                                         .Sum(g => g.Average(r => r.FinalScore ?? 0));
+            }
+
+            // 3. 更新任务状态
+            task.FinalScore = Math.Round(finalTotalScore, 2); // 保留2位小数
+            task.Status = TaskStatu.Finished; // 标记为已完成
+            task.SubmittedAt = task.SubmittedAt ?? DateTime.Now;
+            task.UpdatedAt = DateTime.Now;
+
+            await _taskRepo.UpdateNowAsync(task);
         }
 
         #endregion

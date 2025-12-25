@@ -14,7 +14,7 @@ namespace Tsjy.Application.System.IService
         Task<List<TaskNodeTreeDto>> GetTaskTree(long taskId);
         Task<NodeFillDetailDto> GetNodeFillDetail(long taskId, long nodeId);
         Task SubmitEvidence(NodeFillDetailDto input);
-
+        Task CompleteTaskAndSettleScore(long taskId);
 
 
     }

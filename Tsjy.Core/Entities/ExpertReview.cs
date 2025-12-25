@@ -35,7 +35,7 @@ public class ExpertReview : IEntity
     public decimal? ScoreRatio { get; set; }
 
     [DisplayName("标准分")]
-    public decimal StandardScore { get; set; }
+    public decimal? StandardScore { get; set; }
 
     [DisplayName("最终得分")]
     public decimal? FinalScore { get; set; }

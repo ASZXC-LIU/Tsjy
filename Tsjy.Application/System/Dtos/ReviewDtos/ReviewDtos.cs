@@ -32,7 +32,8 @@ using Tsjy.Core.Enums;
             public long ScoringItemId { get; set; } // 选中的评分等级项ID
             public AuditStatus AuditStatus { get; set; } // 审核结论（通过/驳回）
             public string? RejectReason { get; set; } // 驳回理由
-        }
+            public decimal? MaxScore { get; set; }
+    }
 
     public class ExpertReviewNodeDto
     {
