@@ -41,6 +41,12 @@
                     <Button Color="@(CurrentPerspective == "Inspection" ? Color.Primary : Color.Dark)"
                             Text="巡视组现场材料" OnClick="@(() => SwitchPerspective("Inspection"))" Size="Size.Small" />
                 </div>
+                <div class="material-toolbar px-3 py-2 d-flex align-items-center gap-2">
+                    <span class="text-white-50 small">当前指标材料</span>
+                    <Select TValue="string" @bind-Value="SelectedEvidenceUrl" Items="EvidenceFileOptions"
+                            ShowLabel="false" class="material-file-select"
+                            IsDisabled="@(EvidenceFileOptions.Count == 0)" />
+                </div>
 
                 <div class="flex-grow-1 position-relative">
                     @{
@@ -49,9 +55,9 @@
                         var displayName = CurrentPerspective == "School" ? "受评单位" : "巡视组";
                     }
 
-                    @if (displayFiles?.Any() == true)
+                    @if (displayFiles?.Any() == true && !string.IsNullOrWhiteSpace(SelectedEvidenceUrl))
                     {
-                        <iframe src="@displayFiles.First()" class="pdf-viewer"></iframe>
+                        <iframe src="@SelectedEvidenceUrl" class="pdf-viewer"></iframe>
                     }
                     else
                     {

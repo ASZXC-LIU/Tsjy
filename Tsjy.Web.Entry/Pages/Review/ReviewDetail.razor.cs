@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.IO;
 using BootstrapBlazor.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -29,6 +30,8 @@ public partial class ReviewDetail
     private string? RejectReason { get; set; }
     private bool ShowAiResult { get; set; } = false;
     private string AiResult { get; set; } = "";
+    private List<SelectedItem> EvidenceFileOptions { get; set; } = new();
+    private string? SelectedEvidenceUrl { get; set; }
 
     private string CurrentPerspective { get; set; } = "School"; // 当前视角 // 默认查看受评单位材料
 
@@ -36,6 +39,7 @@ public partial class ReviewDetail
     private void SwitchPerspective(string perspective)
     {
         CurrentPerspective = perspective;
+        RefreshEvidenceOptions();
         StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
@@ -77,6 +81,7 @@ public partial class ReviewDetail
         // 绑定打分项
         ScoringOptions = CurrentNodeDetail.ScoringItems.Select(x =>
             new SelectedItem(x.Id.ToString(), $"{x.LevelCode} ({x.Ratio:P0}) - {x.Description}")).ToList();
+        RefreshEvidenceOptions();
 
         // 恢复已有数据
         SelectedScoringItemId = CurrentNodeDetail.ScoringItems.FirstOrDefault()?.Id ?? 0;
@@ -181,5 +186,24 @@ public partial class ReviewDetail
                    $"4. 备注：检测到支撑材料中财务数据略有模糊，如不确定可点击驳回要求学校重新扫描。";
 
         StateHasChanged();
+    }
+
+    private void RefreshEvidenceOptions()
+    {
+        if (CurrentNodeDetail == null)
+        {
+            EvidenceFileOptions = new List<SelectedItem>();
+            SelectedEvidenceUrl = null;
+            return;
+        }
+
+        var files = CurrentPerspective == "School"
+            ? CurrentNodeDetail.FileUrls
+            : CurrentNodeDetail.InspectionFileUrls;
+
+        EvidenceFileOptions = files?.Select(url => new SelectedItem(url, Path.GetFileName(url))).ToList()
+            ?? new List<SelectedItem>();
+
+        SelectedEvidenceUrl = EvidenceFileOptions.FirstOrDefault()?.Value;
     }
 }
