@@ -14,34 +14,45 @@ namespace Tsjy.Web.Entry.Pages.Review;
 public partial class ReviewDetail
 {
     [Parameter] public long TaskId { get; set; }
-    [Inject] private IReviewService ReviewService { get; set; } // 修复注入接口
+
+    [Inject] private IReviewService ReviewService { get; set; }
     [Inject] private TaskService TaskService { get; set; }
+    [Inject] private FileService FileService { get; set; }
     [Inject] private MessageService MessageService { get; set; }
     [Inject] private NavigationManager Nav { get; set; }
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; }
-    [Inject] private SwalService SwalService { get; set; } // ★ 新增注入：全屏弹窗服务
+    [Inject] private SwalService SwalService { get; set; }
     [Inject] private IInspectionService InspectionService { get; set; }
+
+    // ✅ 新增：AI 服务（真调用）
+    [Inject] private IAiAssistService AiAssistService { get; set; }
+
+   
     private List<long> AssignedNodeIds { get; set; } = new();
     private int CurrentNodeIndex { get; set; } = 0;
     private int TotalNodesCount => AssignedNodeIds.Count;
+
     private NodeFillDetailDto? CurrentNodeDetail { get; set; }
+
     private List<SelectedItem> ScoringOptions { get; set; } = new();
     private long SelectedScoringItemId { get; set; }
     private string? RejectReason { get; set; }
+
     private bool ShowAiResult { get; set; } = false;
     private string AiResult { get; set; } = "";
+
+    private string CurrentPerspective { get; set; } = "School"; // School / Inspection
+
     private List<SelectedItem> EvidenceFileOptions { get; set; } = new();
     private string? SelectedEvidenceUrl { get; set; }
 
-    private string CurrentPerspective { get; set; } = "School"; // 当前视角 // 默认查看受评单位材料
-
-    // 切换视角方法
     private void SwitchPerspective(string perspective)
     {
         CurrentPerspective = perspective;
         RefreshEvidenceOptions();
         StateHasChanged();
     }
+
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -49,13 +60,11 @@ public partial class ReviewDetail
 
         if (string.IsNullOrEmpty(userId)) return;
 
-        // 1. 获取所有分配节点
         var reviews = await ReviewService.GetExpertReviewNodes(TaskId, userId);
         AssignedNodeIds = reviews.Select(r => r.NodeId).ToList();
 
         if (AssignedNodeIds.Any())
         {
-            // 2. 默认定位到第一个 Pending 的指标
             var firstPending = reviews.FindIndex(r => r.Status == ReviewStatus.Pending);
             CurrentNodeIndex = firstPending != -1 ? firstPending : 0;
 
@@ -66,24 +75,32 @@ public partial class ReviewDetail
     private async Task LoadCurrentNode()
     {
         if (!AssignedNodeIds.Any()) return;
-        // 重置 状态
+
         CurrentPerspective = "School";
         ShowAiResult = false;
         AiResult = "";
 
         long nodeId = AssignedNodeIds[CurrentNodeIndex];
-        //1.从原有 TaskService 获取指标详情和学校佐证
+
+        // 1) 指标详情
         CurrentNodeDetail = await TaskService.GetNodeFillDetail(TaskId, nodeId);
-        // 2. 从新 InspectionService 获取巡视组佐证
+
+        // 2) 强制从目录读取该指标 PDF（只会是该 nodeId 的文件）
+        CurrentNodeDetail.FileUrls = await FileService.GetEvidenceList(TaskId, nodeId);
+
+        // 3) 巡视组材料（保持你原逻辑）
         var inspectionData = await InspectionService.GetInspectionEvidence(TaskId, nodeId);
         CurrentNodeDetail.InspectionContent = inspectionData.Content;
         CurrentNodeDetail.InspectionFileUrls = inspectionData.FileUrls;
-        // 绑定打分项
+
+        // 4) 评分项
         ScoringOptions = CurrentNodeDetail.ScoringItems.Select(x =>
             new SelectedItem(x.Id.ToString(), $"{x.LevelCode} ({x.Ratio:P0}) - {x.Description}")).ToList();
+
+        // 5) 文件下拉
         RefreshEvidenceOptions();
 
-        // 恢复已有数据
+        // 6) 恢复已有评分/驳回
         SelectedScoringItemId = CurrentNodeDetail.ScoringItems.FirstOrDefault()?.Id ?? 0;
         RejectReason = CurrentNodeDetail.RejectReason;
 
@@ -108,7 +125,7 @@ public partial class ReviewDetail
         }
     }
 
-    private void BackToDashboard() => Nav.NavigateTo("/Review/Dashboard"); // 修复缺失方法
+    private void BackToDashboard() => Nav.NavigateTo("/Review/Dashboard");
 
     private async Task OnApprove() => await SaveReview(AuditStatus.Approved);
 
@@ -126,6 +143,8 @@ public partial class ReviewDetail
     {
         try
         {
+            if (CurrentNodeDetail == null) return;
+
             var submission = new ReviewSubmissionDto
             {
                 TaskId = TaskId,
@@ -134,19 +153,17 @@ public partial class ReviewDetail
                 AuditStatus = status,
                 RejectReason = status == AuditStatus.Rejected ? RejectReason : null
             };
-            // 1. 提交至数据库
+
             await ReviewService.SubmitReview(submission);
-            // 2. 判断是否是最后一个
+
             if (CurrentNodeIndex < TotalNodesCount - 1)
             {
-                // 如果不是最后一个，弹出轻量级消息并自动跳转
                 await MessageService.Show(new MessageOption { Content = "评审已保存", Color = Color.Success });
                 await OnNextNode();
             }
             else
             {
-                // ★ 评审完最后一个后的逻辑：弹出全屏强提醒
-                await LoadCurrentNode(); // 刷新当前 UI 状态
+                await LoadCurrentNode();
 
                 await SwalService.Show(new SwalOption()
                 {
@@ -168,22 +185,41 @@ public partial class ReviewDetail
             await MessageService.Show(new MessageOption { Content = ex.Message, Color = Color.Danger });
         }
     }
-    // ★ 新增：AI 按钮点击事件 ★
+
     private async Task OnAiAssistClick()
     {
+        if (CurrentNodeDetail == null) return;
+
         ShowAiResult = true;
-        AiResult = "系统正在调取 AI 大模型，对该单位提交的 PDF 佐证材料进行全文扫描与逻辑匹配，请稍后...";
+        AiResult = "AI 正在读取当前指标信息与 PDF 佐证材料并进行评分建议，请稍后...";
         StateHasChanged();
 
-        // 模拟 AI 处理延迟
-        await Task.Delay(1500);
+        try
+        {
+            var ai = await AiAssistService.ExpertAssistAsync(TaskId, CurrentNodeDetail.NodeId);
 
-        // 这里未来可以接入大模型接口
-        AiResult = $"【AI 智能分析报告】\n" +
-                   $"1. 材料合规性：检测到已上传 PDF 文件，内容涵盖了“{CurrentNodeDetail.PointName}”的核心要求。\n" +
-                   $"2. 内容匹配度：学校在自评说明中提到的关键指标与佐证数据一致。\n" +
-                   $"3. 评分建议：基于评估要点“{CurrentNodeDetail.ReferencePoint}”，建议给予【A等级】。\n" +
-                   $"4. 备注：检测到支撑材料中财务数据略有模糊，如不确定可点击驳回要求学校重新扫描。";
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("【AI 辅助评分建议】");
+            sb.AppendLine($"- 推荐等级：{ai.RecommendedLevelCode ?? "（无）"}");
+            sb.AppendLine($"- 推荐 ScoringItemId：{ai.RecommendedScoringItemId?.ToString() ?? "（无）"}");
+            if (ai.RecommendedScore.HasValue) sb.AppendLine($"- 建议分：{ai.RecommendedScore}");
+            sb.AppendLine($"- 置信度：{ai.Confidence:P0}");
+            sb.AppendLine();
+            sb.AppendLine("【关键依据】");
+            foreach (var k in ai.KeyEvidence.Take(10)) sb.AppendLine($"- {k}");
+            sb.AppendLine();
+            sb.AppendLine("【缺失/风险点】");
+            foreach (var m in ai.MissingEvidence.Take(10)) sb.AppendLine($"- {m}");
+            sb.AppendLine();
+            sb.AppendLine("【解释】");
+            sb.AppendLine(ai.Explanation);
+
+            AiResult = sb.ToString();
+        }
+        catch (Exception ex)
+        {
+            AiResult = $"AI 调用失败：{ex.Message}";
+        }
 
         StateHasChanged();
     }
@@ -192,7 +228,7 @@ public partial class ReviewDetail
     {
         if (CurrentNodeDetail == null)
         {
-            EvidenceFileOptions = new List<SelectedItem>();
+            EvidenceFileOptions = new();
             SelectedEvidenceUrl = null;
             return;
         }
@@ -204,6 +240,17 @@ public partial class ReviewDetail
         EvidenceFileOptions = files?.Select(url => new SelectedItem(url, Path.GetFileName(url))).ToList()
             ?? new List<SelectedItem>();
 
-        SelectedEvidenceUrl = EvidenceFileOptions.FirstOrDefault()?.Value;
+        // 防呆：保持已选值，不存在则选第一个
+        if (EvidenceFileOptions.Count == 0)
+        {
+            SelectedEvidenceUrl = null;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(SelectedEvidenceUrl) ||
+            !EvidenceFileOptions.Any(x => x.Value == SelectedEvidenceUrl))
+        {
+            SelectedEvidenceUrl = EvidenceFileOptions[0].Value;
+        }
     }
 }

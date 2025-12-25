@@ -6,7 +6,6 @@
 @namespace Tsjy.Web.Entry.Pages.Review
 
 <div class="review-detail-container">
-    @* 1. 顶部控制条 *@
     <div class="review-top-bar d-flex justify-content-between align-items-center px-4 shadow-sm">
         <div class="nav-left d-flex align-items-center">
             <Button Color="Color.Secondary" Icon="fa-solid fa-house" Text="返回工作台" OnClick="BackToDashboard" class="me-3" />
@@ -32,26 +31,30 @@
     else
     {
         <div class="review-main-split">
-            @* 2. 左侧：材料展示区域 *@
             <div class="material-panel bg-dark d-flex flex-column">
-                @* ★ 新增：材料视角切换按钮 ★ *@
                 <div class="material-perspective-tabs p-2 d-flex gap-2">
                     <Button Color="@(CurrentPerspective == "School" ? Color.Primary : Color.Dark)"
                             Text="受评单位佐证" OnClick="@(() => SwitchPerspective("School"))" Size="Size.Small" />
                     <Button Color="@(CurrentPerspective == "Inspection" ? Color.Primary : Color.Dark)"
                             Text="巡视组现场材料" OnClick="@(() => SwitchPerspective("Inspection"))" Size="Size.Small" />
                 </div>
+
                 <div class="material-toolbar px-3 py-2 d-flex align-items-center gap-2">
                     <span class="text-white-50 small">当前指标材料</span>
-                    <Select TValue="string" @bind-Value="SelectedEvidenceUrl" Items="EvidenceFileOptions"
-                            ShowLabel="false" class="material-file-select"
+                    <Select TValue="string"
+                            @bind-Value="SelectedEvidenceUrl"
+                            Items="EvidenceFileOptions"
+                            ShowLabel="false"
+                            class="material-file-select"
                             IsDisabled="@(EvidenceFileOptions.Count == 0)" />
                 </div>
 
                 <div class="flex-grow-1 position-relative">
                     @{
-                        // 动态判断当前显示哪方的材料
-                        var displayFiles = CurrentPerspective == "School" ? CurrentNodeDetail.FileUrls : CurrentNodeDetail.InspectionFileUrls;
+                        var displayFiles = CurrentPerspective == "School"
+                        ? CurrentNodeDetail.FileUrls
+                        : CurrentNodeDetail.InspectionFileUrls;
+
                         var displayName = CurrentPerspective == "School" ? "受评单位" : "巡视组";
                     }
 
@@ -69,9 +72,7 @@
                 </div>
             </div>
 
-            @* 3. 右侧：信息与评审区域 *@
             <div class="action-panel border-start bg-white">
-                @* 右侧上半：指标信息 *@
                 <div class="info-section p-4 border-bottom">
                     <nav aria-label="breadcrumb" class="mb-2">
                         <ol class="breadcrumb mb-0 small">
@@ -91,6 +92,7 @@
                         <div class="info-content">@CurrentNodeDetail.Method</div>
                     </div>
                 </div>
+
                 <div class="ai-assist-section p-4 border-bottom bg-white">
                     <Button Color="Color.Info" Icon="fa-solid fa-robot" Text="AI 智能辅助评审"
                             OnClick="OnAiAssistClick" IsAsync="true" class="mb-2 shadow-sm" />
@@ -106,13 +108,12 @@
                         </div>
                     }
                 </div>
-                @* 右侧下半：操作区域 *@
+
                 <div class="operation-section p-4 bg-light">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="mb-0 fw-bold">评分等级 (标准分: @CurrentNodeDetail.MaxScore)</h6>
                         @if (CurrentNodeDetail.Status != AuditStatus.Pending)
                         {
-                            @* 确保这里使用的是 GetDescription *@
                             <span class="badge @(CurrentNodeDetail.Status == AuditStatus.Approved ? "bg-success" : "bg-danger")">
                                 当前状态: @CurrentNodeDetail.Status.GetDescription()
                             </span>
