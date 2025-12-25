@@ -15,5 +15,6 @@ namespace Tsjy.Application.System.IService
     {
         Task<List<ExpertTaskListDto>> GetExpertTasks(string expertId);
         Task SubmitReview([FromBody] ReviewSubmissionDto input);
+        Task<List<ExpertReviewNodeDto>> GetExpertReviewNodes(long taskId, string expertId);
     }
 }

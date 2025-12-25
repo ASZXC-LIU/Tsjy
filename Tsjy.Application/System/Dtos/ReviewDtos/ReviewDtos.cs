@@ -32,5 +32,11 @@ using Tsjy.Core.Enums;
             public AuditStatus AuditStatus { get; set; } // 审核结论（通过/驳回）
             public string? RejectReason { get; set; } // 驳回理由
         }
+
+    public class ExpertReviewNodeDto
+    {
+        public long NodeId { get; set; }
+        public ReviewStatus Status { get; set; }
     }
+}
 

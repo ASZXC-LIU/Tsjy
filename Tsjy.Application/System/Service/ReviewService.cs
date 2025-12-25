@@ -105,5 +105,20 @@ namespace Tsjy.Application.System.Service
                 await _evidenceRepo.UpdateNowAsync(evidence);
             }
         }
+
+        public async Task<List<ExpertReviewNodeDto>> GetExpertReviewNodes(long taskId, string expertId)
+        {
+            // 查询该专家在该任务下分配的所有评审记录
+            var reviews = await _expertReviewRepo.AsQueryable()
+                .Where(x => x.TaskId == taskId && x.ReviewerId == expertId && !x.IsDeleted)
+                .OrderBy(x => x.Id) // 维持一个稳定的顺序
+                .ToListAsync();
+
+            return reviews.Select(r => new ExpertReviewNodeDto
+            {
+                NodeId = r.NodeId,
+                Status = r.Status
+            }).ToList();
+        }
     }
 }

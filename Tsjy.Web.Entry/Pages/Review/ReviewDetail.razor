@@ -1,0 +1,106 @@
+﻿@page "/Review/ReviewDetail/{TaskId:long}"
+@using Tsjy.Application.System.Dtos
+@using Tsjy.Core.MyHelper
+@using Tsjy.Core.Enums
+@attribute [Authorize(Roles = "Expert")]
+@namespace Tsjy.Web.Entry.Pages.Review
+
+<div class="review-detail-container">
+    @* 1. 顶部控制条 *@
+    <div class="review-top-bar d-flex justify-content-between align-items-center px-4 shadow-sm">
+        <div class="nav-left d-flex align-items-center">
+            <Button Color="Color.Secondary" Icon="fa-solid fa-house" Text="返回工作台" OnClick="BackToDashboard" class="me-3" />
+            <div class="progress-info fw-bold">
+                评审进度: <span class="text-primary">@(CurrentNodeIndex + 1)</span> / @TotalNodesCount
+            </div>
+        </div>
+        <div class="nav-right d-flex gap-2">
+            <Button Color="Color.Primary" Icon="fa-solid fa-chevron-left" Text="上一个"
+                    IsEnabled="@(CurrentNodeIndex > 0)" OnClick="OnPrevNode" />
+            <Button Color="Color.Primary" Icon="fa-solid fa-chevron-right" Text="下一个"
+                    IsEnabled="@(CurrentNodeIndex < TotalNodesCount - 1)" OnClick="OnNextNode" />
+        </div>
+    </div>
+
+    @if (CurrentNodeDetail == null)
+    {
+        <div class="loading-overlay">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">正在加载评审内容...</p>
+        </div>
+    }
+    else
+    {
+        <div class="review-main-split">
+            @* 2. 左侧：材料展示区域 *@
+            <div class="material-panel bg-dark">
+                @if (CurrentNodeDetail.FileUrls?.Any() == true)
+                {
+                    @* 默认预览第一个PDF文件 *@
+                    <iframe src="@CurrentNodeDetail.FileUrls.First()" class="pdf-viewer"></iframe>
+                }
+                else
+                {
+                    <div class="empty-material text-white-50">
+                        <i class="fa-solid fa-file-circle-exclamation fa-4x mb-3"></i>
+                        <p>该单位未上传佐证材料</p>
+                    </div>
+                }
+            </div>
+
+            @* 3. 右侧：信息与评审区域 *@
+            <div class="action-panel border-start bg-white">
+                @* 右侧上半：指标信息 *@
+                <div class="info-section p-4 border-bottom">
+                    <nav aria-label="breadcrumb" class="mb-2">
+                        <ol class="breadcrumb mb-0 small">
+                            <li class="breadcrumb-item text-muted">@CurrentNodeDetail.FirstIndicator</li>
+                            <li class="breadcrumb-item text-muted">@CurrentNodeDetail.SecondIndicator</li>
+                        </ol>
+                    </nav>
+                    <h5 class="fw-bold text-dark mb-3">@CurrentNodeDetail.PointName</h5>
+
+                    <div class="info-block mb-3">
+                        <label>评估要点 (Reference)</label>
+                        <div class="info-content">@CurrentNodeDetail.ReferencePoint</div>
+                    </div>
+
+                    <div class="info-block">
+                        <label>评估方法 (Method)</label>
+                        <div class="info-content">@CurrentNodeDetail.Method</div>
+                    </div>
+                </div>
+
+                @* 右侧下半：操作区域 *@
+                <div class="operation-section p-4 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 fw-bold">评分等级 (标准分: @CurrentNodeDetail.MaxScore)</h6>
+                        @if (CurrentNodeDetail.Status != AuditStatus.Pending)
+                        {
+                            @* 确保这里使用的是 GetDescription *@
+                            <span class="badge ..."> 当前状态: @CurrentNodeDetail.Status.GetDescription() </span>
+                        }
+                    </div>
+
+                    <div class="scoring-box mb-4">
+                        <RadioList TValue="long" Items="@ScoringOptions" @bind-Value="@SelectedScoringItemId" IsVertical="true" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">驳回建议 (若驳回则必填)</label>
+                        <Textarea @bind-Value="@RejectReason" Rows="4" placeholder="请详细输入修改意见..." />
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <Button Color="Color.Danger" IsBlock="true" OnClick="OnReject" Icon="fa-solid fa-xmark"> 予以驳回 </Button>
+                        </div>
+                        <div class="col-6">
+                            <Button Color="Color.Success" IsBlock="true" OnClick="OnApprove" Icon="fa-solid fa-check"> 保存并提交 </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

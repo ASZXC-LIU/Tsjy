@@ -1,10 +1,11 @@
-﻿using BootstrapBlazor.Components;
+﻿using System.Security.Claims;
+using BootstrapBlazor.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Tsjy.Application.System.Dtos;
+using Tsjy.Application.System.Dtos.ReviewDtos;
 using Tsjy.Application.System.IService;
 using Tsjy.Application.System.Service;
-using Tsjy.Application.System.Dtos.ReviewDtos;
 namespace Tsjy.Web.Entry.Pages.Review;
 
 public partial class ExpertDashboard
@@ -19,8 +20,8 @@ public partial class ExpertDashboard
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         // 获取当前登录专家的用户ID
-        var userId = state.User.FindFirst("IDNumber")?.Value;
-
+       
+        var userId = state.User.FindFirst(ClaimTypes.Sid)?.Value;
         if (!string.IsNullOrEmpty(userId))
         {
             // 使用 ReviewService 代替 TaskService
@@ -42,6 +43,6 @@ public partial class ExpertDashboard
     private void OnStartReview(long taskId)
     {
         // 跳转至详情页
-        Nav.NavigateTo($"/Expert/ReviewDetail/{taskId}");
+        Nav.NavigateTo($"/Review/ReviewDetail/{taskId}");
     }
 }
