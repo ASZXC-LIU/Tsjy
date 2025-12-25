@@ -40,8 +40,9 @@ namespace Tsjy.Web.Core
             services.AddAuthorizationCore(options =>
             {
                 Log.Information(ClaimTypes.Role);
-                options.AddPolicy("SPECIAL", policy => policy.RequireClaim(ClaimTypes.Role, "SPECIAL"));
                 options.AddPolicy("Admin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+                options.AddPolicy("Expert", policy => policy.RequireClaim(ClaimTypes.Role, "Expert"));
+                options.AddPolicy("SchoolUser", policy => policy.RequireClaim(ClaimTypes.Role, "SchoolUser"));
             });
 
             services.AddControllers().AddInjectWithUnifyResult();
