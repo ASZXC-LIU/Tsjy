@@ -225,5 +225,10 @@ public class FileService : IDynamicApiController, ITransient
         return physical;
     }
     private static string BuildUrl(string relativeDir, string fileName)
-       => $"/{relativeDir.Replace("\\", "/")}/{fileName}";
+    {
+        // relativeDir 可能是 "uploads\\evidences\\1\\2"
+        var dir = (relativeDir ?? "").Replace("\\", "/").Trim('/');
+        var name = Uri.EscapeDataString(fileName ?? "");
+        return $"/{dir}/{name}";
+    }
 }

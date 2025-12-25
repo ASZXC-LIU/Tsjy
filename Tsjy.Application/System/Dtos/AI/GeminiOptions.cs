@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Furion.ConfigurableOptions;
 
 namespace Tsjy.Application.System.Dtos.AI;
 
-public sealed class GeminiOptions
+public sealed class GeminiOptions : IConfigurableOptions
 {
     /// <summary>Gemini Developer API Key（不要提交到仓库）</summary>
     public string ApiKey { get; set; } = string.Empty;

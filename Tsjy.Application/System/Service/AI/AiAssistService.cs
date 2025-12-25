@@ -65,7 +65,13 @@ public sealed class AiAssistService : IAiAssistService, ITransient
             var bytes = await SystemIO.File.ReadAllBytesAsync(path, ct);
 
             // Files.UploadAsync(bytes, fileName) :contentReference[oaicite:2]{index=2}
-            var upload = await client.Files.UploadAsync(bytes: bytes, fileName: SystemIO.Path.GetFileName(path));
+            // Gemini 上传时 fileName 必须保证 ASCII，否则 .NET 报：Request headers must contain only ASCII characters
+            var safeUploadName = $"{Guid.NewGuid():N}.pdf";
+
+            var upload = await client.Files.UploadAsync(
+                bytes: bytes,
+                fileName: safeUploadName
+            );
             // upload 通常包含 Name/Uri 等字段；FileData 里用 Uri（示例中是 generativelanguage 的 files URL） :contentReference[oaicite:3]{index=3}
             var fileUri = upload.Uri ?? upload.Name; // 双保险：有的返回 Uri，有的只给 name
 
