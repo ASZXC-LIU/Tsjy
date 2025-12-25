@@ -3,7 +3,7 @@
 @using Tsjy.Core.Enums
 @inherits BootstrapComponentBase
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Policy = "Admin")]
 @namespace Tsjy.Web.Entry.Pages.Admin
 
 <div class="container-fluid page-wrapper animate__animated animate__fadeInUp">
@@ -155,7 +155,21 @@
         </ValidateForm>
     </div>
 </div>
-
+<AuthorizeView>
+    <div class="alert alert-warning mt-4">
+        <h4>权限调试面板</h4>
+        @* 在 AuthorizeView 内部，context 变量自动存在 *@
+        <p>当前登录状态: <b>@(context.User.Identity?.IsAuthenticated == true ? "已登录" : "未登录")</b></p>
+        <p>当前用户名: <b>@context.User.Identity?.Name</b></p>
+        <p>拥有的权限(Claims):</p>
+        <ul>
+            @foreach (var claim in context.User.Claims)
+            {
+                <li>Type: @claim.Type <br /> Value: <b>@claim.Value</b></li>
+            }
+        </ul>
+    </div>
+</AuthorizeView>
 <style>
     .bg-light-primary {
         background-color: #f0f7ff;

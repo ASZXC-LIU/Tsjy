@@ -124,7 +124,7 @@ namespace Tsjy.Web.Entry.Shared
             // 3. 组装最终的菜单列表
             var menus = new List<MenuItem>
     {
-        new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
+        //new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
         
         // 将刚才定义的父级菜单加入主列表
         evalMenu,
@@ -142,7 +142,7 @@ namespace Tsjy.Web.Entry.Shared
         {
             var menus = new List<MenuItem>
         {
-        new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
+        //new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
         new MenuItem() { Text = "创建试题", Icon = "fa-solid fa-fw fa-user", Url = "/counter" },
     };
 
@@ -154,11 +154,11 @@ namespace Tsjy.Web.Entry.Shared
            
             var menus = new List<MenuItem>
     {
-        new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
+        //new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
 
 
         
-         new MenuItem() { Text = "历史评价", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/School/HistoryEvaluation" },
+         new MenuItem() { Text = "历史评价", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/School/HistoryEvaluation", Match = NavLinkMatch.All },
 
         new MenuItem() { Text = "我的任务", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/School/MyTasks" },
         //new MenuItem() { Text = "用户列表", Icon = "fa-solid fa-fw fa-users", Url = "/UserList" },
@@ -178,7 +178,7 @@ namespace Tsjy.Web.Entry.Shared
 
 
 
-         new MenuItem() { Text = "工作台", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/Review/Dashboard" },
+         new MenuItem() { Text = "工作台", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/Review/Dashboard", Match = NavLinkMatch.All },
 
         //new MenuItem() { Text = "我的任务", Icon = "fa-solid fa-fw fa-cloud-upload", Url = "/Review/ReviewDetail" },
         //new MenuItem() { Text = "用户列表", Icon = "fa-solid fa-fw fa-users", Url = "/UserList" },
