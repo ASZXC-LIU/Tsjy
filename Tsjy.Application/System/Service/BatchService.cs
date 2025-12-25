@@ -20,16 +20,12 @@ public class BatchService : IBatchService, ITransient,IScoped
     private readonly IRepository<SpeEvalNode> _speRepo;
     private readonly IRepository<IncEvalNode> _incRepo;
     private readonly IRepository<EduEvalNode> _eduRepo;
-    private readonly IRepository<InspectionTeam> _inspectionTeamRepo;
-    private readonly IRepository<InspectionTeamMember> _teamMemberRepo;
     private readonly IRepository<ExpertReview> _expertReviewRepo;
     public BatchService(
         IRepository<DistributionBatch> batchRepo,
         IRepository<SysUsers> userRepo,
         IRepository<Departments> deptRepo,
         IRepository<Tasks> taskRepo,
-        IRepository<InspectionTeam> inspectionTeamRepo,
-        IRepository<InspectionTeamMember> teamMemberRepo,
         IRepository<SpeEvalNode> speRepo,
         IRepository<IncEvalNode> incRepo,
         IRepository<ExpertReview> expertReviewRepo,
@@ -43,8 +39,6 @@ public class BatchService : IBatchService, ITransient,IScoped
         _speRepo = speRepo;
         _incRepo = incRepo;
         _eduRepo = eduRepo;
-        _inspectionTeamRepo = inspectionTeamRepo; // 赋值
-        _teamMemberRepo = teamMemberRepo;         // 赋值
         _expertReviewRepo = expertReviewRepo;
     }
 
@@ -274,23 +268,7 @@ public class BatchService : IBatchService, ITransient,IScoped
                 }
 
 
-                // 6. 创建视导组
-                if (input.InspectionGroupUserIds.Any())
-                {
-                    var team = new InspectionTeam
-                    {
-                        BatchId = input.BatchId,
-                        Name = $"{batch.Name}-视导组"
-                    };
-                    var teamEntity = await _inspectionTeamRepo.InsertNowAsync(team);
-
-                    var members = input.InspectionGroupUserIds.Select(uid => new InspectionTeamMember
-                    {
-                        TeamId = teamEntity.Entity.Id,
-                        UserId = uid
-                    });
-                    await _teamMemberRepo.InsertAsync(members);
-                }
+               
 
                 // 7. 更新批次状态
                 batch.Status = PublicStatus.Published;
@@ -460,32 +438,9 @@ public class BatchService : IBatchService, ITransient,IScoped
             ProgressRate = x.Total == 0 ? 0 : (double)x.Finished / x.Total * 100
         }).ToList();
 
-        // 3. 获取视导组进度
-        // 查 InspectionTeam + InspectionTeamMember
-        var teams = await _inspectionTeamRepo.Where(t => t.BatchId == batchId && !t.IsDeleted).ToListAsync();
-        var teamIds = teams.Select(t => t.Id).ToList();
+       
 
-        var members = await _teamMemberRepo.Where(m => teamIds.Contains(m.TeamId) && !m.IsDeleted).ToListAsync();
-        var memberUserIds = members.Select(m => m.UserId).Distinct().ToList();
-        var memberNames = await _userRepo.Where(u => memberUserIds.Contains(u.IDNumber))
-                                         .ToDictionaryAsync(u => u.IDNumber, u => u.RealName);
-
-        foreach (var team in teams)
-        {
-            var teamMembers = members.Where(m => m.TeamId == team.Id)
-                                     .Select(m => memberNames.ContainsKey(m.UserId) ? memberNames[m.UserId] : m.UserId.ToString())
-                                     .ToList();
-
-            result.InspectionGroups.Add(new InspectionGroupDto
-            {
-                TeamId = team.Id,
-                TeamName = team.Name,
-                MemberNames = teamMembers,
-                // 这里暂时没查 Schedule 表，如果需要可以补充查询 InspectionSchedule
-                ScheduledCount = 0,
-                FinishedCount = 0
-            });
-        }
+       
 
         return result;
     }

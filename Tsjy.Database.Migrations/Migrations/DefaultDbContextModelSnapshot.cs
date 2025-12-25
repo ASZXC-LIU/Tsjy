@@ -64,14 +64,14 @@ namespace Tsjy.Database.Migrations.Migrations
                         {
                             Id = 1L,
                             AnalysisReport = "AI分析通过",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 826, DateTimeKind.Utc).AddTicks(8898),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 260, DateTimeKind.Utc).AddTicks(4959),
                             EvidenceId = 1L,
                             IsDeleted = false,
                             NodeId = 3L,
                             RiskLevel = "low",
                             SuggestedScore = 4.5m,
                             TaskId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 826, DateTimeKind.Utc).AddTicks(8899),
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 260, DateTimeKind.Utc).AddTicks(4962),
                             UserId = 1L
                         });
                 });
@@ -123,7 +123,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Code = "110000_EDU",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(1775),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(3324),
                             IncSchoolsNum = 1000L,
                             IsDeleted = false,
                             Level = 0,
@@ -132,12 +132,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "110000",
                             SpeSchoolsNum = 20L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(1781)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(3326)
                         },
                         new
                         {
                             Code = "110105_EDU",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2509),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4032),
                             IncSchoolsNum = 150L,
                             IsDeleted = false,
                             Level = 2,
@@ -146,12 +146,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "110105",
                             SpeSchoolsNum = 3L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2510)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4032)
                         },
                         new
                         {
                             Code = "110108_EDU",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2512),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4034),
                             IncSchoolsNum = 180L,
                             IsDeleted = false,
                             Level = 2,
@@ -160,12 +160,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "110108",
                             SpeSchoolsNum = 4L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2512)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4034)
                         },
                         new
                         {
                             Code = "130000_EDU",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2513),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4035),
                             IncSchoolsNum = 3000L,
                             IsDeleted = false,
                             Level = 0,
@@ -174,12 +174,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "130000",
                             SpeSchoolsNum = 150L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2514)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4036)
                         },
                         new
                         {
                             Code = "130100_EDU",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2515),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4037),
                             IncSchoolsNum = 200L,
                             IsDeleted = false,
                             Level = 1,
@@ -188,12 +188,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "130100",
                             SpeSchoolsNum = 12L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2515)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4037)
                         },
                         new
                         {
                             Code = "130400_EDU",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2518),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4041),
                             IncSchoolsNum = 180L,
                             IsDeleted = false,
                             Level = 1,
@@ -202,12 +202,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "130400",
                             SpeSchoolsNum = 10L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2518)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4041)
                         },
                         new
                         {
                             Code = "110105_SPE_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2520),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4042),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 2,
@@ -216,12 +216,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "110105",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2520)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4042)
                         },
                         new
                         {
                             Code = "110108_SPE_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2521),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4043),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 2,
@@ -230,12 +230,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "110108",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2521)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4044)
                         },
                         new
                         {
                             Code = "130100_SPE_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2522),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4045),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 1,
@@ -244,12 +244,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "130100",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2523)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4045)
                         },
                         new
                         {
                             Code = "130102_SPE_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2524),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4047),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 2,
@@ -258,12 +258,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "130102",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2525)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4047)
                         },
                         new
                         {
                             Code = "130400_SPE_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2526),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4048),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 1,
@@ -272,12 +272,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "130400",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2526)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4048)
                         },
                         new
                         {
                             Code = "110105_INC_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2527),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4049),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 2,
@@ -286,12 +286,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "110105",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2527)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4049)
                         },
                         new
                         {
                             Code = "110108_INC_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2528),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4050),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 2,
@@ -300,12 +300,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "110108",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2528)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4051)
                         },
                         new
                         {
                             Code = "130104_INC_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2529),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4052),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 2,
@@ -314,12 +314,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "130104",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2530)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4052)
                         },
                         new
                         {
                             Code = "130402_INC_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2531),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4053),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 2,
@@ -328,12 +328,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "130402",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2531)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4053)
                         },
                         new
                         {
                             Code = "110000_OTH_01",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2532),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4054),
                             IncSchoolsNum = 0L,
                             IsDeleted = false,
                             Level = 0,
@@ -342,7 +342,7 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = 0,
                             RegionCode = "110000",
                             SpeSchoolsNum = 0L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 773, DateTimeKind.Utc).AddTicks(2532)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 203, DateTimeKind.Utc).AddTicks(4054)
                         });
                 });
 
@@ -406,54 +406,54 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 10000L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(7529),
-                            DueAt = new DateTime(2026, 1, 4, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8140),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(414),
+                            DueAt = new DateTime(2026, 1, 14, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1081),
                             IsDeleted = false,
                             Name = "2025年特教学校春季普查",
-                            StartAt = new DateTime(2025, 12, 5, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8036),
+                            StartAt = new DateTime(2025, 12, 15, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(888),
                             Status = 2,
                             TargetType = 0,
                             TreeId = 202501L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(7530)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(415)
                         },
                         new
                         {
                             Id = 10001L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8226),
-                            DueAt = new DateTime(2026, 1, 19, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8229),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1167),
+                            DueAt = new DateTime(2026, 1, 29, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1170),
                             IsDeleted = false,
                             Name = "海淀区随班就读质量监测",
-                            StartAt = new DateTime(2025, 12, 20, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8228),
+                            StartAt = new DateTime(2025, 12, 30, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1169),
                             Status = 0,
                             TargetType = 0,
                             TreeId = 202502L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8227)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1168)
                         },
                         new
                         {
                             Id = 10002L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8282),
-                            DueAt = new DateTime(2025, 12, 30, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8283),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1171),
+                            DueAt = new DateTime(2026, 1, 9, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1172),
                             IsDeleted = false,
                             Name = "2025区域特教发展绩效评价",
-                            StartAt = new DateTime(2025, 12, 13, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8283),
+                            StartAt = new DateTime(2025, 12, 23, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1172),
                             Status = 2,
                             TargetType = 0,
                             TreeId = 202503L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8282)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1171)
                         },
                         new
                         {
                             Id = 10003L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8285),
-                            DueAt = new DateTime(2025, 1, 14, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8326),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1173),
+                            DueAt = new DateTime(2025, 1, 24, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1192),
                             IsDeleted = false,
                             Name = "2024年终考核存档",
-                            StartAt = new DateTime(2024, 12, 15, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8286),
+                            StartAt = new DateTime(2024, 12, 25, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1174),
                             Status = 3,
                             TargetType = 0,
                             TreeId = 202401L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 846, DateTimeKind.Utc).AddTicks(8285)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 273, DateTimeKind.Utc).AddTicks(1173)
                         });
                 });
 
@@ -512,7 +512,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 30000L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(8667),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(3346),
                             Depth = 0,
                             IsDeleted = false,
                             MaxScore = 100m,
@@ -521,13 +521,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0",
                             TreeId = 202503L,
                             Type = 0,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(8669)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(3348)
                         },
                         new
                         {
                             Id = 30001L,
                             Code = "1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(9664),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(4238),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 60m,
@@ -537,13 +537,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,30000",
                             TreeId = 202503L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(9664)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(4238)
                         },
                         new
                         {
                             Id = 30002L,
                             Code = "1.1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(9766),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(4332),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 60m,
@@ -554,13 +554,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             ScoringTemplateId = 1L,
                             TreeId = 202503L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(9767)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(4332)
                         },
                         new
                         {
                             Id = 30003L,
                             Code = "2",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(9856),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(4423),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 40m,
@@ -570,13 +570,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,30000",
                             TreeId = 202503L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(9856)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(4423)
                         },
                         new
                         {
                             Id = 30004L,
                             Code = "2.1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(9860),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(4427),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 40m,
@@ -587,7 +587,7 @@ namespace Tsjy.Database.Migrations.Migrations
                             ScoringTemplateId = 1L,
                             TreeId = 202503L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 821, DateTimeKind.Utc).AddTicks(9861)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 255, DateTimeKind.Utc).AddTicks(4427)
                         });
                 });
 
@@ -615,7 +615,7 @@ namespace Tsjy.Database.Migrations.Migrations
                     b.Property<decimal?>("ScoreRatio")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("StandardScore")
+                    b.Property<decimal?>("StandardScore")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Status")
@@ -643,7 +643,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 830, DateTimeKind.Utc).AddTicks(216),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 263, DateTimeKind.Utc).AddTicks(4429),
                             FinalScore = 4.0m,
                             IsDeleted = false,
                             NodeId = 3L,
@@ -652,7 +652,7 @@ namespace Tsjy.Database.Migrations.Migrations
                             StandardScore = 5m,
                             Status = 0,
                             TaskId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 829, DateTimeKind.Utc).AddTicks(9403)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 263, DateTimeKind.Utc).AddTicks(3714)
                         });
                 });
 
@@ -711,7 +711,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 20000L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(1907),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(8656),
                             Depth = 0,
                             IsDeleted = false,
                             MaxScore = 100m,
@@ -720,13 +720,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0",
                             TreeId = 202502L,
                             Type = 0,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(1909)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(8658)
                         },
                         new
                         {
                             Id = 20001L,
                             Code = "1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(2879),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9589),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 50m,
@@ -736,13 +736,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,20000",
                             TreeId = 202502L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(2879)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9589)
                         },
                         new
                         {
                             Id = 20002L,
                             Code = "1.1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(3236),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9688),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 25m,
@@ -753,13 +753,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             ScoringTemplateId = 2L,
                             TreeId = 202502L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(3236)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9688)
                         },
                         new
                         {
                             Id = 20003L,
                             Code = "1.2",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(3328),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9779),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 25m,
@@ -770,13 +770,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             ScoringTemplateId = 1L,
                             TreeId = 202502L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(3329)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9780)
                         },
                         new
                         {
                             Id = 20004L,
                             Code = "2",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(3334),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9784),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 50m,
@@ -786,13 +786,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,20000",
                             TreeId = 202502L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(3334)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9784)
                         },
                         new
                         {
                             Id = 20005L,
                             Code = "2.1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(3344),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9789),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 50m,
@@ -803,180 +803,7 @@ namespace Tsjy.Database.Migrations.Migrations
                             ScoringTemplateId = 1L,
                             TreeId = 202502L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 820, DateTimeKind.Utc).AddTicks(3344)
-                        });
-                });
-
-            modelBuilder.Entity("Tsjy.Core.Entities.InspectionLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<long>("CreatedBy")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("EvidenceFiles")
-                        .HasColumnType("json");
-
-                    b.Property<string>("Findings")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<long>("NodeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("ScheduleId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("inspection_logs");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 835, DateTimeKind.Utc).AddTicks(2222),
-                            CreatedBy = 100L,
-                            EvidenceFiles = "[\"photo1.jpg\"]",
-                            Findings = "现场查看符合要求",
-                            IsDeleted = false,
-                            NodeId = 3L,
-                            ScheduleId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 835, DateTimeKind.Utc).AddTicks(2223)
-                        });
-                });
-
-            modelBuilder.Entity("Tsjy.Core.Entities.InspectionSchedule", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("AssignmentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<long>("TeamId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("VisitEndAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("VisitStartAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("inspection_schedules");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            AssignmentId = 1L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 833, DateTimeKind.Utc).AddTicks(6742),
-                            IsDeleted = false,
-                            Status = 0,
-                            TeamId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 833, DateTimeKind.Utc).AddTicks(6743),
-                            VisitEndAt = new DateTime(2025, 12, 17, 13, 14, 30, 833, DateTimeKind.Utc).AddTicks(7365),
-                            VisitStartAt = new DateTime(2025, 12, 16, 13, 14, 30, 833, DateTimeKind.Utc).AddTicks(7187)
-                        });
-                });
-
-            modelBuilder.Entity("Tsjy.Core.Entities.InspectionTeam", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("BatchId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("inspection_teams");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            BatchId = 1L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 830, DateTimeKind.Utc).AddTicks(9431),
-                            IsDeleted = false,
-                            Name = "第一视导组",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 830, DateTimeKind.Utc).AddTicks(9052)
-                        });
-                });
-
-            modelBuilder.Entity("Tsjy.Core.Entities.InspectionTeamMember", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<long>("TeamId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("inspection_team_members");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 831, DateTimeKind.Utc).AddTicks(8362),
-                            IsDeleted = false,
-                            TeamId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 831, DateTimeKind.Utc).AddTicks(7854),
-                            UserId = "100"
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 253, DateTimeKind.Utc).AddTicks(9789)
                         });
                 });
 
@@ -1013,400 +840,400 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Code = "110000",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(5365),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(7497),
                             IsDeleted = false,
                             Level = 0,
                             Name = "北京市",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(5369)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(7501)
                         },
                         new
                         {
                             Code = "110101",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6003),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8083),
                             IsDeleted = false,
                             Level = 2,
                             Name = "东城区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6003)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8083)
                         },
                         new
                         {
                             Code = "110102",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6005),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8085),
                             IsDeleted = false,
                             Level = 2,
                             Name = "西城区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6005)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8085)
                         },
                         new
                         {
                             Code = "110105",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6006),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8085),
                             IsDeleted = false,
                             Level = 2,
                             Name = "朝阳区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6006)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8086)
                         },
                         new
                         {
                             Code = "110106",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6006),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8086),
                             IsDeleted = false,
                             Level = 2,
                             Name = "丰台区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6007)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8086)
                         },
                         new
                         {
                             Code = "110107",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6016),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8092),
                             IsDeleted = false,
                             Level = 2,
                             Name = "石景山区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6016)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8092)
                         },
                         new
                         {
                             Code = "110108",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6017),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8093),
                             IsDeleted = false,
                             Level = 2,
                             Name = "海淀区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6017)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8093)
                         },
                         new
                         {
                             Code = "110109",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6018),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8093),
                             IsDeleted = false,
                             Level = 2,
                             Name = "门头沟区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6018)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8094)
                         },
                         new
                         {
                             Code = "110111",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6018),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8094),
                             IsDeleted = false,
                             Level = 2,
                             Name = "房山区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6019)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8094)
                         },
                         new
                         {
                             Code = "110112",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6020),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8095),
                             IsDeleted = false,
                             Level = 2,
                             Name = "通州区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6020)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8095)
                         },
                         new
                         {
                             Code = "110113",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6021),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8096),
                             IsDeleted = false,
                             Level = 2,
                             Name = "顺义区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6021)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8096)
                         },
                         new
                         {
                             Code = "110114",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6021),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8097),
                             IsDeleted = false,
                             Level = 2,
                             Name = "昌平区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6021)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8097)
                         },
                         new
                         {
                             Code = "110115",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6022),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8097),
                             IsDeleted = false,
                             Level = 2,
                             Name = "大兴区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6022)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8097)
                         },
                         new
                         {
                             Code = "110116",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6023),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8098),
                             IsDeleted = false,
                             Level = 2,
                             Name = "怀柔区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6023)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8098)
                         },
                         new
                         {
                             Code = "110117",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6023),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8098),
                             IsDeleted = false,
                             Level = 2,
                             Name = "平谷区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6023)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8099)
                         },
                         new
                         {
                             Code = "110118",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6024),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8099),
                             IsDeleted = false,
                             Level = 2,
                             Name = "密云区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6024)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8099)
                         },
                         new
                         {
                             Code = "110119",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6024),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8100),
                             IsDeleted = false,
                             Level = 2,
                             Name = "延庆区",
                             ParentCode = "110000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6024)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8100)
                         },
                         new
                         {
                             Code = "130000",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6026),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8111),
                             IsDeleted = false,
                             Level = 0,
                             Name = "河北省",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6026)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8111)
                         },
                         new
                         {
                             Code = "130100",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6087),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8163),
                             IsDeleted = false,
                             Level = 1,
                             Name = "石家庄市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6087)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8163)
                         },
                         new
                         {
                             Code = "130102",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6088),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8164),
                             IsDeleted = false,
                             Level = 2,
                             Name = "长安区",
                             ParentCode = "130100",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6089)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8165)
                         },
                         new
                         {
                             Code = "130200",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6090),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8166),
                             IsDeleted = false,
                             Level = 1,
                             Name = "唐山市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6090)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8166)
                         },
                         new
                         {
                             Code = "130202",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6090),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8166),
                             IsDeleted = false,
                             Level = 2,
                             Name = "路南区",
                             ParentCode = "130200",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6091)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8166)
                         },
                         new
                         {
                             Code = "130300",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6091),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8167),
                             IsDeleted = false,
                             Level = 1,
                             Name = "秦皇岛市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6091)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8167)
                         },
                         new
                         {
                             Code = "130302",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6092),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8168),
                             IsDeleted = false,
                             Level = 2,
                             Name = "海港区",
                             ParentCode = "130300",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6092)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8168)
                         },
                         new
                         {
                             Code = "130400",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6092),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8168),
                             IsDeleted = false,
                             Level = 1,
                             Name = "邯郸市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6092)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8169)
                         },
                         new
                         {
                             Code = "130402",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6093),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8169),
                             IsDeleted = false,
                             Level = 2,
                             Name = "邯山区",
                             ParentCode = "130400",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6093)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8169)
                         },
                         new
                         {
                             Code = "130500",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6093),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8169),
                             IsDeleted = false,
                             Level = 1,
                             Name = "邢台市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6094)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8170)
                         },
                         new
                         {
                             Code = "130502",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6094),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8170),
                             IsDeleted = false,
                             Level = 2,
                             Name = "襄都区",
                             ParentCode = "130500",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6094)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8170)
                         },
                         new
                         {
                             Code = "130600",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6095),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8171),
                             IsDeleted = false,
                             Level = 1,
                             Name = "保定市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6095)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8171)
                         },
                         new
                         {
                             Code = "130606",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6095),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8171),
                             IsDeleted = false,
                             Level = 2,
                             Name = "莲池区",
                             ParentCode = "130600",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6095)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8172)
                         },
                         new
                         {
                             Code = "130700",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6096),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8172),
                             IsDeleted = false,
                             Level = 1,
                             Name = "张家口市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6096)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8172)
                         },
                         new
                         {
                             Code = "130702",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6096),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8173),
                             IsDeleted = false,
                             Level = 2,
                             Name = "桥东区",
                             ParentCode = "130700",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6096)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8173)
                         },
                         new
                         {
                             Code = "130800",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6097),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8173),
                             IsDeleted = false,
                             Level = 1,
                             Name = "承德市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6097)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8173)
                         },
                         new
                         {
                             Code = "130802",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6113),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8176),
                             IsDeleted = false,
                             Level = 2,
                             Name = "双桥区",
                             ParentCode = "130800",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6113)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8176)
                         },
                         new
                         {
                             Code = "130900",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6113),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8177),
                             IsDeleted = false,
                             Level = 1,
                             Name = "沧州市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6114)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8177)
                         },
                         new
                         {
                             Code = "130902",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6114),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8178),
                             IsDeleted = false,
                             Level = 2,
                             Name = "新华区",
                             ParentCode = "130900",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6114)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8178)
                         },
                         new
                         {
                             Code = "131000",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6115),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8178),
                             IsDeleted = false,
                             Level = 1,
                             Name = "廊坊市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6115)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8179)
                         },
                         new
                         {
                             Code = "131003",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6115),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8179),
                             IsDeleted = false,
                             Level = 2,
                             Name = "广阳区",
                             ParentCode = "131000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6115)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8179)
                         },
                         new
                         {
                             Code = "131100",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6116),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8180),
                             IsDeleted = false,
                             Level = 1,
                             Name = "衡水市",
                             ParentCode = "130000",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6116)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8180)
                         },
                         new
                         {
                             Code = "131102",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6116),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8180),
                             IsDeleted = false,
                             Level = 2,
                             Name = "桃城区",
                             ParentCode = "131100",
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 768, DateTimeKind.Utc).AddTicks(6117)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 199, DateTimeKind.Utc).AddTicks(8180)
                         });
                 });
 
@@ -1438,26 +1265,26 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 812, DateTimeKind.Local).AddTicks(9129),
+                            CreatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 245, DateTimeKind.Local).AddTicks(9331),
                             IsDeleted = false,
                             Name = "四级评分(A/B/C/D)",
-                            UpdatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 814, DateTimeKind.Local).AddTicks(2844)
+                            UpdatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 248, DateTimeKind.Local).AddTicks(390)
                         },
                         new
                         {
                             Id = 2L,
-                            CreatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 814, DateTimeKind.Local).AddTicks(3738),
+                            CreatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 248, DateTimeKind.Local).AddTicks(998),
                             IsDeleted = false,
                             Name = "是否合格(是/否)",
-                            UpdatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 814, DateTimeKind.Local).AddTicks(3739)
+                            UpdatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 248, DateTimeKind.Local).AddTicks(1000)
                         },
                         new
                         {
                             Id = 3L,
-                            CreatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 814, DateTimeKind.Local).AddTicks(3740),
+                            CreatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 248, DateTimeKind.Local).AddTicks(1001),
                             IsDeleted = false,
                             Name = "五星评价(1-5星)",
-                            UpdatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 814, DateTimeKind.Local).AddTicks(3740)
+                            UpdatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 248, DateTimeKind.Local).AddTicks(1001)
                         });
                 });
 
@@ -1506,74 +1333,74 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 1L,
-                            CreatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(2685),
+                            CreatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 248, DateTimeKind.Local).AddTicks(9404),
                             Description = "完全符合",
                             IsDeleted = false,
                             LevelCode = "A",
                             Ratio = 1.0m,
                             Sort = 1,
                             TemplateId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(2690)
+                            UpdatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 248, DateTimeKind.Local).AddTicks(9407)
                         },
                         new
                         {
                             Id = 2L,
-                            CreatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3556),
+                            CreatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(131),
                             Description = "基本符合",
                             IsDeleted = false,
                             LevelCode = "B",
                             Ratio = 0.8m,
                             Sort = 2,
                             TemplateId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3557)
+                            UpdatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(132)
                         },
                         new
                         {
                             Id = 3L,
-                            CreatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3559),
+                            CreatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(133),
                             Description = "部分符合",
                             IsDeleted = false,
                             LevelCode = "C",
                             Ratio = 0.6m,
                             Sort = 3,
                             TemplateId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3559)
+                            UpdatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(134)
                         },
                         new
                         {
                             Id = 4L,
-                            CreatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3561),
+                            CreatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(135),
                             Description = "不符合",
                             IsDeleted = false,
                             LevelCode = "D",
                             Ratio = 0.0m,
                             Sort = 4,
                             TemplateId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3561)
+                            UpdatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(135)
                         },
                         new
                         {
                             Id = 5L,
-                            CreatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3562),
+                            CreatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(136),
                             Description = "合格",
                             IsDeleted = false,
                             LevelCode = "是",
                             Ratio = 1.0m,
                             Sort = 1,
                             TemplateId = 2L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3563)
+                            UpdatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(137)
                         },
                         new
                         {
                             Id = 6L,
-                            CreatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3566),
+                            CreatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(139),
                             Description = "不合格",
                             IsDeleted = false,
                             LevelCode = "否",
                             Ratio = 0.0m,
                             Sort = 2,
                             TemplateId = 2L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 21, 14, 30, 815, DateTimeKind.Local).AddTicks(3567)
+                            UpdatedAt = new DateTime(2025, 12, 26, 3, 29, 36, 249, DateTimeKind.Local).AddTicks(140)
                         });
                 });
 
@@ -1632,7 +1459,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             Id = 10000L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(1389),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(4183),
                             Depth = 0,
                             IsDeleted = false,
                             MaxScore = 100m,
@@ -1641,13 +1468,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0",
                             TreeId = 202501L,
                             Type = 0,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(1391)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(4185)
                         },
                         new
                         {
                             Id = 10001L,
                             Code = "1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(2599),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(5277),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 20m,
@@ -1657,13 +1484,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,10000",
                             TreeId = 202501L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(2600)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(5277)
                         },
                         new
                         {
                             Id = 10002L,
                             Code = "1.1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(5632),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8048),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 10m,
@@ -1673,13 +1500,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,10000,10001",
                             TreeId = 202501L,
                             Type = 2,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(5632)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8049)
                         },
                         new
                         {
                             Id = 10003L,
                             Code = "1.1.1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(5651),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8065),
                             Depth = 3,
                             IsDeleted = false,
                             MaxScore = 10m,
@@ -1690,13 +1517,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             ScoringTemplateId = 2L,
                             TreeId = 202501L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(5651)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8065)
                         },
                         new
                         {
                             Id = 10004L,
                             Code = "2",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6054),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8233),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 40m,
@@ -1706,13 +1533,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,10000",
                             TreeId = 202501L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6054)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8233)
                         },
                         new
                         {
                             Id = 10005L,
                             Code = "2.1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6063),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8240),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 20m,
@@ -1722,13 +1549,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,10000,10004",
                             TreeId = 202501L,
                             Type = 2,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6063)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8241)
                         },
                         new
                         {
                             Id = 10006L,
                             Code = "2.1.1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6066),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8244),
                             Depth = 3,
                             IsDeleted = false,
                             MaxScore = 10m,
@@ -1738,12 +1565,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,10000,10004,10005",
                             TreeId = 202501L,
                             Type = 3,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6066)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8244)
                         },
                         new
                         {
                             Id = 10007L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6069),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8247),
                             Depth = 4,
                             IsDeleted = false,
                             Name = "查阅10份学生档案，检查IEP要素是否齐全。",
@@ -1752,13 +1579,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,10000,10004,10005,10006",
                             TreeId = 202501L,
                             Type = 5,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6070)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8247)
                         },
                         new
                         {
                             Id = 10008L,
                             Code = "2.1.2",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6073),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8250),
                             Depth = 3,
                             IsDeleted = false,
                             MaxScore = 10m,
@@ -1769,12 +1596,12 @@ namespace Tsjy.Database.Migrations.Migrations
                             ScoringTemplateId = 1L,
                             TreeId = 202501L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6073)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8250)
                         },
                         new
                         {
                             Id = 10009L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6078),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8254),
                             Depth = 0,
                             IsDeleted = false,
                             MaxScore = 100m,
@@ -1783,13 +1610,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0",
                             TreeId = 202401L,
                             Type = 0,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6078)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8255)
                         },
                         new
                         {
                             Id = 10010L,
                             Code = "A",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6079),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8256),
                             Depth = 1,
                             IsDeleted = false,
                             MaxScore = 50m,
@@ -1799,13 +1626,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Path = "0,10009",
                             TreeId = 202401L,
                             Type = 1,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6079)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8256)
                         },
                         new
                         {
                             Id = 10011L,
                             Code = "A-1",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6082),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8259),
                             Depth = 2,
                             IsDeleted = false,
                             MaxScore = 50m,
@@ -1816,7 +1643,7 @@ namespace Tsjy.Database.Migrations.Migrations
                             ScoringTemplateId = 1L,
                             TreeId = 202401L,
                             Type = 4,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 818, DateTimeKind.Utc).AddTicks(6082)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 251, DateTimeKind.Utc).AddTicks(8259)
                         });
                 });
 
@@ -1859,11 +1686,11 @@ namespace Tsjy.Database.Migrations.Migrations
                         {
                             Id = 1,
                             Code = "ADMIN",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 836, DateTimeKind.Utc).AddTicks(5205),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 264, DateTimeKind.Utc).AddTicks(5905),
                             IsDeleted = false,
                             Name = "管理员",
                             Sort = 1,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 836, DateTimeKind.Utc).AddTicks(5300),
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 264, DateTimeKind.Utc).AddTicks(5992),
                             remark = "系统超级管理员"
                         });
                 });
@@ -1918,7 +1745,7 @@ namespace Tsjy.Database.Migrations.Migrations
                         new
                         {
                             IDNumber = "110000198001010001",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(1230),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(7666),
                             IsDeleted = false,
                             OrgId = "110000_EDU",
                             OrgType = 2,
@@ -1926,13 +1753,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = "13800000000",
                             RealName = "超级管理员",
                             Role = 0,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(1237),
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(7669),
                             UserName = "admin"
                         },
                         new
                         {
                             IDNumber = "110105198501010001",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2142),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8484),
                             IsDeleted = false,
                             OrgId = "110105_EDU",
                             OrgType = 2,
@@ -1940,13 +1767,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = "13800000001",
                             RealName = "朝阳区管理员",
                             Role = 0,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2143),
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8485),
                             UserName = "admin_cy"
                         },
                         new
                         {
                             IDNumber = "130100198502020001",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2145),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8487),
                             IsDeleted = false,
                             OrgId = "130100_EDU",
                             OrgType = 2,
@@ -1954,13 +1781,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = "13800000002",
                             RealName = "石家庄管理员",
                             Role = 0,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2146),
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8487),
                             UserName = "admin_sjz"
                         },
                         new
                         {
                             IDNumber = "110105199001010001",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2147),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8489),
                             IsDeleted = false,
                             OrgId = "110105_SPE_01",
                             OrgType = 0,
@@ -1968,13 +1795,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = "13900000001",
                             RealName = "安华学校校长",
                             Role = 2,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2148),
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8489),
                             UserName = "sch_cy_spe"
                         },
                         new
                         {
                             IDNumber = "130100199002020001",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2149),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8490),
                             IsDeleted = false,
                             OrgId = "130100_SPE_01",
                             OrgType = 0,
@@ -1982,13 +1809,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = "13900000002",
                             RealName = "石特校长",
                             Role = 2,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2149),
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8490),
                             UserName = "sch_sjz_spe"
                         },
                         new
                         {
                             IDNumber = "110108199003030001",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2155),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8497),
                             IsDeleted = false,
                             OrgId = "110108_INC_01",
                             OrgType = 1,
@@ -1996,13 +1823,13 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = "13900000003",
                             RealName = "中关村校长",
                             Role = 2,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2155),
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8497),
                             UserName = "sch_hd_inc"
                         },
                         new
                         {
                             IDNumber = "110000197001010001",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2157),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8498),
                             IsDeleted = false,
                             OrgId = "110000_OTH_01",
                             OrgType = 3,
@@ -2010,7 +1837,7 @@ namespace Tsjy.Database.Migrations.Migrations
                             Phone = "13600000001",
                             RealName = "特教专家",
                             Role = 1,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 844, DateTimeKind.Utc).AddTicks(2157),
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 270, DateTimeKind.Utc).AddTicks(8499),
                             UserName = "expert_01"
                         });
                 });
@@ -2058,13 +1885,13 @@ namespace Tsjy.Database.Migrations.Migrations
                         {
                             Id = 1L,
                             Content = "自评报告内容...",
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 825, DateTimeKind.Utc).AddTicks(7688),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 259, DateTimeKind.Utc).AddTicks(2910),
                             FileUrls = "[\"http://file/a.pdf\"]",
                             IsDeleted = false,
                             NodeId = 3L,
                             Status = 0,
                             TaskId = 1L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 825, DateTimeKind.Utc).AddTicks(7005)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 259, DateTimeKind.Utc).AddTicks(2266)
                         });
                 });
 
@@ -2113,65 +1940,65 @@ namespace Tsjy.Database.Migrations.Migrations
                         {
                             Id = 30000L,
                             BatchId = 10000L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 848, DateTimeKind.Utc).AddTicks(8770),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(1652),
                             IsDeleted = false,
                             Status = 2,
                             TargetId = "110105_SPE_01",
                             TargetType = 0,
                             TreeId = 202501L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 848, DateTimeKind.Utc).AddTicks(8772)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(1653)
                         },
                         new
                         {
                             Id = 30001L,
                             BatchId = 10000L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(764),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2272),
                             IsDeleted = false,
                             Status = 3,
-                            SubmittedAt = new DateTime(2025, 12, 14, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(768),
+                            SubmittedAt = new DateTime(2025, 12, 24, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2274),
                             TargetId = "130100_SPE_01",
                             TargetType = 0,
                             TreeId = 202501L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(766)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2273)
                         },
                         new
                         {
                             Id = 30002L,
                             BatchId = 10001L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(1012),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2464),
                             IsDeleted = false,
                             Status = 0,
                             TargetId = "110108_INC_01",
                             TargetType = 1,
                             TreeId = 202502L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(1012)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2464)
                         },
                         new
                         {
                             Id = 30003L,
                             BatchId = 10002L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(1014),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2466),
                             IsDeleted = false,
                             Status = 4,
-                            SubmittedAt = new DateTime(2025, 12, 13, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(1015),
+                            SubmittedAt = new DateTime(2025, 12, 23, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2467),
                             TargetId = "110105_EDU",
                             TargetType = 2,
                             TreeId = 202503L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(1014)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2466)
                         },
                         new
                         {
                             Id = 30004L,
                             BatchId = 10003L,
-                            CreatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(1016),
+                            CreatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2468),
                             FinalScore = 88.5m,
                             IsDeleted = false,
                             Status = 6,
-                            SubmittedAt = new DateTime(2024, 12, 15, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(1018),
+                            SubmittedAt = new DateTime(2024, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2469),
                             TargetId = "130400_SPE_01",
                             TargetType = 0,
                             TreeId = 202401L,
-                            UpdatedAt = new DateTime(2025, 12, 15, 13, 14, 30, 849, DateTimeKind.Utc).AddTicks(1017)
+                            UpdatedAt = new DateTime(2025, 12, 25, 19, 29, 36, 275, DateTimeKind.Utc).AddTicks(2468)
                         });
                 });
 

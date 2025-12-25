@@ -58,26 +58,6 @@
             <para>预生成模式：任务发布时即插入数据，Score 为 NULL</para>
             </summary>
         </member>
-        <member name="T:Tsjy.Core.Entities.InspectionTeam">
-            <summary>
-            视导小组
-            </summary>
-        </member>
-        <member name="T:Tsjy.Core.Entities.InspectionTeamMember">
-            <summary>
-            小组成员
-            </summary>
-        </member>
-        <member name="T:Tsjy.Core.Entities.InspectionSchedule">
-            <summary>
-            视导行程安排
-            </summary>
-        </member>
-        <member name="T:Tsjy.Core.Entities.InspectionLog">
-            <summary>
-            视导员现场取证记录
-            </summary>
-        </member>
         <member name="T:Tsjy.Core.Entities.SysRole">
             <summary>
             角色表

@@ -22,7 +22,6 @@ public partial class ReviewDetail
     [Inject] private NavigationManager Nav { get; set; }
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; }
     [Inject] private SwalService SwalService { get; set; }
-    [Inject] private IInspectionService InspectionService { get; set; }
 
     // ✅ 新增：AI 服务（真调用）
     [Inject] private IAiAssistService AiAssistService { get; set; }
@@ -88,10 +87,7 @@ public partial class ReviewDetail
         // 2) 强制从目录读取该指标 PDF（只会是该 nodeId 的文件）
         CurrentNodeDetail.FileUrls = await FileService.GetEvidenceList(TaskId, nodeId);
 
-        // 3) 巡视组材料（保持你原逻辑）
-        var inspectionData = await InspectionService.GetInspectionEvidence(TaskId, nodeId);
-        CurrentNodeDetail.InspectionContent = inspectionData.Content;
-        CurrentNodeDetail.InspectionFileUrls = inspectionData.FileUrls;
+      
 
         // 4) 评分项
         ScoringOptions = CurrentNodeDetail.ScoringItems.Select(x =>

@@ -67,42 +67,7 @@
                 </div>
             </TabItem>
 
-            @* Tab 3: 视导组监控 *@
-            <TabItem Text="视导组分配">
-                <div class="p-3">
-                    @if (!Data.InspectionGroups.Any())
-                    {
-                        <Empty Text="暂无视导组信息" />
-                    }
-                    else
-                    {
-                        <div class="row g-3">
-                            @foreach (var group in Data.InspectionGroups)
-                            {
-                                <div class="col-md-6">
-                                    <div class="card shadow-sm h-100 border-0 bg-light">
-                                        <div class="card-body">
-                                            <h6 class="card-title fw-bold text-primary">
-                                                <i class="fa-solid fa-users-viewfinder me-2"></i>@group.TeamName
-                                            </h6>
-                                            <hr />
-                                            <div class="mb-2">
-                                                <span class="text-muted small">小组成员：</span>
-                                                <div class="d-flex flex-wrap gap-1 mt-1">
-                                                    @foreach (var m in group.MemberNames)
-                                                    {
-                                                        <span class="badge bg-white text-dark border">@m</span>
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
-            </TabItem>
+          
         </Tab>
     }
 </div>

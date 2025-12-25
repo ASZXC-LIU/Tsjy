@@ -24,7 +24,6 @@ public partial class BatchDistributeWidget
     private List<StepOption> StepItems { get; set; } = new List<StepOption>
     {
         new StepOption { Title = "选择单位", Icon = "fa-solid fa-school" },
-        new StepOption { Title = "组建视导组", Icon = "fa-solid fa-users-viewfinder" },
         new StepOption { Title = "评审专家", Icon = "fa-solid fa-gavel" }
     };
 

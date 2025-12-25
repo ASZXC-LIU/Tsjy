@@ -321,11 +321,6 @@
             只允许解析 uploads 目录下的站内路径，避免任意文件读取。
             </summary>
         </member>
-        <member name="M:Tsjy.Application.System.Service.InspectionService.GetInspectionEvidence(System.Int64,System.Int64)">
-            <summary>
-            获取特定任务和节点的巡视组证据材料
-            </summary>
-        </member>
         <member name="T:Tsjy.Application.System.Service.ReviewService">
             <summary>
             专家评审业务服务

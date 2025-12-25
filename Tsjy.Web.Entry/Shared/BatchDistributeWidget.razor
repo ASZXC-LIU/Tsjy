@@ -22,28 +22,10 @@
             </div>
         }
 
-        @* 步骤 2: 视导组 *@
-        @if (CurrentStepIndex == 1)
-        {
-            <div class="animate__animated animate__fadeIn h-100">
-                <div class="tip-alert">
-                    <i class="fa-solid fa-users-viewfinder me-2"></i> 选择视导组成员 (负责实地考察)
-                </div>
-                @if (!ExpertItems.Any())
-                {
-                    <div class="alert alert-danger shadow-sm">
-                        <i class="fa-solid fa-triangle-exclamation me-2"></i> <strong>专家库为空！</strong> 请联系管理员添加专家。
-                    </div>
-                }
-                else
-                {
-                    <Transfer Items="@ExpertItems" @bind-Value="@SelectedInspectionGroupStr" ShowSearch="true" Height="100%" LeftPanelText="专家库" RightPanelText="视导组" />
-                }
-            </div>
-        }
+       
 
         @* 步骤 3: 评审专家 (新界面) *@
-        @if (CurrentStepIndex == 2)
+        @if (CurrentStepIndex == 1)
         {
             <div class="animate__animated animate__fadeIn h-100">
                 <div class="tip-alert">
