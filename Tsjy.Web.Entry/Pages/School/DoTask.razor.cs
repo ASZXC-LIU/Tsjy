@@ -199,6 +199,18 @@ public partial class DoTask
     private async Task<bool> OnDropUpload(UploadFile file)
     {
         if (file.File == null) return false;
+        if (CurrentNodeDetail == null || !IsNodeEditable)
+        {
+            await MessageService.Show(new MessageOption { Content = "当前指标不可上传附件", Color = Color.Warning });
+            return false;
+        }
+
+        var extension = Path.GetExtension(file.FileName);
+        if (!string.Equals(extension, ".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            await MessageService.Show(new MessageOption { Content = "仅允许上传 PDF 文件", Color = Color.Warning });
+            return false;
+        }
 
         try
         {
