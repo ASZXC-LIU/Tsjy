@@ -156,26 +156,19 @@
                                       Placeholder="请根据上述标准，详细描述落实情况..."
                                       class="border-0 bg-light rounded p-3" />
                         </div>
-                        <div>
-                            <label class="form-label fw-bold text-secondary mb-2">佐证材料</label>
-                            <InputUpload TValue="string" ShowDeleteButton="true" OnChange="OnUploadFile"
-                                         BrowserButtonText="点击上传附件"
-                                         class="mb-3" />
+                        <div class="evidence-upload-wrapper p-3 border-dashed rounded-3 bg-light">
+    <div class="mb-2 small text-muted">
+        <i class="fa-solid fa-circle-info me-1"></i>
+        请拖拽或点击上传 PDF 佐证材料（支持多文件，单文件不超过 20MB）
+    </div>
 
-                            @if (CurrentNodeDetail.FileUrls != null && CurrentNodeDetail.FileUrls.Any())
-                            {
-                                <div class="d-flex flex-wrap gap-2 mt-2">
-                                    @foreach (var file in CurrentNodeDetail.FileUrls)
-                                    {
-                                        <div class="badge bg-white text-dark border shadow-sm p-2 d-flex align-items-center rounded-pill px-3">
-                                            <i class="fa fa-paperclip me-2 text-muted"></i>
-                                            <span class="d-inline-block text-truncate" style="max-width: 180px;">@file</span>
-                                            <i class="fa fa-xmark ms-2 text-danger cursor-pointer hover-scale" @onclick="() => RemoveFile(file)"></i>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        </div>
+    @* Bootstrap Blazor 拖拽上传组件 *@
+    <DropUpload TValue="string" 
+                Accept=".pdf" 
+                OnUploadAsync="@OnDropUpload" 
+                OnDelete="@OnDeleteFile"
+                DefaultFileList="@UploadedFiles" />
+</div>
                     </div>
                 </div>
 

@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Components.Rendering;
 using Tsjy.Application.System.Dtos;
 using Tsjy.Application.System.Service;
 using Tsjy.Core.Enums;
-
+using System.Net.Http; // ★ 必须添加：HttpClient 需要它
+using System.IO;       // ★ 必须添加：Path 需要它
 namespace Tsjy.Web.Entry.Pages.School;
 
 public partial class DoTask
@@ -14,7 +15,10 @@ public partial class DoTask
     [Inject] private TaskService TaskService { get; set; }
     [Inject] private MessageService MessageService { get; set; }
     [Inject] private NavigationManager NavigationManager { get; set; }
+    [Inject]
+    private HttpClient Http { get; set; } // 用于调用动态 API
 
+    private List<UploadFile> UploadedFiles { get; set; } = new();
     private List<TreeViewItem<TaskNodeTreeDto>> TreeItems { get; set; } = new();
     private bool IsLoading { get; set; } = true;
     private NodeFillDetailDto CurrentNodeDetail { get; set; }
@@ -76,6 +80,13 @@ public partial class DoTask
             if (item.Value.Type == EvalNodeType.Points)
             {
                 CurrentNodeDetail = await TaskService.GetNodeFillDetail(TaskId, item.Value.Id);
+                // 3. ★ 核心修复：重置并加载当前指标对应的文件列表 ★
+                UploadedFiles = CurrentNodeDetail.FileUrls.Select(url => new UploadFile
+                {
+                    PrevUrl = url,
+                    FileName = global::System.IO.Path.GetFileName(url),
+                    Uploaded = true // 标记为已上传状态
+                }).ToList();
 
                 // ★★★ 核心修复：权限判断逻辑 ★★★
                 if (CurrentTaskStatus == TaskStatu.Returned)
@@ -93,6 +104,7 @@ public partial class DoTask
             {
                 CurrentNodeDetail = null;
                 IsNodeEditable = false;
+                UploadedFiles = new(); // 非指标节点清空列表
             }
             StateHasChanged();
         }
@@ -183,7 +195,44 @@ public partial class DoTask
     {
         CurrentNodeDetail.FileUrls.Remove(fileName);
     }
+    // 处理拖拽上传逻辑
+    private async Task<bool> OnDropUpload(UploadFile file)
+    {
+        if (file.File == null) return false;
 
+        try
+        {
+            // 1. 构造请求数据 (调用 FileService.UploadEvidence)
+            using var content = new MultipartFormDataContent();
+            var fileContent = new StreamContent(file.File.OpenReadStream(20 * 1024 * 1024)); // 限制 20MB
+            content.Add(fileContent, "file", file.FileName);
+            var requestUrl = $"{NavigationManager.BaseUri.TrimEnd('/')}/api/File/UploadEvidence?taskId={TaskId}&nodeId={CurrentNodeDetail.NodeId}";
+            // 2. 发送至后端动态 API
+            var response = await Http.PostAsync($"/api/File/UploadEvidence?taskId={TaskId}&nodeId={CurrentNodeDetail.NodeId}", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var url = await response.Content.ReadAsStringAsync();
+                // 3. 更新 DTO 中的文件列表
+                CurrentNodeDetail.FileUrls.Add(url.Trim('"'));
+                return true;
+            }
+            return false;
+        }
+        catch (Exception ex)
+        {
+            await MessageService.Show(new MessageOption { Content = $"上传失败：{ex.Message}", Color = Color.Danger });
+            return false;
+        }
+    }
+
+    // 处理删除逻辑
+    private async Task<bool> OnDeleteFile(UploadFile file)
+    {
+        // 从 DTO 列表中移除对应的 URL
+        CurrentNodeDetail.FileUrls.Remove(file.PrevUrl);
+        return await Task.FromResult(true);
+    }
     private RenderFragment<TaskNodeTreeDto> CreateNodeTemplate(TaskNodeTreeDto node) => (TaskNodeTreeDto item) => (RenderTreeBuilder builder) =>
     {
         string displayText = string.IsNullOrEmpty(item.Code) ? item.Name : $"{item.Code} {item.Name}";
