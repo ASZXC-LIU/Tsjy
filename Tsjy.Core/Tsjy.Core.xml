@@ -138,11 +138,6 @@
             评审专家评审状态
             </summary>
         </member>
-        <member name="T:Tsjy.Core.Enums.PublicStatus">
-            <summary>
-            评审专家评审状态
-            </summary>
-        </member>
         <member name="M:Tsjy.Core.MyHelper.EnumExtensions.GetDescription(System.Enum)">
             <summary>
             获取枚举上的 Description 特性值，如果没有则返回枚举名称

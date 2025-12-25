@@ -33,19 +33,34 @@
     {
         <div class="review-main-split">
             @* 2. 左侧：材料展示区域 *@
-            <div class="material-panel bg-dark">
-                @if (CurrentNodeDetail.FileUrls?.Any() == true)
-                {
-                    @* 默认预览第一个PDF文件 *@
-                    <iframe src="@CurrentNodeDetail.FileUrls.First()" class="pdf-viewer"></iframe>
-                }
-                else
-                {
-                    <div class="empty-material text-white-50">
-                        <i class="fa-solid fa-file-circle-exclamation fa-4x mb-3"></i>
-                        <p>该单位未上传佐证材料</p>
-                    </div>
-                }
+            <div class="material-panel bg-dark d-flex flex-column">
+                @* ★ 新增：材料视角切换按钮 ★ *@
+                <div class="material-perspective-tabs p-2 d-flex gap-2">
+                    <Button Color="@(CurrentPerspective == "School" ? Color.Primary : Color.Dark)"
+                            Text="受评单位佐证" OnClick="@(() => SwitchPerspective("School"))" Size="Size.Small" />
+                    <Button Color="@(CurrentPerspective == "Inspection" ? Color.Primary : Color.Dark)"
+                            Text="巡视组现场材料" OnClick="@(() => SwitchPerspective("Inspection"))" Size="Size.Small" />
+                </div>
+
+                <div class="flex-grow-1 position-relative">
+                    @{
+                        // 动态判断当前显示哪方的材料
+                        var displayFiles = CurrentPerspective == "School" ? CurrentNodeDetail.FileUrls : CurrentNodeDetail.InspectionFileUrls;
+                        var displayName = CurrentPerspective == "School" ? "受评单位" : "巡视组";
+                    }
+
+                    @if (displayFiles?.Any() == true)
+                    {
+                        <iframe src="@displayFiles.First()" class="pdf-viewer"></iframe>
+                    }
+                    else
+                    {
+                        <div class="empty-material text-white-50 d-flex flex-column align-items-center justify-content-center h-100">
+                            <i class="fa-solid fa-file-circle-exclamation fa-4x mb-3"></i>
+                            <p>@displayName 未上传 PDF 佐证材料</p>
+                        </div>
+                    }
+                </div>
             </div>
 
             @* 3. 右侧：信息与评审区域 *@
@@ -70,7 +85,21 @@
                         <div class="info-content">@CurrentNodeDetail.Method</div>
                     </div>
                 </div>
+                <div class="ai-assist-section p-4 border-bottom bg-white">
+                    <Button Color="Color.Info" Icon="fa-solid fa-robot" Text="AI 智能辅助评审"
+                            OnClick="OnAiAssistClick" IsAsync="true" class="mb-2 shadow-sm" />
 
+                    @if (ShowAiResult)
+                    {
+                        <div class="ai-result-box mt-3 animate__animated animate__fadeIn">
+                            <label class="form-label small fw-bold text-info">
+                                <i class="fa-solid fa-wand-sparkles me-1"></i>AI 辅助分析建议
+                            </label>
+                            <Textarea @bind-Value="@AiResult" Rows="6" IsDisabled="true"
+                                      placeholder="AI 正在深度解析材料中..." class="bg-light" />
+                        </div>
+                    }
+                </div>
                 @* 右侧下半：操作区域 *@
                 <div class="operation-section p-4 bg-light">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -78,7 +107,9 @@
                         @if (CurrentNodeDetail.Status != AuditStatus.Pending)
                         {
                             @* 确保这里使用的是 GetDescription *@
-                            <span class="badge ..."> 当前状态: @CurrentNodeDetail.Status.GetDescription() </span>
+                            <span class="badge @(CurrentNodeDetail.Status == AuditStatus.Approved ? "bg-success" : "bg-danger")">
+                                当前状态: @CurrentNodeDetail.Status.GetDescription()
+                            </span>
                         }
                     </div>
 

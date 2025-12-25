@@ -92,9 +92,7 @@ public enum ReviewStatus
     [Description("已提交")] Submitted
 }
 
-/// <summary>
-/// 评审专家评审状态
-/// </summary>
+
 public enum PublicStatus
 {
     [Description("未开始")]  NotStarted,

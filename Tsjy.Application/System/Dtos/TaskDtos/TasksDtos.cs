@@ -82,6 +82,9 @@ namespace Tsjy.Application.System.Dtos
         // --- 填报内容 ---
         public string MyContent { get; set; }
         public List<string> FileUrls { get; set; } = new();
+        //巡视组材料
+        public string InspectionContent { get; set; } // 对应 InspectionLog.Findings
+        public List<string> InspectionFileUrls { get; set; } = new(); // 对应 InspectionLog.EvidenceFiles
         public long EvidenceId { get; set; }
         public AuditStatus Status { get; set; }
         public string RejectReason { get; set; }

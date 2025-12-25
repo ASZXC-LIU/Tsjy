@@ -280,6 +280,11 @@
             <param name="parentCodePrefix">父级Code前缀（如 "1.2"）</param>
             <returns>是否有数据变动</returns>
         </member>
+        <member name="M:Tsjy.Application.System.Service.InspectionService.GetInspectionEvidence(System.Int64,System.Int64)">
+            <summary>
+            获取特定任务和节点的巡视组证据材料
+            </summary>
+        </member>
         <member name="T:Tsjy.Application.System.Service.ReviewService">
             <summary>
             专家评审业务服务

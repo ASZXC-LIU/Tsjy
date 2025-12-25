@@ -69,7 +69,8 @@ namespace Tsjy.Application.System.Service
                     TaskId = t.Id,
                     BatchName = batch?.Name ?? "未知任务",
                     SchoolName = orgDict.GetValueOrDefault(t.TargetId) ?? "未知单位",
-                    UploadEnd = batch?.UploadEnd,
+                    ReviewStart = batch?.ReviewStart, // 赋值开始时间
+                    ReviewEnd = batch?.ReviewEnd,
                     ReviewedCount = taskReviews.Count(r => r.Status == ReviewStatus.Submitted),
                     TotalCount = taskReviews.Count
                 };
