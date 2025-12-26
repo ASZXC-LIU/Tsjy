@@ -7,21 +7,19 @@
     <Header>
         <span class="ms-3 flex-sm-fill d-none d-sm-block">通用后台系统</span>
         <div class="flex-fill d-sm-none"></div>
-        <Logout ImageUrl="images/Argo.png" DisplayName="当前管理员" UserName="Admin">
+        <Logout ImageUrl="images/logo.png" DisplayName="@CurrentDisplayName" UserName="@CurrentRoleDescription">
             <LinkTemplate>
-                <a href="#"><i class="fa-solid fa-suitcase"></i>个人中心</a>
-                <a href="#"><i class="fa-solid fa-cog"></i>设置</a>
-                <a href="#"><i class="fa-solid fa-bell"></i>通知<span class="badge badge-pill badge-success"></span></a>
+               
+             
                 <a href="/ajaxlogout"><i class="fa-solid fa-suitcase"></i>退出登录</a>
             </LinkTemplate>
         </Logout>
-        <Widget></Widget>
         <div class="layout-drawer" @onclick="@(e => IsOpen = !IsOpen)"><i class="fa fa-gears"></i></div>
     </Header>
     <Side>
         <div class="layout-banner">
             <div class="layout-drawer-header"></div>
-            <img class="layout-logo" src="images/Logo.png" />
+            <img class="layout-logo" src="images/logo.png" />
             <div class="layout-title">
                 <span>后台管理</span>
             </div>
@@ -33,17 +31,17 @@
             @Body
         </CascadingValue>
     </Main>
-    <Footer>
+    @* <Footer>
         <div class="text-center flex-fill">
             <a class="page-layout-demo-footer-link" href="https://gitee.com/LongbowEnterprise/BootstrapAdmin" target="_blank">Bootstrap Admin</a>
         </div>
-    </Footer>
+    </Footer> *@
     <NotFound>
         <p>Sorry, there's nothing at this address.</p>
     </NotFound>
 </Layout>
 
-<Drawer Placement="Placement.Right" @bind-IsOpen="@IsOpen" IsBackdrop="true">
+@* <Drawer Placement="Placement.Right" @bind-IsOpen="@IsOpen" IsBackdrop="true">
     <div class="layout-drawer-body">
         <div class="btn btn-info w-100" @onclick="@(e => IsOpen = false)">点击关闭</div>
         <div class="page-layout-demo-option">
@@ -143,4 +141,4 @@
             </div>
         </div>
     </div>
-</Drawer>
+</Drawer> *@

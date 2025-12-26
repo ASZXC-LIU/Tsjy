@@ -1,164 +1,177 @@
-.wrap {
+/* --- Gemini Theme Styles (Final Fix) --- */
+.gemini-container {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-}
-
-@media (min-width: 768px) {
-    .wrap {
-        background-color: #5bc0de;
-        background: url('/images/bg2.jpg') fixed no-repeat;
-        background-size: 100% 100%;
-    }
-
-    .container {
-        background: url('/images/bg3.png') no-repeat;
-        background-size: contain;
-        width: 704px;
-        height: 404px;
-        margin: 0 auto;
-        margin-top: calc(100vh / 2 - 190px);
-    }
-}
-
-.form-signin-heading {
-    margin: 0;
-    padding: 20px 15px;
-    text-align: center;
-    background-color: #41cac0;
-    border-radius: 5px 5px 0 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at 0% 0%, #1e1e2f, #0a0a12);
+    background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     color: #fff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.login-wrap {
+.gemini-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 3rem;
+    border-radius: 24px;
+    background: rgba(30, 30, 40, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    margin: 1rem;
+    align-items: center;
 }
 
-.login-wrap .card, .login-wrap .card:hover, .modal .card, .modal .card:hover {
-    border: 1px solid #84bbe2;
+.logo-section {
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
-.login-sms,
-.is-mobile .login-up {
-    display: none;
+.logo-img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1rem;
+    /* 增加发光效果 */
+    filter: drop-shadow(0 0 10px rgba(138, 180, 248, 0.3));
 }
 
-.is-mobile .login-sms {
-    display: block;
+.form-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, #8ab4f8, #e879f9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
 }
 
-::deep .btn-login {
-    background: #f67a6e;
-    border-color: transparent;
-    color: #fff;
-    text-transform: uppercase;
-    font-weight: 300;
-    font-family: 'Open Sans', sans-serif;
-    box-shadow: 0 4px #e56b60;
-    line-height: 1;
+.form-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
 }
 
-::deep .btn-login:focus {
-    box-shadow: 0 4px #e56b60;
+/* --- 输入框组通用样式 --- */
+::deep .input-group {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    margin-bottom: 1.2rem !important;
+    transition: all 0.3s ease;
+    overflow: visible !important;
 }
+
+    ::deep .input-group:focus-within {
+        border-color: #8ab4f8;
+        box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.2);
+        background: rgba(0, 0, 0, 0.6);
+    }
 
 ::deep .input-group-text {
-    background-color: #6bc3f4;
-    border-color: #1ca0e9;
+    background: transparent;
+    border: none;
+    color: #8ab4f8;
+    padding-left: 1rem;
 }
 
-::deep .form-check-label {
-    color: #212529;
+::deep .form-control, ::deep .form-select {
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-weight: 500;
+    box-shadow: none !important;
+    padding: 0.8rem;
+    height: auto;
 }
 
-::deep .form-control {
-    border-color: #1ca0e9 !important;
+    ::deep .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+
+
+    /* --- 强制隐藏可能存在的任何额外图标 --- */
+    /* 如果组件库在 select 旁边额外渲染了一个 i 标签，这段代码会把它干掉 */
+    ::deep .select-append,
+    ::deep .form-select + i,
+    ::deep .form-select ~ i {
+        display: none !important;
+    }
+
+::deep .dropdown-menu {
+    background-color: #2d2e3d !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-top: 5px;
+    padding: 0.5rem 0;
 }
 
-::deep .divider-wrap {
-    background-color: #7c86bb;
+::deep .dropdown-item {
+    color: rgba(255, 255, 255, 0.8) !important;
 }
 
-::deep .divider-text {
-    background-color: #a7daf9;
+    ::deep .dropdown-item:hover {
+        background-color: rgba(138, 180, 248, 0.2) !important;
+        color: #fff !important;
+    }
+
+/* --- 按钮样式 --- */
+::deep .btn-gemini {
+    background: linear-gradient(135deg, #4b90ff 0%, #ff5546 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    padding: 0.8rem;
+    width: 100%;
+    margin-top: 1rem;
+    transition: opacity 0.3s, transform 0.2s;
 }
 
-.login-list {
+    ::deep .btn-gemini:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(75, 144, 255, 0.4);
+    }
+
+/* --- 底部链接样式 (重点修改) --- */
+.link-group {
     display: flex;
     justify-content: space-between;
+    width: 100%;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
 }
 
-.login-list ::deep img {
-    width: 32px;
-    height: 32px;
+/* 直接针对 BootstrapBlazor 的 LinkButton 生成的样式进行覆盖 */
+::deep .btn-link {
+    /* 默认改为浅蓝色或半透明白，提高对比度 */
+    color: #8ab4f8 !important;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s;
 }
 
-::deep .btn-sms {
-    width: 140px;
-}
-
-@media (max-width: 767px) {
-    .form-signin {
-        margin: 0 auto;
-        background: #fff;
-        border-radius: 5px;
-        max-width: 320px;
-        border: solid 1px #ddd;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.125);
-    }
-}
-
-@media (min-width: 768px) {
-    .form-signin-heading {
-        padding: 28px 0;
-        background-color: transparent;
+    ::deep .btn-link:hover {
+        /* 悬停时更亮 */
+        color: #ffffff !important;
+        text-shadow: 0 0 8px rgba(138, 180, 248, 0.6);
+        text-decoration: none;
     }
 
-    .login-wrap {
-        width: 300px;
-        height: 274px;
-        position: relative;
-        left: 346px;
-        justify-content: center;
-    }
-
-    .slidercaptcha {
-        width: 300px;
-    }
-
-    .slidercaptcha, .slidercaptcha.oauth {
-        height: 280px;
-    }
-
-    .slidercaptcha.card .card-body {
-        padding: 15px 15px 0 15px;
-    }
-
-    .login-footer {
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-    }
-
-    .login-footer .login-footer-body li a {
-        color: #e0e0e0;
-    }
-}
-
-@media (min-width: 768px) {
-    .gitee.wrap {
-        background-color: #f1f2f7;
-        background-image: none;
-    }
-
-    .gitee .container {
-        width: 704px;
-        height: 404px;
-        margin: 0 auto;
-        margin-top: calc(100vh / 2 - 190px);
-    }
+/* 自动填充样式覆盖 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #242533 inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
 }

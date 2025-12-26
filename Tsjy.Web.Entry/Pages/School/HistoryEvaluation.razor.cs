@@ -38,14 +38,12 @@ public partial class HistoryEvaluation
     private List<SchoolTaskListDto> AllTasks { get; set; } = new();
     private List<SchoolTaskListDto> ActiveTasks { get; set; } = new();
     private List<SchoolTaskListDto> FinishedTasks { get; set; } = new();
-
+    private int TotalTasks = 0;
+    private double AvgScore = 0;
+    private decimal? LastScore = 0;
+    private int PendingCount = 0;
     // KPI 统计
-    private int TotalTasks => FinishedTasks.Count;
-    private double AvgScore => FinishedTasks.Any(x => x.FinalScore.HasValue)
-        ? (double)FinishedTasks.Average(x => x.FinalScore.Value)
-        : 0;
-    private decimal? LastScore => FinishedTasks.OrderByDescending(x => x.UploadEnd).FirstOrDefault()?.FinalScore;
-    private int PendingCount => ActiveTasks.Count;
+   
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,25 +52,37 @@ public partial class HistoryEvaluation
         var orgId = user.FindFirst("OrgId")?.Value;
         var userId = user.FindFirst("UserId")?.Value;
 
+        // 1. 获取图表和最高分数据
         if (!string.IsNullOrEmpty(orgId))
         {
-            // 1. 获取图表和最高分数据
             BestScore = await HistoryService.GetBestScoreAsync(orgId);
             TrendData = await HistoryService.GetScoreTrendAsync(orgId);
         }
 
-        if (!string.IsNullOrEmpty(userId))
+        // 2. 获取所有任务用于列表和待办
+        if (!string.IsNullOrEmpty(orgId))
         {
-            // 2. 获取所有任务用于列表和待办
-            AllTasks = await TaskService.GetMyTasks(userId);
+            AllTasks = await TaskService.GetMyTasks(orgId);
 
             // 拆分为进行中和已归档
-            // 假设 TaskStatu.Completed 或 FinalScore 有值视为归档
             ActiveTasks = AllTasks.Where(x => x.Status != TaskStatu.Finished).ToList();
             FinishedTasks = AllTasks.Where(x => x.Status == TaskStatu.Finished && x.FinalScore.HasValue)
                                     .OrderByDescending(x => x.UploadEnd)
                                     .ToList();
         }
+        TotalTasks = FinishedTasks.Count;
+        AvgScore = FinishedTasks.Any(x => x.FinalScore.HasValue) ? (double)FinishedTasks.Average(x => x.FinalScore.Value)
+        : 0;
+        LastScore = FinishedTasks.OrderByDescending(x => x.UploadEnd).FirstOrDefault()?.FinalScore;
+        PendingCount =ActiveTasks.Count;
+        // 修复3：数据加载完成后，强制刷新图表和界面
+        if (LineChart != null)
+        {
+            // 如果 TrendData 有数据，通知图表更新
+            await LineChart.Update(ChartAction.Update);
+        }
+
+        StateHasChanged(); // 刷新 UI（KPI卡片、列表等）
     }
 
     private Task<ChartDataSource> OnInit()

@@ -27,7 +27,8 @@ namespace Tsjy.Web.Entry.Shared
 
         private AuthenticationState authState { get; set; }
 
-
+        private string CurrentDisplayName { get; set; } = "未登录";
+        private string CurrentRoleDescription { get; set; } = "访客";
         private bool UseTabSet { get; set; } = true;  //对分页位置有影响
 
         private string Theme { get; set; } = "";
@@ -61,6 +62,26 @@ namespace Tsjy.Web.Entry.Shared
             }
             else
             {
+
+                var user = authState.User;
+
+                // 2. 新增：获取用户名（通常是 Identity.Name 或 ClaimTypes.Name）
+                // 如果你的登录逻辑里存了 "RealName" 或其他 Claim，也可以在这里用 user.FindFirst("RealName")?.Value
+                CurrentDisplayName = user.Identity?.Name ?? "未知用户";
+
+                // 3. 新增：获取角色并转换为友好的中文显示
+                var role1 = user.FindFirst(ClaimTypes.Role)?.Value;
+
+                // 将英文角色代码转换为中文显示（显示在头像旁边）
+                CurrentRoleDescription = role1 switch
+                {
+                    "Admin" => "系统管理员",
+                    "SchoolUser" => "学校用户",
+                    "Expert" => "评审专家",
+                    _ => role1 ?? "普通用户" // 默认情况
+                };
+
+
                 var role = authState.User.Claims.FirstOrDefault(it => it.Type == ClaimTypes.Role)?.Value;
                 //需要检查此处是否获取到了role
                 switch (role)

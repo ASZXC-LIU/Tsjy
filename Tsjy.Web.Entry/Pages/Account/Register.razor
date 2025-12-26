@@ -1,31 +1,38 @@
 ﻿@page "/Register"
 @attribute [AllowAnonymous]
-
 @layout LoginLayout
 @namespace FurionBlazorServerEFAuth202502.Web.Entry.Pages
 
-<div class="wrap">
-    <div class="container">
-        <form method="post" class="form-signin">
-            <h2 class="form-signin-heading">特殊教育评价系统</h2>
-            <div class="login-wrap">
-                <BootstrapInputGroup>
-                    <BootstrapInputGroupIcon Icon="fa fa-fw fa-user" />
-                    <BootstrapInput TValue="string" name="Account" maxlength="16" IsAutoFocus="true" PlaceHolder="用户名" @bind-Value="registerInput.UserName" />
-                </BootstrapInputGroup>
-                <BootstrapInputGroup class="mt-3">
-                    <BootstrapInputGroupIcon Icon="fa fa-fw fa-lock" />
-                    <BootstrapPassword name="password" PlaceHolder="密码" @bind-Value="registerInput.Password" />
-                </BootstrapInputGroup>
-                <BootstrapInputGroup class="mt-3">
-                    <BootstrapInputGroupIcon Icon="fa-solid fa-home" />
-                    <Select Items="@RoleSelectValues" @bind-Value="registerInput.Role"></Select>
-                </BootstrapInputGroup>
-                <div class="d-flex justify-content-between mt-3">
-                </div>
-                <Button class="btn-login mt-3" ButtonType="ButtonType.Button" Size="Size.Large" IsBlock="true" Color="Color.None" OnClick="DoRegister" Text="登 录">
-                </Button>
-               
+<div class="gemini-container">
+    <div class="gemini-card">
+        <div class="logo-section">
+            <img src="images/logo.png" alt="Nexus Logo" class="logo-img" />
+            <h2 class="form-title">申请账号</h2>
+            <div class="form-subtitle">加入特殊教育评价系统</div>
+        </div>
+
+        <form method="post" style="width: 100%;">
+            <BootstrapInputGroup>
+                <BootstrapInputGroupIcon Icon="fa fa-fw fa-user" />
+                <BootstrapInput TValue="string" name="Account" maxlength="16" IsAutoFocus="true" PlaceHolder="设置用户名" @bind-Value="registerInput.UserName" />
+            </BootstrapInputGroup>
+
+            <BootstrapInputGroup>
+                <BootstrapInputGroupIcon Icon="fa fa-fw fa-lock" />
+                <BootstrapPassword name="password" PlaceHolder="设置密码" @bind-Value="registerInput.Password" />
+            </BootstrapInputGroup>
+
+            <BootstrapInputGroup>
+                <BootstrapInputGroupIcon Icon="fa-solid fa-id-badge" />
+                <Select Items="@RoleSelectValues" @bind-Value="registerInput.Role" PlaceHolder="选择角色"></Select>
+            </BootstrapInputGroup>
+
+            <Button class="btn-gemini" ButtonType="ButtonType.Button" Size="Size.None" IsBlock="true" OnClick="DoRegister" Text="提交注册">
+            </Button>
+
+            <div class="link-group" style="justify-content: center;">
+                <span style="color:rgba(255,255,255,0.4); margin-right: 5px;">已有账号?</span>
+                <a href="/Login" style="color: #8ab4f8; text-decoration: none;">返回登录</a>
             </div>
         </form>
     </div>
