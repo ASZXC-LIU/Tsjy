@@ -36,4 +36,8 @@ public class ChartDataDto
 {
     public string Label { get; set; }
     public decimal Score { get; set; }
+    public long TaskId { get; set; }
+    // [新增] 用于列表显示更多信息
+    public string BatchName { get; set; }
+    public DateTime? EvalDate { get; set; }
 }

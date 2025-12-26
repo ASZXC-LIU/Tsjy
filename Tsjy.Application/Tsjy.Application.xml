@@ -222,6 +222,11 @@
             根据机构类型获取下拉框列表
             </summary>
         </member>
+        <member name="M:Tsjy.Application.System.Service.EvalNodeService.GetEvalTreeAsync(System.Int64)">
+            <summary>
+            ★★★ 新增实现：根据 TaskId 自动推断 Category 并获取树 ★★★
+            </summary>
+        </member>
         <member name="M:Tsjy.Application.System.Service.EvalNodeService.GetNodesAsync(System.String,System.Int64)">
             <summary>
             获取指定体系下的所有节点（扁平列表，前端转树）
@@ -319,6 +324,26 @@
             <summary>
             供 AI 读取本地文件：把站内 URL（/uploads/...）解析成物理路径（wwwroot/...）
             只允许解析 uploads 目录下的站内路径，避免任意文件读取。
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.InspectionService.GetMyInspectionsAsync(System.String)">
+            <summary>
+            获取当前视导员的任务列表 (逻辑：User -> TeamMember -> Team -> Schedule)
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.InspectionService.ValidateInspectionAccessAsync(System.Int64,System.String)">
+            <summary>
+            ★★★ 新增：验证视导员是否有权限访问该任务 ★★★
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.InspectionService.GetNodeLogAsync(System.Int64,System.Int64)">
+            <summary>
+            获取某次行程、某个指标的已保存记录
+            </summary>
+        </member>
+        <member name="M:Tsjy.Application.System.Service.InspectionService.SaveNodeLogAsync(Tsjy.Application.System.Dtos.InspectionDtos.InspectionLogInputDto,System.String)">
+            <summary>
+            保存现场记录和素材
             </summary>
         </member>
         <member name="M:Tsjy.Application.System.Service.InspectionService.GetInspectionEvidence(System.Int64,System.Int64)">

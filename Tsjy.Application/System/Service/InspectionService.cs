@@ -1,13 +1,13 @@
 ﻿using Furion.DatabaseAccessor;
 using Furion.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json; // 必须引用，用于 JsonSerializer
 using Tsjy.Application.System.Dtos.InspectionDtos;
 using Tsjy.Application.System.IService;
 using Tsjy.Core.Entities;
+
 namespace Tsjy.Application.System.Service
 {
-    
-
     public class InspectionService : IInspectionService, ITransient, IScoped
     {
         private readonly IRepository<InspectionLog> _logRepo;
@@ -16,14 +16,17 @@ namespace Tsjy.Application.System.Service
         private readonly IRepository<InspectionTeam> _teamRepo;
         private readonly IRepository<Tasks> _taskRepo;
         private readonly IRepository<Departments> _deptRepo;
+        // ★★★ 新增：用于获取任务名称 ★★★
+        private readonly IRepository<DistributionBatch> _batchRepo;
 
         public InspectionService(
-          IRepository<InspectionLog> logRepo,
-        IRepository<InspectionSchedule> scheduleRepo,
-        IRepository<InspectionTeamMember> memberRepo,
-        IRepository<InspectionTeam> teamRepo,
-        IRepository<Tasks> taskRepo,
-        IRepository<Departments> deptRepo)
+            IRepository<InspectionLog> logRepo,
+            IRepository<InspectionSchedule> scheduleRepo,
+            IRepository<InspectionTeamMember> memberRepo,
+            IRepository<InspectionTeam> teamRepo,
+            IRepository<Tasks> taskRepo,
+            IRepository<Departments> deptRepo,
+            IRepository<DistributionBatch> batchRepo)
         {
             _logRepo = logRepo;
             _scheduleRepo = scheduleRepo;
@@ -31,7 +34,9 @@ namespace Tsjy.Application.System.Service
             _teamRepo = teamRepo;
             _taskRepo = taskRepo;
             _deptRepo = deptRepo;
+            _batchRepo = batchRepo;
         }
+
         /// <summary>
         /// 获取当前视导员的任务列表 (逻辑：User -> TeamMember -> Team -> Schedule)
         /// </summary>
@@ -45,26 +50,48 @@ namespace Tsjy.Application.System.Service
 
             if (!myTeamIds.Any()) return new List<InspectorTaskDto>();
 
-            // 2. 找出这些小组负责的视导行程
+            // 2. 联表查询
             var query = from s in _scheduleRepo.AsQueryable()
                         join t in _teamRepo.AsQueryable() on s.TeamId equals t.Id
                         join task in _taskRepo.AsQueryable() on s.AssignmentId equals task.Id
-                        join d in _deptRepo.AsQueryable() on task.TargetId equals d.Id.ToString() // 假设 TargetId 存的是 Dept Id
+                        // ★★★ 修复1：关联 Batch 获取任务名称 ★★★
+                        join batch in _batchRepo.AsQueryable() on task.BatchId equals batch.Id
+                        // ★★★ 修复2：Departments 使用 Code 作为主键 ★★★
+                        join d in _deptRepo.AsQueryable() on task.TargetId equals d.Code
                         where myTeamIds.Contains(s.TeamId) && !s.IsDeleted
                         orderby s.VisitStartAt descending
                         select new InspectorTaskDto
                         {
                             ScheduleId = s.Id,
                             TaskId = task.Id,
-                            TaskName = task.Name,
+                            TaskName = batch.Name, // 获取批次名称作为任务名
                             SchoolName = d.Name,
                             TeamName = t.Name,
                             StartDate = s.VisitStartAt,
                             EndDate = s.VisitEndAt,
+                            // 注意：这里假设 InspectorTaskDto.Status 类型与 InspectionSchedule.Status 兼容
+                            // 如果不兼容可能需要强转，例如 (int)s.Status
                             Status = s.Status
                         };
 
             return await query.ToListAsync();
+        }
+
+        /// <summary>
+        /// ★★★ 新增：验证视导员是否有权限访问该任务 ★★★
+        /// </summary>
+        public async Task<bool> ValidateInspectionAccessAsync(long taskId, string expertId)
+        {
+            // 逻辑：检查是否存在一条行程(Schedule)，该行程关联了指定任务(AssignmentId)，
+            // 且该行程的小组(Team)中包含当前专家(TeamMember)
+            var hasAccess = await (from s in _scheduleRepo.AsQueryable()
+                                   join m in _memberRepo.AsQueryable() on s.TeamId equals m.TeamId
+                                   where s.AssignmentId == taskId
+                                         && m.UserId == expertId
+                                         && !s.IsDeleted
+                                         && !m.IsDeleted
+                                   select s.Id).AnyAsync();
+            return hasAccess;
         }
 
         /// <summary>
@@ -102,19 +129,17 @@ namespace Tsjy.Application.System.Service
         /// </summary>
         public async Task SaveNodeLogAsync(InspectionLogInputDto input, string userId)
         {
-            // 检查是否已存在记录
             var log = await _logRepo.FirstOrDefaultAsync(x => x.ScheduleId == input.ScheduleId && x.NodeId == input.NodeId);
 
             if (log == null)
             {
-                // 新增
                 log = new InspectionLog
                 {
                     ScheduleId = input.ScheduleId,
                     NodeId = input.NodeId,
                     Findings = input.Findings,
                     EvidenceFiles = JsonSerializer.Serialize(input.FileUrls),
-                    CreatedBy = long.Parse(userId), // 记录最后操作人
+                    CreatedBy = long.Parse(userId),
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -122,31 +147,28 @@ namespace Tsjy.Application.System.Service
             }
             else
             {
-                // 更新
                 log.Findings = input.Findings;
                 log.EvidenceFiles = JsonSerializer.Serialize(input.FileUrls);
-                log.CreatedBy = long.Parse(userId); // 更新操作人
+                log.CreatedBy = long.Parse(userId);
                 log.UpdatedAt = DateTime.UtcNow;
                 await _logRepo.UpdateAsync(log);
             }
         }
+
         /// <summary>
         /// 获取特定任务和节点的巡视组证据材料
         /// </summary>
         public async Task<(string Content, List<string> FileUrls)> GetInspectionEvidence(long taskId, long nodeId)
         {
-            // 1. 查找关联到该任务的视导行程
             var schedule = await _scheduleRepo.FirstOrDefaultAsync(x => x.AssignmentId == taskId && !x.IsDeleted);
             if (schedule == null) return (string.Empty, new List<string>());
 
-            // 2. 查找该行程下对应指标的现场取证记录
             var log = await _logRepo.FirstOrDefaultAsync(x => x.ScheduleId == schedule.Id && x.NodeId == nodeId && !x.IsDeleted);
             if (log == null) return (string.Empty, new List<string>());
 
-            // 3. 解析 JSON 存储的文件列表
             var files = string.IsNullOrEmpty(log.EvidenceFiles)
                 ? new List<string>()
-                : global::System.Text.Json.JsonSerializer.Deserialize<List<string>>(log.EvidenceFiles);
+                : JsonSerializer.Deserialize<List<string>>(log.EvidenceFiles);
 
             return (log.Findings, files);
         }

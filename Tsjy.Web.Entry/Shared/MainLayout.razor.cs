@@ -125,6 +125,7 @@ namespace Tsjy.Web.Entry.Shared
             var menus = new List<MenuItem>
     {
         //new MenuItem() { Text = "系统主页", Icon = "fa-solid fa-fw fa-flag", Url = "/index" , Match = NavLinkMatch.All},
+        new MenuItem() { Text = "仪表盘", Icon = "fa-solid fa-fw fa-flag", Url = "/Admin/Dashboard" , Match = NavLinkMatch.All},
         
         // 将刚才定义的父级菜单加入主列表
         evalMenu,
