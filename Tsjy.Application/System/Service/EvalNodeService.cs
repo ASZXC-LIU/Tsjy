@@ -16,6 +16,7 @@ namespace Tsjy.Application.System.Service
 {
     public class EvalNodeService : IDynamicApiController, IScoped, IEvalNodeService
     {
+        private readonly IRepository<Tasks> _taskRepo;
         private readonly IRepository<SpeEvalNode> _speRepo;
         private readonly IRepository<IncEvalNode> _incRepo;
         private readonly IRepository<EduEvalNode> _eduRepo;
@@ -24,16 +25,41 @@ namespace Tsjy.Application.System.Service
         public EvalNodeService(
             IRepository<SpeEvalNode> speRepo,
             IRepository<IncEvalNode> incRepo,
-            IRepository<EduEvalNode> eduRepo)
+            IRepository<EduEvalNode> eduRepo,
+            IRepository<Tasks> taskRepo)
         {
             _speRepo = speRepo;
             _incRepo = incRepo;
             _eduRepo = eduRepo;
+            _taskRepo = taskRepo;
         }
 
 
 
         #region 查询接口
+
+        /// <summary>
+        /// ★★★ 新增实现：根据 TaskId 自动推断 Category 并获取树 ★★★
+        /// </summary>
+     
+        public async Task<List<EvalNodeTreeDto>> GetEvalTreeAsync(long taskId)
+        {
+            // 1. 获取任务信息
+            var task = await _taskRepo.FirstOrDefaultAsync(x => x.Id == taskId);
+            if (task == null) throw new Exception($"未找到ID为 {taskId} 的任务");
+
+            // 2. 将 OrgType 转换为 category 字符串
+            string category = task.TargetType switch
+            {
+                OrgType.SpecialSchool => "special_school",
+                OrgType.InclusiveSchool => "inclusive_school",
+                OrgType.EducationBureau => "education_bureau",
+                _ => throw new Exception("该任务类型没有关联的评价指标体系")
+            };
+
+            // 3. 复用现有的 GetNodesAsync 方法
+            return await GetNodesAsync(category, task.TreeId);
+        }
 
         /// <summary>
         /// 获取指定体系下的所有节点（扁平列表，前端转树）

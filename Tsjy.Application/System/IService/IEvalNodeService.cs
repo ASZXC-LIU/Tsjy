@@ -10,7 +10,7 @@ namespace Tsjy.Application.System.IService
     {
 
         Task<List<EvalNodeTreeDto>> GetNodesAsync([Required] string category, [Required] long TreeId);
-
+        Task<List<EvalNodeTreeDto>> GetEvalTreeAsync(long taskId);
         Task<EvalNodeTreeDto> GetNodeDetailAsync([FromQuery] string category, [FromQuery] long id);
 
         Task<List<EvalSystemListDto>> GetSystemListAsync([Required] string category);

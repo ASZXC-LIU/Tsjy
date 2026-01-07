@@ -38,7 +38,10 @@ public class HistoryService : IHistoryService, ITransient, IScoped
                     select new ChartDataDto
                     {
                         Label = b.Name,
-                        Score = t.FinalScore.Value
+                        Score = t.FinalScore.Value,
+                        TaskId = t.Id,
+                        BatchName = b.Name,
+                        EvalDate = b.ReviewEnd
                     };
 
         return await query.ToListAsync();

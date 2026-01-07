@@ -5,12 +5,13 @@ using Furion.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tsjy.Application.System.Dtos;
+using Tsjy.Application.System.IService;
 using Tsjy.Core.Entities;
 using Tsjy.Core.Enums;
 
 namespace Tsjy.Application.System.Service
 {
-    public class TaskService : IDynamicApiController, ITransient, IScoped
+    public class TaskService : IDynamicApiController, ITransient, IScoped, ITaskService
     {
         private readonly IRepository<DistributionBatch> _batchRepo;
         private readonly IRepository<Tasks> _taskRepo;

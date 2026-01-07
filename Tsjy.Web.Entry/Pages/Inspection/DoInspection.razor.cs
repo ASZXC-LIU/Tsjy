@@ -7,7 +7,7 @@ using Tsjy.Application.System.Dtos;
 using Tsjy.Application.System.Dtos.InspectionDtos;
 using Tsjy.Application.System.IService;
 using Tsjy.Application.System.Service;
-
+using Tsjy.Core.Enums;
 namespace Tsjy.Web.Entry.Pages.Inspection;
 
 public partial class DoInspection
@@ -17,7 +17,7 @@ public partial class DoInspection
 
     [Inject] private IEvalNodeService NodeService { get; set; }
     [Inject] private IInspectionService InspectionService { get; set; }
-    [Inject] private IFileService FileService { get; set; } // 用于物理上传文件
+    [Inject] private FileService FileService { get; set; } // 用于物理上传文件
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; }
     [Inject] private MessageService MessageService { get; set; }
 
@@ -34,6 +34,7 @@ public partial class DoInspection
         // 加载指标树
         // 假设 NodeService 有 GetEvalTreeAsync 方法
         var nodes = await NodeService.GetEvalTreeAsync(TaskId);
+
         TreeItems = ConvertToTreeItems(nodes);
     }
 
@@ -51,7 +52,7 @@ public partial class DoInspection
     {
         var node = item.Value;
         // 只有 Points 类型才允许操作
-        if (node.Type == Core.Enums.EvalNodeType.Points)
+        if (node.Type == EvalNodeType.Points)
         {
             CurrentNode = node;
             // 加载已保存的数据 (基于 ScheduleId + NodeId)
@@ -68,21 +69,48 @@ public partial class DoInspection
     {
         if (CurrentNode == null) return;
 
+        // 设置最大上传大小 (与 FileService.cs 中的 MaxSize 保持一致或更小)
+        long maxFileSize = 20 * 1024 * 1024; // 20MB
+
         foreach (var file in e.GetMultipleFiles())
         {
-            // 1. 调用 FileService 将文件物理保存到服务器
-            // 假设 UploadEvidenceAsync 返回文件的相对路径 URL
-            // 注意：这里我们不需要像学校那样生成 Evidence 表记录，或者我们可以生成但不需要 Audit 流程
-            // 简单起见，利用现有的 FileService 存文件并拿回 URL
-            var url = await FileService.UploadFileOnlyAsync(file, "inspections");
-
-            // 2. 添加到当前页面的列表
-            if (!string.IsNullOrEmpty(url))
+            try
             {
-                LogModel.FileUrls.Add(url);
+                // 1. 打开文件流
+                // 注意：Blazor 的 OpenReadStream 需要指定最大允许大小，否则超过默认值(512KB)会报错
+                using var stream = file.OpenReadStream(maxFileSize);
+
+                // 2. 调用 FileService 中已有的正确方法
+                // 参数：流, 文件名, 任务ID, 节点ID (用于生成存储路径 uploads/evidences/{TaskId}/{NodeId})
+                var url = await FileService.SaveEvidenceFromBrowserFile(
+                    stream,
+                    file.Name,
+                    TaskId,
+                    CurrentNode.Id
+                );
+
+                // 3. 添加到当前页面的列表
+                if (!string.IsNullOrEmpty(url))
+                {
+                    LogModel.FileUrls.Add(url);
+                }
+            }
+            catch (Exception ex)
+            {
+                // 建议：处理文件过大或非PDF的异常提示
+                await MessageService.Show(new MessageOption
+                {
+                    Content = $"上传失败: {ex.Message}",
+                    Color = Color.Danger
+                });
             }
         }
-        await MessageService.Show(new MessageOption { Content = "文件已添加，请记得点击保存", Color = Color.Success });
+
+        // 只有在成功添加文件后才提示成功
+        if (LogModel.FileUrls.Count > 0)
+        {
+            await MessageService.Show(new MessageOption { Content = "文件已添加，请记得点击保存", Color = Color.Success });
+        }
     }
 
     private void RemoveFile(string url)

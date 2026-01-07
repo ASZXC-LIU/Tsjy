@@ -276,6 +276,7 @@ namespace Tsjy.Application.System.Service
                 var claims = new List<Claim>()
         {
             new Claim(ClaimTypes.Sid, user.IDNumber ?? "", ClaimValueTypes.String),
+            new Claim(ClaimTypes.Name, user.RealName ?? "", ClaimValueTypes.String),
             new Claim(ClaimTypes.GivenName, user.UserName ?? "", ClaimValueTypes.String),
             new Claim(ClaimTypes.Role, user.Role.ToString(), ClaimValueTypes.String),
             // ★★★ 关键修复：添加 OrgId claim ★★★
@@ -301,6 +302,7 @@ namespace Tsjy.Application.System.Service
                 var tokenDict = new Dictionary<string, object>
         {
             { ClaimTypes.Sid, user.IDNumber ?? "" },
+            { ClaimTypes.Name, user.RealName ?? "" },
             { ClaimTypes.GivenName, user.UserName ?? "" },
             { ClaimTypes.Role, user.Role.ToString() },
             { "OrgId", user.OrgId ?? "" } // Token 也加上
@@ -316,6 +318,7 @@ namespace Tsjy.Application.System.Service
                 result.userId = user.IDNumber;
                 result.Role = user.Role.ToString();
                 result.UserName = user.UserName;
+
                 return result;
             }
         }

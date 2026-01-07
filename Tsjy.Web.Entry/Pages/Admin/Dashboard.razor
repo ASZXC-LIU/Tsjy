@@ -1,0 +1,209 @@
+﻿@page "/Admin/Dashboard"
+@using Tsjy.Application.System.Dtos.BatchDtos
+@using Tsjy.Core.Enums
+@using Microsoft.AspNetCore.Authorization
+@* 限制只有管理员可以访问 *@
+@attribute [Authorize(Roles = "Admin,SuperAdmin")]
+
+<div class="dashboard-container fade-in p-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">管理驾驶舱</h2>
+            <p class="text-muted mb-0">全系统运行状态监控与控制中心</p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-light text-dark border p-2">
+                <i class="fa-regular fa-calendar me-1"></i> @DateTime.Now.ToString("yyyy年MM月dd日 dddd")
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-3">
+            <a href="/Admin/BatchManagement" class="quick-action-card action-blue text-decoration-none">
+                <div class="icon-box"><i class="fa-solid fa-plus"></i></div>
+                <div class="action-title">新建评价批次</div>
+                <div class="action-desc">发起新的考核任务</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="/Admin/UserList" class="quick-action-card action-purple text-decoration-none">
+                <div class="icon-box"><i class="fa-solid fa-users-gear"></i></div>
+                <div class="action-title">用户与权限</div>
+                <div class="action-desc">管理账号与角色</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="/Admin/EvalSystemList" class="quick-action-card action-teal text-decoration-none">
+                <div class="icon-box"><i class="fa-solid fa-sitemap"></i></div>
+                <div class="action-title">指标体系维护</div>
+                <div class="action-desc">调整评价标准</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="Admin/BatchManagement" class="quick-action-card action-orange text-decoration-none">
+                <div class="icon-box"><i class="fa-solid fa-chart-pie"></i></div>
+                <div class="action-title">全局数据报表</div>
+                <div class="action-desc">查看统计分析</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 border-bottom-0">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold fs-5">
+                    <i class="fa-solid fa-satellite-dish me-2 text-success"></i>进行中任务监控
+                </span>
+                <a href="/Admin/BatchManagement" class="btn btn-sm btn-light text-primary">
+                    查看全部 <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            @if (ActiveBatches.Any())
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var batch in ActiveBatches)
+                    {
+                        <div class="list-group-item py-4 px-4 border-bottom action-row">
+                            <div class="row align-items-center">
+                                <div class="col-12 col-lg-4 mb-3 mb-lg-0">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h5 class="fw-bold mb-0 me-2 text-primary">@batch.Name</h5>
+                                        @if (batch.IsDeleted)
+                                        {
+                                            <span class="badge bg-secondary">已禁用</span>
+                                        }
+                                    </div>
+                                    <div class="text-muted small">
+                                        <span class="me-3"><i class="fa-regular fa-building me-1"></i>覆盖 @batch.OrgCount 家单位</span>
+                                        <span><i class="fa-solid fa-tag me-1"></i>@GetTargetTypeName(batch.TargetType)</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-5 mb-3 mb-lg-0">
+                                    @{
+                                        var progress = CalculateTimeProgress(batch);
+                                        var progressColor = progress >= 100 ? "bg-secondary" : (progress > 80 ? "bg-warning" : "bg-success");
+                                    }
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span class="text-muted">@GetStatusText(batch)</span>
+                                        <span class="fw-bold">@progress%</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px; background-color: #e9ecef;">
+                                        <div class="progress-bar @progressColor" role="progressbar" style="width: @progress%"
+                                             aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1 text-muted extra-small">
+                                        <span>Start: @(batch.UploadStart?.ToString("MM-dd") ?? "-")</span>
+                                        <span>Due: @(batch.InspectionEnd?.ToString("MM-dd") ?? "-")</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-3 text-lg-end">
+                                    <a href="/Admin/BatchManagement" class="btn btn-outline-primary rounded-pill px-4">
+                                        进入管控
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted">
+                    <div class="mb-3 opacity-50">
+                        <i class="fa-solid fa-clipboard-check fa-4x"></i>
+                    </div>
+                    <h5>暂无进行中的任务</h5>
+                    <p class="mb-3">您可以点击上方按钮新建一个评价批次。</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .extra-small {
+        font-size: 0.75rem;
+    }
+
+    /* Quick Actions */
+    .quick-action-card {
+        display: block;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        text-align: center;
+        border: 1px solid rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+        .quick-action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            border-color: transparent;
+        }
+
+    .icon-box {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 15px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+    }
+
+    .action-blue .icon-box {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    }
+
+    .action-purple .icon-box {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+    }
+
+    .action-teal .icon-box {
+        background: linear-gradient(135deg, #14b8a6, #0d9488);
+        box-shadow: 0 4px 10px rgba(13, 148, 136, 0.3);
+    }
+
+    .action-orange .icon-box {
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);
+    }
+
+    .action-title {
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 4px;
+        font-size: 1.1rem;
+    }
+
+    .action-desc {
+        color: #9ca3af;
+        font-size: 0.9rem;
+    }
+
+    /* List Item Hover */
+    .action-row {
+        transition: background-color 0.2s;
+    }
+
+        .action-row:hover {
+            background-color: #f8fafc;
+        }
+</style>
